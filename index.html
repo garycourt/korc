@@ -1,0 +1,438 @@
+<html>
+<head>
+	<script type="text/javascript">
+/*
+Tank = {
+	mass_empty : 0,  // kg
+	mass_full : 0,  // kg
+}
+
+Engine = {
+	mass : 0,  // kg
+	thrust : 0,  // N
+	isp_vac : 0,  // s
+	isp_atm : 0,  // s
+	radial : false  // boolean
+}
+
+Planet = {
+	gravity : 0  // m/s^2
+}
+
+Stage = {
+	payload : 0,  // kg
+	parts : [],  // Part
+	tanks : [],  // Tank
+	engines : [],  // Engine
+	boosters : [],  // Booster
+	next : null,  // Stage
+	parallel : false,  //boolean
+	asparagus : false  // boolean
+}
+*/
+
+var EARTH_GRAVITY = 9.81;  // m/s^2
+
+function pluckNumber(key, obj) {
+	return +obj[key] || 0;
+}
+
+function sum(a, b) {
+	return a + b;
+}
+
+var KSP = {
+	Parts : {
+		unique : function (parts) {
+			var map = {};
+			for (var x = 0, xl = parts.length; x < xl; ++x) {
+				if (map[parts[x].name]) map[parts[x].name]++;
+				else map[parts[x].name] = 1;
+			}
+			return map;
+		},
+		
+		humanize : function (parts) {
+			var strBuild = [];
+			var uniqueParts = KSP.Parts.unique(parts);
+			for (var name in uniqueParts) {
+				strBuild.push(name + " x" + uniqueParts[name]);
+			}
+			return strBuild.join(", ");
+		}
+	},
+	
+	Engine : {
+		//Engine fuel consumption at specified atmospheric pressure (kg/s)
+		consumption : function (atm, engine) {
+			return engine.thrust / ((engine.isp_vac * EARTH_GRAVITY) - ((engine.isp_vac - engine.isp_atm) * EARTH_GRAVITY * (atm || 0)));
+		},
+		
+		//Engine fuel consumption in vacuum (kg/s)
+		consumptionVac : function (engine) {
+			return engine.thrust / (engine.isp_vac * EARTH_GRAVITY);
+		},
+		
+		//Engine fuel consumption in atmosphere (kg/s)
+		consumptionAtm : function (engine) {
+			return engine.thrust / (engine.isp_atm * EARTH_GRAVITY);
+		}
+	},
+	
+	Stage : {
+		//Thrust of all engines (N)
+		thrust : function (stage) {
+			return (stage.engines ? stage.engines.map(pluckNumber.bind(this, "thrust")).reduce(sum, 0) : 0) + 
+				(stage.boosters ? stage.boosters.map(pluckNumber.bind(this, "thrust")).reduce(sum, 0) : 0) +
+				(stage.parallel ? KSP.Stage.thrust(stage.next) : 0);
+		},
+		
+		//Mass at start of burn (kg)
+		massStart : function (stage) {
+			return (stage.payload || 0) + 
+				(stage.parts ? stage.parts.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
+				(stage.tanks ? stage.tanks.map(pluckNumber.bind(this, "mass_full")).reduce(sum, 0) : 0) + 
+				(stage.engines ? stage.engines.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
+				(stage.boosters ? stage.boosters.map(pluckNumber.bind(this, "mass_full")).reduce(sum, 0) : 0) +
+				(stage.next ? KSP.Stage.massStart(stage.next) : 0);
+		},
+		
+		//Mass at end of burn (kg)
+		massEnd : function (stage) {
+			if (stage.parallel && !stage.asparagus) throw new Error("Parallel staging (without asparagus) is not yet supported.");
+			return (stage.payload || 0) + 
+				(stage.parts ? stage.parts.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
+				(stage.tanks ? stage.tanks.map(pluckNumber.bind(this, "mass_empty")).reduce(sum, 0) : 0) + 
+				(stage.engines ? stage.engines.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
+				(stage.boosters ? stage.boosters.map(pluckNumber.bind(this, "mass_empty")).reduce(sum, 0) : 0) +
+				(stage.next ? KSP.Stage.massStart(stage.next) : 0);
+		},
+		
+		//Thrust-to-Weight Ratio
+		twr : function (stage, planet) {
+			return KSP.Stage.thrust(stage) / (KSP.Stage.massStart(stage) * planet.gravity);
+		},
+		
+		//Total stage fuel consumption at specified atmospheric pressure (kg/s)
+		consumption : function (stage, atm) {
+			return (stage.engines ? stage.engines.map(KSP.Engine.consumption.bind(this, atm)).reduce(sum, 0) : 0) + 
+				(stage.boosters ? stage.boosters.map(KSP.Engine.consumption.bind(this, atm)).reduce(sum, 0) : 0) +
+				(stage.parallel ? KSP.Stage.consumption(stage.next, atm) : 0);
+		},
+		
+		//Combined specific impulse at atmospheric pressure (m/s)
+		impulse : function (stage, atm) {
+			return KSP.Stage.thrust(stage) / 
+				KSP.Stage.consumption(stage, atm);
+		},
+		
+		//Delta-V at atmospheric pressure (m/s^2)
+		deltaV : function (stage, atm) {
+			return Math.log(KSP.Stage.massStart(stage) / KSP.Stage.massEnd(stage)) * KSP.Stage.impulse(stage, atm);
+		},
+		
+		humanize : function (stage, planet, atm) {
+			var strBuild = [];
+			if (stage.payload) strBuild.push("Payload: " + stage.payload + "kg");
+			if (stage.engines && stage.engines.length) strBuild.push("Engines: " + KSP.Parts.humanize(stage.engines));
+			if (stage.tanks && stage.tanks.length) strBuild.push("LF/O Tanks: " + KSP.Parts.humanize(stage.tanks));
+			if (stage.boosters && stage.boosters.length) strBuild.push("Boosters: " + KSP.Parts.humanize(stage.boosters));
+			if (stage.parts && stage.parts.length) strBuild.push("Parts: " + KSP.Parts.humanize(stage.parts));
+			if ((stage.engines && stage.engines.length) || (stage.boosters && stage.boosters.length)) {
+				if (typeof atm === "number") strBuild.push("Delta-V: " + Math.round(KSP.Stage.deltaV(stage, atm)));
+				if (planet) strBuild.push("TWR: " + KSP.Stage.twr(stage, planet).toFixed(2));
+			}
+			if (stage.parallel) {
+				if (stage.asparagus) strBuild.push("ASPARAGUS");
+				else strBuild.push("PARALLEL");
+			}
+			return (stage.next ? KSP.Stage.humanize(stage.next, planet, atm) + "\n" : "") + strBuild.join("; ");
+		}
+	}
+}
+
+var StackDecoupler = {name:"TR-18A Stack Decoupler", mass:60};
+var RadialDecoupler = {name:"TT-38K Radial Decoupler", mass:25, radial:true};
+var FuelDuct = {name:"FTX-2 External Fuel Duct", mass:50, radial:true};
+
+var Tanks = [
+	{name:"Rockomax Jumbo-64 Fuel Tank", mass_full:36000, mass_empty:4000},
+	{name:"Rockomax X200-32 Fuel Tank", mass_full:18000, mass_empty:2000},
+	{name:"Rockomax X200-16 Fuel Tank", mass_full:9000, mass_empty:1000},
+	{name:"Rockomax X200-8 Fuel Tank", mass_full:4500, mass_empty:500},
+	{name:"FL-T800 Fuel Tank", mass_full:4500, mass_empty:500},
+	{name:"FL-T400 Fuel Tank", mass_full:2250, mass_empty:250},
+	{name:"FL-T200 Fuel Tank", mass_full:1125, mass_empty:125},
+	{name:"FL-T100 Fuel Tank", mass_full:562.5, mass_empty:62.5},
+	{name:"ROUND-8 Toroidal Fuel Tank", mass_full:136, mass_empty:25},
+	{name:"Oscar-B Fuel Tank", mass_full:78.675, mass_empty:15}
+];
+
+var Engines = [
+	{name:"LV-N Atomic Rocket Motor", mass:2250, thrust:60000, isp_vac:800, isp_atm:220},
+	{name:"Rockomax 'Skipper' Liquid Engine", mass:4000, thrust:650000, isp_vac:350, isp_atm:300},
+	{name:"Rockomax 'Mainsail' Liquid Engine", mass:6000, thrust:1500000, isp_vac:330, isp_atm:280},
+	{name:"Rockomax 'Poodle' Liquid Engine", mass:2500, thrust:220000, isp_vac:390, isp_atm:270},
+	{name:"Toroidal Aerospike Rocket", mass:1500, thrust:175000, isp_vac:390, isp_atm:388},
+	{name:"LV-909 Liquid Fuel Engine", mass:500, thrust:50000, isp_vac:390, isp_atm:300},
+	{name:"LV-T45 Liquid Fuel Engine", mass:1500, thrust:200000, isp_vac:370, isp_atm:320},
+	{name:"LV-T30 Liquid Fuel Engine", mass:1250, thrust:215000, isp_vac:370, isp_atm:320},
+	{name:"Rockomax 48-7S", mass:100, thrust:30000, isp_vac:350, isp_atm:300},
+	{name:"LV-1 Liquid Fuel Engine", mass:30, thrust:1500, isp_vac:290, isp_atm:220},
+	{name:"Rockomax Mark 55 Radial Mount Liquid Engine", mass:900, thrust:120000, isp_vac:320, isp_atm:290, radial:true},
+	{name:"Rockomax 24-77", mass:90, thrust:20000, isp_vac:300, isp_atm:250, radial:true},
+	{name:"LV-1R Liquid Fuel Engine", mass:30, thrust:1500, isp_vac:290, isp_atm:220, radial:true},
+	{name:"None", mass:0, thrust:0, isp_vac:0, isp_atm:0}
+];
+
+var Boosters = [
+	{name:"Rockomax BACC Solid Fuel Booster", mass_full:7875, mass_empty:1500, thrust:315000, isp_vac:250, isp_atm:230},
+	{name:"RT-10 Solid Fuel Booster", mass_full:3747.5, mass_empty:500, thrust:250000, isp_vac:240, isp_atm:225},
+	{name:"Sepratron I", mass_full:72.5, mass_empty:12.5, thrust:18000, isp_vac:100, isp_atm:100, radial:true}
+];
+
+var Planets = {
+	Moho : {name:"Moho", gravity:2.70},
+	Eve : {name:"Eve", gravity:16.7},
+	Gilly : {name:"Gilly", gravity:0.049},
+	Kerbin : {name:"Kerbin", gravity:9.82},
+	Mun : {name:"Mun", gravity:1.63},
+	Minmus : {name:"Minmus", gravity:0.491},
+	Duna : {name:"Duna", gravity:2.94},
+	Ike : {name:"Ike", gravity:1.10},
+	Dres : {name:"Dres", gravity:1.13},
+	Jool : {name:"Jool", gravity:7.85},
+	Laythe : {name:"Laythe", gravity:7.85},
+	Vall : {name:"Vall", gravity:2.31},
+	Tylo : {name:"Tylo", gravity:7.85},
+	Bop : {name:"Bop", gravity:0.589},
+	Pol : {name:"Pol", gravity:0.373},
+	Eeloo : {name:"Eeloo", gravity:1.69}
+};
+
+var testStage = {
+	payload : 100,
+	tanks : [Tanks[0]],
+	engines : [Engines[0]],
+	boosters : []
+};
+
+//console.log("Vacuum Delta-V:" + KSP.Stage.deltaV(testStage,0) + ", TWR:" + KSP.Stage.twr(testStage, Planets.Kerbin));
+//console.log("Atmosphere Delta-V:" + KSP.Stage.deltaV(testStage,1) + ", TWR:" + KSP.Stage.twr(testStage, Planets.Kerbin));
+console.log("Vacuum " + KSP.Stage.humanize(testStage, Planets.Kerbin, 0));
+console.log("Atmosphere " + KSP.Stage.humanize(testStage, Planets.Kerbin, 1));
+
+function findMassOptimalEngine(next, asparagus, dV, planet, twr, atm) {
+	asparagus = (next.engines && next.engines.length ? !!asparagus : false);  //can only asparagus if next stage has engines (not boosters)
+	twr = twr || 0;
+	atm = (typeof atm === "number" ? atm : (twr ? 1 : 0));
+	var parallel = !!asparagus;  //TODO
+	
+	var bestStage = null;
+	var bestMass = Infinity;
+	
+	//each asparagus stage must have two engines, or the same # of engines (if greater), as the next stage (simplifies design)
+	var engineMultiplier = (parallel && next.engines ? Math.max(next.engines.length, 2) : 1);
+	
+	var stage = {
+		payload : 0,
+		parts : [],
+		tanks : [],
+		engines : [],
+		boosters : [],
+		next : next,
+		parallel : !!parallel,
+		asparagus : !!asparagus
+	};
+	nextEngine: for (var e = 0, el = Engines.length; e < el; ++e) {
+		var engine = Engines[e];
+		stage.engines = [];
+		stage.parts = [];
+		var maxEngineCount = (engine.thrust ? (engine.radial ? 16 : 8) : 1);
+		nextEngineCount: for (var ec = engineMultiplier; ec <= maxEngineCount; ec += engineMultiplier) {
+			//remove stack decoupler for radial decouplers
+			if (stage.parts.length === 1 && stage.parts[0] === StackDecoupler) stage.parts = [];
+			
+			//add engine x multipler
+			for (var x = 0; x < engineMultiplier; ++x) {
+				stage.engines.push(engine);
+				if (!engine.radial || ec === engineMultiplier) {
+					//add decouplers
+					if (ec === 1 && engineMultiplier === 1) stage.parts.push(StackDecoupler);
+					else stage.parts.push(RadialDecoupler);
+					
+					//add fuel ducts for asparagus staging
+					if (asparagus) stage.parts.push(FuelDuct);
+				}
+			}
+			
+			stage.tanks = [];
+			nextTank: for (var t = 0, tl = Tanks.length; t < tl; ++t) {
+				var tank = Tanks[t];
+				var diff = (t === 0 ? 8 : Math.ceil((Tanks[t-1].mass_full - Tanks[t-1].mass_empty) / (tank.mass_full - tank.mass_empty)));
+				nextTankCount: for (var tc = 1; tc < diff; ++tc) {
+					//fuel tanks must balance with number of engines, unless engines are radial
+					if (engine.radial) {
+						for (var x = 0; x < engineMultiplier; ++x) {
+							stage.tanks.push(tank);
+						}
+					} else {
+						for (var x = 0; x < ec; ++x) {
+							stage.tanks.push(tank);
+						}
+					}
+					
+					if (planet && twr && KSP.Stage.twr(stage, planet) < twr) {
+						continue nextTankCount;
+					} else if (KSP.Stage.deltaV(stage, atm) >= dV) {
+						var mass = KSP.Stage.massStart(stage);
+						
+						if (mass < bestMass) {
+							bestStage = {
+								payload : stage.payload,
+								parts : stage.parts.slice(),
+								tanks : stage.tanks.slice(),
+								engines : stage.engines.slice(),
+								boosters : stage.boosters.slice(),
+								next : stage.next,
+								parallel : stage.parallel,
+								asparagus : stage.asparagus
+							};
+							bestMass = mass;
+						}
+						
+						if (engine.radial) {
+							for (var x = 0; x < engineMultiplier; ++x) {
+								stage.tanks.pop();
+							}
+						} else {
+							for (var x = 0; x < ec; ++x) {
+								stage.tanks.pop();
+							}
+						}
+						
+						continue nextTank;
+					}
+				}
+			}
+		}
+	}
+	
+	stage = {
+		payload : 0,
+		parts : [],
+		tanks : [],
+		engines : [],
+		boosters : [],
+		next : next,
+		parallel : false,  //not yet supported
+		asparagus : false  //boosters can't share fuel
+	};
+	nextBooster: for (var b = 0, bl = Boosters.length; b < bl; ++b) {
+		var booster = Boosters[b];
+		stage.boosters = [];
+		stage.parts = [];
+		nextBoosterCount: for (var bc = engineMultiplier; bc <= 16; bc += engineMultiplier) {
+			//remove stack decoupler for radial decouplers
+			if (stage.parts.length === 1 && stage.parts[0] === StackDecoupler) stage.parts = [];
+			
+			for (var x = 0; x < engineMultiplier; ++x) {
+				stage.boosters.push(booster);
+				
+				//add decouplers
+				if (bc === 1 && engineMultiplier === 1) stage.parts.push(StackDecoupler);
+				else stage.parts.push(RadialDecoupler);
+			}
+			
+			if (planet && twr && KSP.Stage.twr(stage, planet) < twr) {
+				continue nextBoosterCount;
+			} else if (KSP.Stage.deltaV(stage, atm) >= dV) {
+				var mass = KSP.Stage.massStart(stage);
+				
+				if (mass < bestMass) {
+					bestStage = {
+						payload : stage.payload,
+						parts : stage.parts.slice(),
+						tanks : stage.tanks.slice(),
+						engines : stage.engines.slice(),
+						boosters : stage.boosters.slice(),
+						next : stage.next,
+						parallel : stage.parallel,
+						asparagus : stage.asparagus
+					};
+					bestMass = mass;
+				}
+				
+				continue nextBooster;
+			}
+		}
+	}
+	
+	return bestStage;
+}
+
+function findRandomMassOptimalStaging(next, asparagus, limit, useAsparagus, dV, planet, twr, atm) {
+	limit = Math.min(limit, 5);
+	var randomSolution = null;
+	var firstDV = Math.round(dV * Math.random());
+	var secondDV = dV - firstDV;
+	var firstStage = findMassOptimalEngine(next, asparagus, firstDV, planet, twr, atm);
+	if (firstStage) {
+		var secondStage = findMassOptimalEngine(firstStage, useAsparagus, secondDV, planet, twr, atm);
+		var secondStageMass = (secondStage ? KSP.Stage.massStart(secondStage) : NaN);
+		var tryAnotherStage = (limit > 2);
+		var nextStage = null;
+		var nextStageMass = NaN;
+		
+		if (tryAnotherStage) {
+			nextStage = findRandomMassOptimalStaging(firstStage, useAsparagus, limit-1, useAsparagus, secondDV, planet, twr, atm);
+			if (nextStage) {
+				nextStageMass = KSP.Stage.massStart(nextStage);
+			}
+		}
+		
+		if (secondStage && (!nextStage || secondStageMass < nextStageMass)) {
+			randomSolution = secondStage;
+		} else if (nextStage) {
+			randomSolution = nextStage;
+		}
+	}
+	return randomSolution;
+}
+
+var bestStaging = null;
+var bestStagingMass = Infinity;
+var bestStagingCount = 0;
+var bestStagingTimer = 0;
+
+function findBestMassOptimalStaging(next, limit, asparagus, dV, planet, twr, atm) {
+	clearTimeout(bestStagingTimer);
+	
+	var singleStage = findMassOptimalEngine(next, false, dV, planet, twr, atm);
+	if (singleStage) {
+		bestStaging = singleStage;
+		bestStagingMass = KSP.Stage.massStart(singleStage);
+		
+		console.log("Attempt #0 (Mass: " + Math.round(bestStagingMass) + "kg):\n" + KSP.Stage.humanize(bestStaging, planet, atm));
+	}
+	
+	bestStagingCount = 0;
+	bestStagingTimer = setInterval(function () {
+		bestStagingCount++;
+		var stages = findRandomMassOptimalStaging(next, false, limit, asparagus, dV, planet, twr, atm);
+		if (stages) {
+			var stagesMass = KSP.Stage.massStart(stages);
+			if (stagesMass < bestStagingMass) {
+				bestStaging = stages;
+				bestStagingMass = stagesMass;
+				
+				console.log("Attempt #" + bestStagingCount + " (Mass: " + Math.round(bestStagingMass) + "kg):\n" + KSP.Stage.humanize(bestStaging, planet, atm));
+			}
+		}
+	}, 500);
+}
+
+	</script>
+</head>
+<body></body>
+</html>

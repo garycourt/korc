@@ -1,0 +1,338 @@
+<!doctype html>
+<html ng-app>
+<head>
+	<style type="text/css">
+
+.partList .partList {
+	padding-left: 24px;
+}
+
+	</style>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.6/angular.min.js"></script>
+	<script type="text/javascript">
+
+var PLANETS = [
+    {name:"None", gravity:0},
+	{name:"Moho", gravity:2.70},
+	{name:"Eve", gravity:16.7},
+	{name:"Gilly", gravity:0.049},
+	{name:"Kerbin", gravity:9.82},
+	{name:"Mun", gravity:1.63},
+	{name:"Minmus", gravity:0.491},
+	{name:"Duna", gravity:2.94},
+	{name:"Ike", gravity:1.10},
+	{name:"Dres", gravity:1.13},
+	{name:"Jool", gravity:7.85},
+	{name:"Laythe", gravity:7.85},
+	{name:"Vall", gravity:2.31},
+	{name:"Tylo", gravity:7.85},
+	{name:"Bop", gravity:0.589},
+	{name:"Pol", gravity:0.373},
+	{name:"Eeloo", gravity:1.69}
+];
+
+var PACKS = [
+	{
+		name:"Stock", 
+		engines:{
+			name:"Engines", 
+			parts:[
+				{name:"LV-N Atomic Rocket Motor", mass:2250, thrust:60000, isp_vac:800, isp_atm:220},
+				{name:"Rockomax 'Skipper' Liquid Engine", mass:4000, thrust:650000, isp_vac:350, isp_atm:300},
+				{name:"Rockomax 'Mainsail' Liquid Engine", mass:6000, thrust:1500000, isp_vac:330, isp_atm:280},
+				{name:"Rockomax 'Poodle' Liquid Engine", mass:2500, thrust:220000, isp_vac:390, isp_atm:270},
+				{name:"Toroidal Aerospike Rocket", mass:1500, thrust:175000, isp_vac:390, isp_atm:388},
+				{name:"LV-909 Liquid Fuel Engine", mass:500, thrust:50000, isp_vac:390, isp_atm:300},
+				{name:"LV-T45 Liquid Fuel Engine", mass:1500, thrust:200000, isp_vac:370, isp_atm:320},
+				{name:"LV-T30 Liquid Fuel Engine", mass:1250, thrust:215000, isp_vac:370, isp_atm:320},
+				{name:"Rockomax 48-7S", mass:100, thrust:30000, isp_vac:350, isp_atm:300},
+				{name:"LV-1 Liquid Fuel Engine", mass:30, thrust:1500, isp_vac:290, isp_atm:220},
+				{name:"Rockomax Mark 55 Radial Mount Liquid Engine", mass:900, thrust:120000, isp_vac:320, isp_atm:290, radial:true},
+				{name:"Rockomax 24-77", mass:90, thrust:20000, isp_vac:300, isp_atm:250, radial:true},
+				{name:"LV-1R Liquid Fuel Engine", mass:30, thrust:1500, isp_vac:290, isp_atm:220, radial:true}
+			]
+		},
+		tanks:{
+			name:"Tanks",
+			parts:[
+				{name:"Rockomax Jumbo-64 Fuel Tank", mass:4000, mass_fuel:32000},
+				{name:"Rockomax X200-32 Fuel Tank", mass:2000, mass_fuel:16000},
+				{name:"Rockomax X200-16 Fuel Tank", mass:1000, mass_fuel:8000},
+				{name:"Rockomax X200-8 Fuel Tank", mass:500, mass_fuel:4000},
+				{name:"FL-T800 Fuel Tank", mass:500, mass_fuel:4000},
+				{name:"FL-T400 Fuel Tank", mass:250, mass_fuel:2000},
+				{name:"FL-T200 Fuel Tank", mass:125, mass_fuel:1000},
+				{name:"FL-T100 Fuel Tank", mass:62.5, mass_fuel:500},
+				{name:"ROUND-8 Toroidal Fuel Tank", mass:25, mass_fuel:111},
+				{name:"Oscar-B Fuel Tank", mass:15, mass_fuel:63.675}
+			]
+		},
+		boosters:{
+			name:"Boosters",
+			parts:[
+				{name:"Rockomax BACC Solid Fuel Booster", mass:1500, mass_fuel:6375, thrust:315000, isp_vac:250, isp_atm:230},
+				{name:"RT-10 Solid Fuel Booster", mass:500, mass_fuel:3247.5, thrust:250000, isp_vac:240, isp_atm:225},
+				{name:"Sepratron I", mass:12.5, mass_fuel:60, thrust:18000, isp_vac:100, isp_atm:100, radial:true}
+			]
+		},
+		decouplers:{
+			name:"Decouplers",
+			parts:[]
+		}
+	}
+];
+
+var FUEL_DUCT = {name:"FTX-2 External Fuel Duct", mass:50, radial:true};
+
+var EARTH_GRAVITY = 9.81;  // m/s^2
+
+function pluckNumber(key, obj) {
+	return +obj[key] || 0;
+}
+
+function sum(a, b) {
+	return a + b;
+}
+
+var KSP = {
+	Parts : {
+		countUnique : function (parts) {
+			var map = {};
+			for (var x = 0, xl = parts.length; x < xl; ++x) {
+				if (map[parts[x].name]) map[parts[x].name]++;
+				else map[parts[x].name] = 1;
+			}
+			return map;
+		},
+		
+		humanize : function (parts) {
+			var strBuild = [];
+			var uniqueParts = KSP.Parts.countUnique(parts);
+			for (var name in uniqueParts) {
+				strBuild.push(name + " x" + uniqueParts[name]);
+			}
+			return strBuild.join(", ");
+		}
+	},
+	
+	Engine : {
+		//Engine fuel consumption at specified atmospheric pressure (kg/s)
+		consumption : function (atm, engine) {
+			atm = Math.min(Math.max(atm, 0), 1);  //Atmospheric pressure's affect on engines maxes out at 1 (TODO: Confirm this)
+			return engine.thrust / ((engine.isp_vac * EARTH_GRAVITY) - ((engine.isp_vac - engine.isp_atm) * EARTH_GRAVITY * (atm || 0)));
+		},
+		
+		//Engine fuel consumption in vacuum (kg/s)
+		consumptionVac : function (engine) {
+			return engine.thrust / (engine.isp_vac * EARTH_GRAVITY);
+		},
+		
+		//Engine fuel consumption in atmosphere (kg/s)
+		consumptionAtm : function (engine) {
+			return engine.thrust / (engine.isp_atm * EARTH_GRAVITY);
+		}
+	},
+	
+	Stage : {
+		//Thrust of all engines (N)
+		thrust : function (stage) {
+			return (stage.engines ? stage.engines.map(pluckNumber.bind(this, "thrust")).reduce(sum, 0) : 0) + 
+				(stage.boosters ? stage.boosters.map(pluckNumber.bind(this, "thrust")).reduce(sum, 0) : 0) +
+				(stage.parallel ? KSP.Stage.thrust(stage.next) : 0);
+		},
+		
+		//Mass at start of burn (kg)
+		massStart : function (stage) {
+			return (stage.payload || 0) + 
+				(stage.parts ? stage.parts.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
+				(stage.tanks ? stage.tanks.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) + stage.tanks.map(pluckNumber.bind(this, "mass_fuel")).reduce(sum, 0) : 0) + 
+				(stage.engines ? stage.engines.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
+				(stage.boosters ? stage.boosters.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) + stage.boosters.map(pluckNumber.bind(this, "mass_fuel")).reduce(sum, 0) : 0) +
+				(stage.next ? KSP.Stage.massStart(stage.next) : 0);
+		},
+		
+		//Mass at end of burn (kg)
+		massEnd : function (stage) {
+			if (stage.parallel && !stage.asparagus) throw new Error("Parallel staging (without asparagus) is not yet supported.");
+			return (stage.payload || 0) + 
+				(stage.parts ? stage.parts.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
+				(stage.tanks ? stage.tanks.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) + 
+				(stage.engines ? stage.engines.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
+				(stage.boosters ? stage.boosters.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
+				(stage.next ? KSP.Stage.massStart(stage.next) : 0);
+		},
+		
+		//Thrust-to-Weight Ratio
+		twr : function (stage, planet) {
+			return KSP.Stage.thrust(stage) / (KSP.Stage.massStart(stage) * planet.gravity);
+		},
+		
+		//Total stage fuel consumption at specified atmospheric pressure (kg/s)
+		consumption : function (stage, atm) {
+			return (stage.engines ? stage.engines.map(KSP.Engine.consumption.bind(this, atm)).reduce(sum, 0) : 0) + 
+				(stage.boosters ? stage.boosters.map(KSP.Engine.consumption.bind(this, atm)).reduce(sum, 0) : 0) +
+				(stage.parallel ? KSP.Stage.consumption(stage.next, atm) : 0);
+		},
+		
+		//Combined specific impulse at atmospheric pressure (m/s)
+		impulse : function (stage, atm) {
+			return KSP.Stage.thrust(stage) / 
+				KSP.Stage.consumption(stage, atm);
+		},
+		
+		//Delta-V at atmospheric pressure (m/s^2)
+		deltaV : function (stage, atm) {
+			return Math.log(KSP.Stage.massStart(stage) / KSP.Stage.massEnd(stage)) * KSP.Stage.impulse(stage, atm);
+		},
+		
+		humanize : function (stage, planet, atm) {
+			var strBuild = [];
+			if (stage.payload) strBuild.push("Payload: " + stage.payload + "kg");
+			if (stage.engines && stage.engines.length) strBuild.push("Engines: " + KSP.Parts.humanize(stage.engines));
+			if (stage.tanks && stage.tanks.length) strBuild.push("LF/O Tanks: " + KSP.Parts.humanize(stage.tanks));
+			if (stage.boosters && stage.boosters.length) strBuild.push("Boosters: " + KSP.Parts.humanize(stage.boosters));
+			if (stage.parts && stage.parts.length) strBuild.push("Parts: " + KSP.Parts.humanize(stage.parts));
+			if ((stage.engines && stage.engines.length) || (stage.boosters && stage.boosters.length)) {
+				if (typeof atm === "number") strBuild.push("Delta-V: " + Math.round(KSP.Stage.deltaV(stage, atm)));
+				if (planet) strBuild.push("TWR: " + KSP.Stage.twr(stage, planet).toFixed(2));
+			}
+			if (stage.parallel) {
+				if (stage.asparagus) strBuild.push("ASPARAGUS");
+				else strBuild.push("PARALLEL");
+			}
+			return (stage.next ? KSP.Stage.humanize(stage.next, planet, atm) + "\n" : "") + strBuild.join("; ");
+		}
+	}
+};
+
+function findMassOptimalEngine(args) {
+	
+}
+	
+function SettingsController($scope) {
+	//default settings
+	$scope.optimization = "mass";
+	$scope.payload = null;
+	$scope.deltav = null;
+	$scope.planet = PLANETS[4];
+	$scope.gravity = $scope.planet.gravity;
+	$scope.twr = 1.2;
+	$scope.stages = 1;
+	$scope.asparagus = false;
+	$scope.atmosphere = false;
+	$scope.packs = PACKS;
+
+	//constants
+	$scope.PLANETS = PLANETS;
+	$scope.PACKS = PACKS;
+	
+	//event listeners
+	$scope.onPlanetChange = function () {
+		$scope.gravity = $scope.planet.gravity;
+	};
+	$scope.onGravityChange = function () {
+		$scope.planet = null;
+	};
+	$scope.onAsparagusChange = function () {
+		if ($scope.asparagus) $scope.stages = Math.max($scope.stages, 2);
+	};
+	$scope.onPartPackChange = function (pack) {
+		for (var key in pack) {
+			if (pack[key] && pack[key].parts) {
+				pack[key].enabled = pack.enabled;
+				$scope.onPartListItemChange(pack[key]);
+			}
+		}
+	};
+	$scope.onPartListItemChange = function (partListItem) {
+		var parts = partListItem.parts;
+		if (parts) {
+			for (var x = 0, xl = parts.length; x < xl; ++x) {
+				var part = parts[x];
+				part.enabled = partListItem.enabled;
+				$scope.onPartListItemChange(part);
+			}
+		}
+	};
+}
+
+	</script>
+</head>
+<body>
+	<div class="settings" ng-controller="SettingsController">
+		<div class="arguments">
+			<div>
+				<label>Optimize For</label>
+				<select name="optimization" ng-model="optimization">
+					<option value="mass">Mass</option>
+					<option value="cost">Cost</option>
+				</select>
+			</div>
+			
+			<div>
+				<label>Payload</label>
+				<input type="number" name="payload" placeholder="0" ng-model="payload"/>
+				<math><mi>kg</mi></math>
+			</div>
+			
+			<div>
+				<label>Minimum Delta-V</label>
+				<input type="number" name="deltav" placeholder="0" ng-model="deltav"/>
+				<math><mi>m</mi><mo>/</mo><msup><mi>s</mi><mn>2</mn></msup></math>
+			</div>
+			
+			<div>
+				<label>Planet</label>
+				<select name="planet" ng-model="planet" ng-options="PLANET as PLANET.name for PLANET in PLANETS" ng-change="onPlanetChange()"></select>
+				<input type="number" name="gravity" ng-model="gravity" ng-change="onGravityChange()"/>
+				<math><mi>m</mi><mo>/</mo><msup><mi>s</mi><mn>2</mn></msup></math>
+			</div>
+			
+			<div>
+				<label>Minimum Thrust-to-Weight Ratio</label>
+				<input type="number" name="twr" ng-model="twr"/>
+			</div>
+			
+			<div>
+				<label>Maximum # of Stages</label>
+				<input type="number" name="stages" ng-model="stages"/>
+			</div>
+			
+			<div>
+				<label>Staging Setup</label>
+				<input type="checkbox" name="asparagus" ng-model="asparagus" ng-change="onAsparagusChange()"/>
+				<span>Asparagus</span>
+			</div>
+			
+			<div>
+				<label>Options</label>
+				<input type="checkbox" name="atmosphere" ng-model="atmosphere"/>
+				<span>Use engine's atmospheric stats</span>
+			</div>
+		</div>
+		
+		<div class="parts">
+			<div class="partPacks partList">
+				<div class="partPack partListItem" ng-repeat="pack in packs">
+					<input type="checkbox" ng-model="pack.enabled" ng-change="onPartPackChange(pack)"/><span>{{pack.name}}</span>
+					<div class="partTypes partList">
+						<div class="partType partListItem" ng-repeat="type in [pack.engines, pack.tanks, pack.boosters]">
+							<input type="checkbox" ng-model="type.enabled" ng-change="onPartListItemChange(type)" ng-disabled="!pack.enabled"/><span>{{type.name}}</span>
+							<div class="parts partList">
+								<div class="part partListItem" ng-repeat="part in type.parts">
+									<input type="checkbox" ng-model="part.enabled" ng-change="onPartListItemChange(part)" ng-disabled="!type.enabled"/><span>{{part.name}}</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="actions">
+			<button ng-click="run()">Calculate</button>
+		</div>
+	</div>
+
+</body>
+</html>
