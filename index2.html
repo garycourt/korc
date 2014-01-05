@@ -14,14 +14,62 @@
 	padding-bottom: 5px;
 }
 
-.parts {
+.panel-heading-pill {
+	display: inline-block;
+	margin-right: 20px;
+}
+
+.alert h1,
+.alert h2,
+.alert h3 {
+	margin-top: 10px;
+}
+
+.availableParts {
 	overflow: auto;
 	height: 55rem;
+}
+.availableParts.well {
+	padding-top: 0;
+	padding-bottom: 0;
 }
 
 .partList .partList {
 	padding-left: 24px;
 }
+
+.searchProgress {
+	position: relative;
+	margin-top: 32px;
+}
+
+.searchProgress .actions {
+	position: absolute;
+	top: 0;
+	right: 0;
+	line-height: 85px;
+	padding: 0 16px;
+}
+
+.searchResults .panel {
+	margin-bottom: 8px;
+}
+
+.searchResults .stageNumber {
+	font-size: 1.4em; 
+}
+
+.searchResults li {
+	list-style: none;
+}
+
+.searchResults .decouplers { color: gray; }
+.searchResults .payload { color: black; }
+.searchResults .other { color: orange; }
+.searchResults .lfoTanks { color: darkblue; }
+.searchResults .lfoEngines { color: crimson; }
+.searchResults .boosters { color: darkviolet; }
+.searchResults .multiplier { font-weight: bold; }
 
 	</style>
 	<link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
@@ -30,69 +78,23 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.6/angular.min.js"></script>
 	<script src="kspcalc.js"></script>
 	<script type="text/javascript">
-
-var bestStaging = null;
-var bestStagingMetric = Infinity;
-var bestStagingCount = 0;
-var bestStagingArgs = null;
-var bestStagingCallback = null;
-var bestStagingCancel = function () {};
 	
-function onSearchResult(staging) {
-	if (staging && staging.id === bestStagingArgs.id) {
-		var stagingMetric = getMetric(staging, bestStagingArgs);
-		bestStagingCount++;
-		if (stagingMetric < bestStagingMetric) {
-			bestStaging = staging;
-			bestStagingMetric = stagingMetric;
-			if (bestStagingCallback) bestStagingCallback(bestStaging);
-		}
-	}
-}
+function sortParts(parts, optimization) {
+	optimization = optimization || "mass";
+	var ascending = function (part) {
+		return part[optimization];
+	};
+	var descending = function (part) {
+		return -part[optimization];
+	};
 	
-var kspcalcWorkers;
-if (typeof Worker !== "undefined") {
-	try {
-		kspcalcWorkers = [];
-		//spawn 4 web workers
-		for (var x = 0, xl = 4; x < xl; ++x) {
-			kspcalcWorkers[x] = new Worker("kspcalc.js");
-			kspcalcWorkers[x].addEventListener("message", function (evt) {
-				onSearchResult(evt.data);
-			});
-		}
-		bestStagingCancel = function () {
-			for (var x = 0, xl = kspcalcWorkers.length; x < xl; ++x) {
-				kspcalcWorkers[x].postMessage({cancel:true});
-			}
-		};
-	} catch (e) {
-		console.error("Failed to create web workers", e);
-		kspcalcWorkers = null;
-	}
-}
-
-function stopSearch() {
-	bestStagingCancel();
-}
-	
-function startSearch(args, callback) {
-	stopSearch();
-	
-	args.id = Math.ceil(0xFFFFFFFF * Math.random());
-	
-	bestStaging = null;
-	bestStagingMetric = Infinity;
-	bestStagingCount = 0;
-	bestStagingArgs = args;
-	bestStagingCallback = callback;
-	
-	if (kspcalcWorkers) {
-		for (var x = 0, xl = kspcalcWorkers.length; x < xl; ++x) {
-			kspcalcWorkers[x].postMessage(args);
-		}
-	} else {
-		bestStagingCancel = searchForOptimalStaging(args, onSearchResult);
+	var types = _.groupBy(parts, "type");
+	return {
+		lfoEngines : _.sortBy(types[TYPES.LFO_ENGINE], descending),
+		lfoTanks : _.sortBy(types[TYPES.LFO_TANK], descending),
+		boosters : _.sortBy(types[TYPES.BOOSTER], descending),
+		stackDecouplers : _.sortBy(_.where(types[TYPES.DECOUPLER], {radial:undefined}), ascending),
+		radialDecouplers : _.sortBy(_.where(types[TYPES.DECOUPLER], {radial:true}), ascending)
 	}
 }
 	
@@ -119,14 +121,77 @@ function SettingsController($scope) {
 		return result;
 	});
 	$scope.searching = false;
+	$scope.maxStagings = 20;
+	$scope.bestStagings = [];
+	$scope.bestStagingsCount = 0;
+	$scope.bestStagingsArgs = null;
 
 	//constants
 	$scope.PLANETS = PLANETS;
 	$scope.PACKS = PACKS;
 	$scope.TYPES = TYPES;
 	$scope.TYPE_NAMES_PLURAL = TYPE_NAMES_PLURAL;
+	$scope.OPTIMIZATION_NAMES = OPTIMIZATION_NAMES;
+	$scope.Math = Math;
+	
+	//static functions
+	function convertStaging(staging, args) {
+		var result;
+		if (staging) {
+			result = {
+				id : staging.id,
+				attempt : $scope.bestStagingsCount + 1,
+				optimization : staging.optimization,
+				metric : staging.metric,
+				deltaV : Math.round(KSP.Stage.deltaV(staging)),
+				stages : []
+			};
+			var currentStage = staging;
+			while (currentStage) {
+				var newStage = Object.create(currentStage);
+				newStage.next = undefined;
+				newStage.cost = KSP.Stage.cost(currentStage);
+				newStage.mass = KSP.Stage.massStart(currentStage);
+				newStage.deltaV = KSP.Stage.deltaV(currentStage, args.atm) || 0;
+				newStage.twr = KSP.Stage.twr(currentStage, args.planet) || 0;
+				newStage.other = KSP.Parts.countUnique(currentStage.other);
+				newStage.lfoEngines = KSP.Parts.countUnique(currentStage.lfoEngines).reverse();
+				newStage.lfoTanks = KSP.Parts.countUnique(currentStage.lfoTanks).reverse();
+				newStage.boosters = KSP.Parts.countUnique(currentStage.boosters).reverse();
+				newStage.decouplers = KSP.Parts.countUnique(currentStage.decouplers).reverse();
+				
+				result.stages.push(newStage);
+				currentStage = currentStage.next;
+			}
+			result.stages.reverse();
+		}
+		return result;
+	}
+	function onSearchResult(staging) {
+		$scope.bestStagingsCount++;
+		staging = convertStaging(staging, $scope.bestStagingsArgs);
+		var bestStagings = $scope.bestStagings;
+		if (staging && staging.id === $scope.bestStagingsArgs.id) {
+			$scope.bestStagingsCount++;
+			if (bestStagings.length < $scope.maxStagings || staging.metric < bestStagings[bestStagings.length-1].metric) {
+				var index = _.sortedIndex(bestStagings, staging, "metric");
+				if (!bestStagings[index] || bestStagings[index].metric !== staging.metric) {
+					bestStagings.splice(index, 0, staging);
+					if (bestStagings.length > $scope.maxStagings) {
+						bestStagings.pop();
+					}
+				}
+			}
+		}
+	}
 	
 	//methods
+	$scope.startSearch = function (args) {
+		$scope.stopSearch = searchForOptimalStaging(args, onSearchResult);
+	};
+	
+	$scope.stopSearch = function () {};  //overwritten by startSearch
+	
 	$scope.getEnabledParts = function () {
 		var enabledParts = [];
 		var packs = $scope.packTree;
@@ -145,8 +210,12 @@ function SettingsController($scope) {
 		}
 		return enabledParts;
 	}
+	
 	$scope.search = function () {
+		$scope.stop();
+		
 		var args = {
+			id : Math.ceil(0xFFFFFFFF * Math.random()),
 			optimization : $scope.optimization,
 			next : {payload:$scope.payload},
 			deltaV : $scope.deltaV,
@@ -161,15 +230,24 @@ function SettingsController($scope) {
 			parts : sortParts($scope.getEnabledParts())
 		};
 		
-		startSearch(args, function (staging) {
-			if (staging) {
-				console.log(KSP.Stage.humanize(staging, args.planet, args.atm));
-			}
-		});
-		$scope.searching = ($scope.stages > 1);
+		$scope.bestStagings = [];
+		$scope.bestStagingsCount = 0;
+		$scope.bestStagingsArgs = args;
+		
+		var singleStage = findOptimalStage(args);
+		if (singleStage) {
+			singleStage.id = args.id;
+			onSearchResult(singleStage);
+		}
+		
+		if (args.stages > 1) {
+			$scope.searching = true;
+			$scope.startSearch(args);
+		}
 	}
+	
 	$scope.stop = function () {
-		stopSearch();
+		$scope.stopSearch();
 		$scope.searching = false;
 	};
 	
@@ -202,6 +280,36 @@ function SettingsController($scope) {
 	//initialization
 	$scope.packTree[0].enabled = true;
 	$scope.onPartListItemChange($scope.packTree[0]);
+	
+	//web worker initialization
+	var kspcalcWorkers;
+	if (typeof Worker !== "undefined") {
+		try {
+			kspcalcWorkers = [];
+			//spawn 4 web workers
+			for (var x = 0, xl = 4; x < xl; ++x) {
+				kspcalcWorkers[x] = new Worker("kspcalc.js");
+				kspcalcWorkers[x].addEventListener("message", function (evt) {
+					$scope.$apply(function () {
+						onSearchResult(evt.data);
+					});
+				});
+			}
+			$scope.startSearch = function (args) {
+				for (var x = 0, xl = kspcalcWorkers.length; x < xl; ++x) {
+					kspcalcWorkers[x].postMessage(args);
+				}
+			};
+			$scope.stopSearch = function () {
+				for (var x = 0, xl = kspcalcWorkers.length; x < xl; ++x) {
+					kspcalcWorkers[x].postMessage({cancel:true});
+				}
+			};
+		} catch (e) {
+			console.error("Failed to create web workers", e);
+			kspcalcWorkers = null;
+		}
+	}
 }
 
 	</script>
@@ -212,100 +320,110 @@ function SettingsController($scope) {
 			<h1>KSP Optimal Rocket Calculator</h1>
 		</div>
 		
-		<div class="row" ng-controller="SettingsController">
-			<div class="settings col-md-6">
-				<div class="arguments form-horizontal">
-					<div class="form-group">
-						<label for="settingsOptimization" class="control-label col-sm-6">Optimize For</label>
-						<div class="col-sm-6">
-							<select name="optimization" id="settingsOptimization" class="form-control" ng-model="optimization">
-								<option value="mass">Mass</option>
-								<option value="cost">Cost</option>
-							</select>
-						</div>
-					</div>
-					
-					<div class="form-group">
-						<label for="settingsPayload" class="control-label col-sm-6">Payload</label>
-						<div class="col-sm-6">
-							<div class="input-group">
-								<input type="number" name="payload" min="0" step="1" placeholder="0" id="settingsPayload" class="form-control" ng-model="payload"/>
-								<span class="input-group-addon mathml"><math><mi>kg</mi></math></span>
+		<div ng-controller="SettingsController">
+		
+			<div class="row">
+				<div class="settings col-md-6">
+					<div class="arguments form-horizontal">
+						<div class="form-group">
+							<label for="settingsOptimization" class="control-label col-sm-6">Optimize For</label>
+							<div class="col-sm-6">
+								<select name="optimization" id="settingsOptimization" class="form-control" ng-model="optimization">
+									<option value="mass">Mass</option>
+									<option value="cost">Cost</option>
+								</select>
 							</div>
 						</div>
-					</div>
-					
-					<div class="form-group">
-						<label for="settingsDeltaV" class="control-label col-sm-6">Minimum Delta-V</label>
-						<div class="col-sm-6">
-							<div class="input-group">
-								<input type="number" name="deltaV" min="0" step="1" placeholder="0" id="settingsDeltaV" class="form-control" ng-model="deltaV"/>
-								<span class="input-group-addon mathml"><math><mi>m</mi><mo>/</mo><msup><mi>s</mi><mn>2</mn></msup></math></span>
+						
+						<div class="form-group">
+							<label for="settingsPayload" class="control-label col-sm-6">Payload</label>
+							<div class="col-sm-6">
+								<div class="input-group">
+									<input type="number" name="payload" min="0" step="1" placeholder="0" id="settingsPayload" class="form-control" ng-model="payload"/>
+									<span class="input-group-addon mathml"><math><mi>kg</mi></math></span>
+								</div>
 							</div>
 						</div>
-					</div>
-					
-					<div class="form-group">
-						<label for="settingsPlanet" class="control-label col-sm-6">Local Gravity</label>
-						<div class="col-sm-6">
-							<div class="input-group">
-								<span class="input-group-addon"><select name="planet" id="settingsPlanet" class="form-control-minimal" ng-model="planet" ng-options="PLANET as PLANET.name for PLANET in PLANETS" ng-change="onPlanetChange()"></select></span>
-								<input type="number" name="gravity" min="0" step="0.001" id="settingsGravity" class="form-control" ng-model="gravity" ng-change="onGravityChange()"/>
-								<span class="input-group-addon mathml"><math><mi>m</mi><mo>/</mo><msup><mi>s</mi><mn>2</mn></msup></math></span>
+						
+						<div class="form-group">
+							<label for="settingsDeltaV" class="control-label col-sm-6">Minimum Delta-V</label>
+							<div class="col-sm-6">
+								<div class="input-group">
+									<input type="number" name="deltaV" min="0" step="1" placeholder="0" id="settingsDeltaV" class="form-control" ng-model="deltaV"/>
+									<span class="input-group-addon mathml"><math><mi>m</mi><mo>/</mo><msup><mi>s</mi><mn>2</mn></msup></math></span>
+								</div>
 							</div>
 						</div>
-					</div>
-					
-					<div class="form-group">
-						<label for="settingsTWR" class="control-label col-sm-6">Minimum Thrust-to-Weight Ratio</label>
-						<div class="col-sm-6">
-							<input type="number" name="twr" min="0" step="0.1" id="settingsTWR" class="form-control" ng-model="twr"/>
-						</div>
-					</div>
-					
-					<div class="form-group">
-						<label for="settingsStages" class="control-label col-sm-6">Maximum # of Stages</label>
-						<div class="col-sm-6">
-							<input type="number" name="stages" min="1" step="1" id="settingsStages" class="form-control" ng-model="stages"/>
-						</div>
-					</div>
-					
-					<div class="form-group">
-						<label class="control-label col-sm-6">Staging Setup</label>
-						<div class="col-sm-6">
-							<div class="checkbox">
-								<label>
-									<input type="checkbox" name="asparagus" id="settingsAsparagus" ng-model="asparagus" ng-change="onAsparagusChange()"/>
-									Asparagus
-								</label>
+						
+						<div class="form-group">
+							<label for="settingsPlanet" class="control-label col-sm-6">Local Gravity</label>
+							<div class="col-sm-6">
+								<div class="input-group">
+									<span class="input-group-addon"><select name="planet" id="settingsPlanet" class="form-control-minimal" ng-model="planet" ng-options="PLANET as PLANET.name for PLANET in PLANETS" ng-change="onPlanetChange()"></select></span>
+									<input type="number" name="gravity" min="0" step="0.001" id="settingsGravity" class="form-control" ng-model="gravity" ng-change="onGravityChange()"/>
+									<span class="input-group-addon mathml"><math><mi>m</mi><mo>/</mo><msup><mi>s</mi><mn>2</mn></msup></math></span>
+								</div>
 							</div>
 						</div>
-					</div>
-					
-					<div class="form-group">
-						<label class="control-label col-sm-6">Options</label>
-						<div class="col-sm-6">
-							<div class="checkbox">
-								<label>
-									<input type="checkbox" name="atmosphere" id="settingsAtmosphere" ng-model="atmosphere"/>
-									Use engine's atmospheric stats
-								</label>
+						
+						<div class="form-group">
+							<label for="settingsTWR" class="control-label col-sm-6">Minimum Thrust-to-Weight Ratio</label>
+							<div class="col-sm-6">
+								<input type="number" name="twr" min="0" step="0.1" id="settingsTWR" class="form-control" ng-model="twr"/>
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<label for="settingsStages" class="control-label col-sm-6">Maximum # of Stages</label>
+							<div class="col-sm-6">
+								<input type="number" name="stages" min="1" step="1" id="settingsStages" class="form-control" ng-model="stages"/>
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<label class="control-label col-sm-6">Staging Setup</label>
+							<div class="col-sm-6">
+								<div class="checkbox">
+									<label>
+										<input type="checkbox" name="asparagus" id="settingsAsparagus" ng-model="asparagus" ng-change="onAsparagusChange()"/>
+										Asparagus
+									</label>
+								</div>
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<label class="control-label col-sm-6">Options</label>
+							<div class="col-sm-6">
+								<div class="checkbox">
+									<label>
+										<input type="checkbox" name="atmosphere" id="settingsAtmosphere" ng-model="atmosphere"/>
+										Use engine's atmospheric stats
+									</label>
+								</div>
+							</div>
+						</div>
+						
+						<div class="actions row">
+							<div class="col-sm-offset-6 col-sm-6">
+								<button class="btn btn-default" ng-click="search()">Search</button>
 							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-			
-			<div class="parts col-md-6">
-				<div class="partPacks partList">
-					<div class="partPack partListItem checkbox" ng-repeat="pack in packTree">
-						<input type="checkbox" ng-model="pack.enabled" ng-change="onPartListItemChange(pack)"/><span>{{pack.name}}</span>
-						<div class="partTypes partList">
-							<div class="partType partListItem" ng-repeat="type in pack.parts">
-								<input type="checkbox" ng-model="type.enabled" ng-change="onPartListItemChange(type, pack)"/><span>{{type.name}}</span>
-								<div class="partItems partList">
-									<div class="partItem partListItem" ng-repeat="part in type.parts">
-										<input type="checkbox" ng-model="part.enabled" ng-change="onPartListItemChange(part, type, pack)"/><span>{{part.name}}</span>
+				
+				<div class="col-md-6">
+					<label>Available Parts</label>
+					<div class="availableParts partPacks partList well">
+						<div class="partPack partListItem checkbox" ng-repeat="pack in packTree">
+							<input type="checkbox" ng-model="pack.enabled" ng-change="onPartListItemChange(pack)"/><span>{{pack.name}}</span>
+							<div class="partTypes partList">
+								<div class="partType partListItem" ng-repeat="type in pack.parts">
+									<input type="checkbox" ng-model="type.enabled" ng-change="onPartListItemChange(type, pack)"/><span>{{type.name}}</span>
+									<div class="partItems partList">
+										<div class="partItem partListItem" ng-repeat="part in type.parts">
+											<input type="checkbox" ng-model="part.enabled" ng-change="onPartListItemChange(part, type, pack)"/><span>{{part.name}}</span>
+										</div>
 									</div>
 								</div>
 							</div>
@@ -313,13 +431,57 @@ function SettingsController($scope) {
 					</div>
 				</div>
 			</div>
-		</div>
-			
-		<div class="actions">
-			<button class="btn btn-default" ng-click="search()">Search</button>
-			<button class="btn btn-default" ng-click="stop()" ng-disabled="!searching">Stop</button>
-		</div>
 		
+			<div class="searchProgress alert alert-info text-center">
+				<h2>Searched Rocket Designs: {{bestStagingsCount}}</h2>
+				<div class="actions pull-right">
+					<button class="btn btn-default" ng-click="stop()" ng-disabled="!searching">Stop</button>
+				</div>
+			</div>
+			
+			<div class="searchResults">
+				<details class="panel panel-default" ng-repeat="staging in bestStagings" ng-open="$first">
+					<summary class="panel-heading">
+						<div class="attempt panel-heading-pill">Attempt #{{staging.attempt}}</div>
+						<div class="optimization panel-heading-pill nav-pills">{{OPTIMIZATION_NAMES[staging.optimization]}}: {{Math.round(staging.metric)}}</div>
+						<div class="stages panel-heading-pill nav-pills">Stages: {{staging.stages.length-1}}</div>
+						<div class="deltaV panel-heading-pill nav-pills">Delta-V: {{Math.round(staging.deltaV)}}</div>
+					</summary>
+					<table class="panel-table table">
+						<thead>
+							<tr>
+								<th>Stage</th>
+								<th>Part</th>
+								<th>Cost</th>
+								<th>Mass (<math><mi>kg</mi></math>)</th>
+								<th>Delta-V (<math><mi>m</mi><mo>/</mo><msup><mi>s</mi><mn>2</mn></msup></math>)</th>
+								<th>TWR</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="stage in staging.stages | orderBy:'-stage'">
+								<td class="stageNumber">{{$index}}</td>
+								<td>
+									<ol>
+										<li class="decouplers" ng-repeat="part in stage.decouplers">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
+										<li class="payload" ng-if="stage.payload > 0">Payload: {{stage.payload}}kg</li>
+										<li class="other" ng-repeat="part in stage.other">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
+										<li class="lfoTanks" ng-repeat="part in stage.lfoTanks">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
+										<li class="lfoEngines" ng-repeat="part in stage.lfoEngines">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
+										<li class="boosters" ng-repeat="part in stage.boosters">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
+									</ol>
+								</td>
+								<td>{{stage.cost}}</td>
+								<td>{{Math.round(stage.mass)}}</td>
+								<td>{{Math.round(stage.deltaV)}}</td>
+								<td>{{stage.twr.toFixed(2)}}</td>
+							</tr>
+						</tbody>
+					</table>
+				</details>
+			</div>
+			
+		</div>
 	</div>
 </body>
 </html>

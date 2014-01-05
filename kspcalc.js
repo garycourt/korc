@@ -90,6 +90,11 @@ var FUEL_DUCT = {name:"FTX-2 External Fuel Duct", type:TYPES.DUCT, cost:650, mas
 
 var EARTH_GRAVITY = 9.81;  //m/s^2
 
+var OPTIMIZATION_NAMES = {
+	"mass" : "Mass",
+	"cost" : "Cost"
+};
+
 function pluckNumber(key, obj) {
 	return +obj[key] || 0;
 }
@@ -101,19 +106,30 @@ function sum(a, b) {
 var KSP = {
 	Parts : {
 		countUnique : function (parts) {
-			var map = {};
-			for (var x = 0, xl = parts.length; x < xl; ++x) {
-				if (map[parts[x].name]) map[parts[x].name]++;
-				else map[parts[x].name] = 1;
+			var unique = [];
+			var hash = {};
+			if (parts) {
+				for (var x = 0, xl = parts.length; x < xl; ++x) {
+					var part = parts[x];
+					if (!hash[part.name]) {
+						var copy = Object.create(part);
+						copy.count = 1;
+						unique.push(copy);
+						hash[part.name] = unique.length;  //we use index+1 so as not to get !!0
+					} else {
+						unique[hash[part.name]-1].count++;
+					}
+				}
 			}
-			return map;
+			return unique;
 		},
 		
 		humanize : function (parts) {
 			var strBuild = [];
 			var uniqueParts = KSP.Parts.countUnique(parts);
-			for (var name in uniqueParts) {
-				strBuild.push(name + " x" + uniqueParts[name]);
+			for (var x = 0, xl = uniqueParts.length; x < xl; ++x) {
+				var part = uniqueParts[x];
+				strBuild.push(part.name + " x" + part.count);
 			}
 			return strBuild.join(", ");
 		}
@@ -222,25 +238,6 @@ var KSP = {
 	}
 };
 
-function sortParts(parts, optimization) {
-	optimization = optimization || "mass";
-	var ascending = function (part) {
-		return part[optimization];
-	};
-	var descending = function (part) {
-		return -part[optimization];
-	};
-	
-	var types = _.groupBy(parts, "type");
-	return {
-		lfoEngines : _.sortBy(types[TYPES.LFO_ENGINE], descending),
-		lfoTanks : _.sortBy(types[TYPES.LFO_TANK], descending),
-		boosters : _.sortBy(types[TYPES.BOOSTER], descending),
-		stackDecouplers : _.sortBy(_.where(types[TYPES.DECOUPLER], {radial:undefined}), ascending),
-		radialDecouplers : _.sortBy(_.where(types[TYPES.DECOUPLER], {radial:true}), ascending)
-	}
-}
-
 function fixArgs(args) {
 	args.optimization = args.optimization || "mass";
 	args.next = args.next || {payload:0};
@@ -276,7 +273,6 @@ function findOptimalStage(args) {
 	fixArgs(args);
 	
 	var bestStage = null;
-	var bestStageMetric = Infinity;
 	
 	//parallel stages must have two engines, or the same # of engines (if greater) as the next stage (simplifies design)
 	var engineMultiplier = (args.parallel && args.next.lfoEngines ? Math.max(args.next.lfoEngines.length, 2) : 1);
@@ -290,14 +286,18 @@ function findOptimalStage(args) {
 		boosters : [],
 		decouplers : [],
 		parallel : args.parallel,
-		asparagus : args.asparagus
+		asparagus : args.asparagus,
+		optimization : args.optimization,
+		metric : Infinity
 	};
 	
 	nextEngine: for (var e = 0, el = args.parts.lfoEngines.length; e < el; ++e) {
 		var engine = args.parts.lfoEngines[e];
 		stage.lfoEngines = [];
 		stage.decouplers = [];
-		var maxEngineCount = (engine.thrust ? (engine.radial ? 16 : 8) : 1);
+		stage.other = [];
+		if (engineMultiplier === 1 && engine.radial) stage.lfoEngines.push(engine);  //prevents a single radial engine
+		var maxEngineCount = (engine.thrust ? (engine.radial ? 16 : 8) : 1) - stage.lfoEngines.length;
 		nextEngineCount: for (var ec = engineMultiplier; ec <= maxEngineCount; ec += engineMultiplier) {
 			//add engine x multipler
 			for (var x = 0; x < engineMultiplier; ++x) {
@@ -318,7 +318,7 @@ function findOptimalStage(args) {
 					}
 					
 					//add fuel ducts for asparagus staging
-					if (args.asparagus) stage.other.push(FUEL_DUCT);
+					if (stage.asparagus) stage.other.push(FUEL_DUCT);
 				}
 			}
 			
@@ -341,9 +341,9 @@ function findOptimalStage(args) {
 					if (args.twr && KSP.Stage.twr(stage, args.planet) < args.twr) {
 						continue nextTankCount;
 					} else if (KSP.Stage.deltaV(stage, args.atm) >= args.deltaV) {
-						var metric = getMetric(stage, args);
+						stage.metric = getMetric(stage, args);
 						
-						if (metric < bestStageMetric) {
+						if (!bestStage || stage.metric < bestStage.metric) {
 							bestStage = {
 								next : stage.next,
 								payload : stage.payload,
@@ -353,9 +353,10 @@ function findOptimalStage(args) {
 								boosters : stage.boosters.slice(),
 								decouplers : stage.decouplers.slice(),
 								parallel : stage.parallel,
-								asparagus : stage.asparagus
+								asparagus : stage.asparagus,
+								optimization : stage.optimization,
+								metric : stage.metric
 							};
-							bestStageMetric = metric;
 						}
 						
 						if (engine.radial) {
@@ -384,28 +385,34 @@ function findOptimalStage(args) {
 		boosters : [],
 		decouplers : [],
 		parallel : false,  //not yet supported
-		asparagus : false  //boosters can't share fuel
+		asparagus : false,  //boosters can't share fuel
+		optimization : args.optimization,
+		metric : Infinity
 	};
 	nextBooster: for (var b = 0, bl = args.parts.boosters.length; b < bl; ++b) {
 		var booster = args.parts.boosters[b];
 		stage.boosters = [];
 		stage.decouplers = [];
-		nextBoosterCount: for (var bc = engineMultiplier; bc <= 16; bc += engineMultiplier) {
+		if (engineMultiplier === 1 && booster.radial) stage.boosters.push(booster);  //prevents a single radial booster
+		var maxBoosterCount = (booster.thrust ? (booster.radial ? 16 : 8) : 1) - stage.boosters.length;
+		nextBoosterCount: for (var bc = engineMultiplier; bc <= maxBoosterCount; bc += engineMultiplier) {
 			//add engine x multipler
 			for (var x = 0; x < engineMultiplier; ++x) {
 				stage.boosters.push(booster);
 				
-				//add decouplers
-				if (bc === 1 && engineMultiplier === 1) {
-					if (args.parts.stackDecouplers[0]) stage.decouplers.push(args.parts.stackDecouplers[0]);
-				} else {
-					if (args.parts.radialDecouplers[0]) {
-						if (stage.decouplers.length && !stage.decouplers[0].radial) {
-							for (var y = 0, yl = stage.decouplers.length; y < yl; ++y) {
-								stage.decouplers[y] = args.parts.radialDecouplers[0];
+				if (!booster.radial || bc === engineMultiplier) {
+					//add decouplers
+					if (bc === 1 && engineMultiplier === 1) {
+						if (args.parts.stackDecouplers[0]) stage.decouplers.push(args.parts.stackDecouplers[0]);
+					} else {
+						if (args.parts.radialDecouplers[0]) {
+							if (stage.decouplers.length && !stage.decouplers[0].radial) {
+								for (var y = 0, yl = stage.decouplers.length; y < yl; ++y) {
+									stage.decouplers[y] = args.parts.radialDecouplers[0];
+								}
 							}
+							stage.decouplers.push(args.parts.radialDecouplers[0]);
 						}
-						stage.decouplers.push(args.parts.radialDecouplers[0]);
 					}
 				}
 			}
@@ -413,9 +420,9 @@ function findOptimalStage(args) {
 			if (args.twr && KSP.Stage.twr(stage, args.planet) < args.twr) {
 				continue nextBoosterCount;
 			} else if (KSP.Stage.deltaV(stage, args.atm) >= args.deltaV) {
-				var metric = getMetric(stage, args);
+				stage.metric = getMetric(stage, args);
 				
-				if (metric < bestStageMetric) {
+				if (!bestStage || stage.metric < bestStage.metric) {
 					bestStage = {
 						next : stage.next,
 						payload : stage.payload,
@@ -425,9 +432,10 @@ function findOptimalStage(args) {
 						boosters : stage.boosters.slice(),
 						decouplers : stage.decouplers.slice(),
 						parallel : stage.parallel,
-						asparagus : stage.asparagus
+						asparagus : stage.asparagus,
+						optimization : stage.optimization,
+						metric : stage.metric
 					};
-					bestStageMetric = metric;
 				}
 				
 				continue nextBooster;
@@ -457,21 +465,13 @@ function findRandomOptimalStaging(args) {
 			secondArgs.asparagus = !!args.stagesAsparagus;
 			secondArgs.stages = args.stages - 1;
 			var secondStage = findOptimalStage(secondArgs);
-			var secondStageMetric = NaN;
-			var nextStage = null;
-			var nextStageMetric = NaN;
 			
+			var nextStage = null;
 			if (secondArgs.stages > 1) {
-				if (secondStage) {
-					secondStageMetric = getMetric(secondStage, secondArgs);
-				}
 				nextStage = findRandomOptimalStaging(secondArgs);
-				if (nextStage) {
-					nextStageMetric = getMetric(nextStage, secondArgs);
-				}
 			}
 			
-			if (secondStage && (!nextStage || secondStageMetric < nextStageMetric)) {
+			if (secondStage && (!nextStage || secondStage.metric < nextStage.metric)) {
 				randomSolution = secondStage;
 			} else if (nextStage) {
 				randomSolution = nextStage;
