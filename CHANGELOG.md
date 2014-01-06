@@ -1,4 +1,5 @@
 **Version 1.2 - January 6, 2014**
+* Added asparagus indicator to staging output.
 * Performance improvement.
 * Added link to changelog.
 

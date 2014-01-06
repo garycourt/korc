@@ -73,6 +73,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	background-color: #f5f5f5;
 }
 
+.partList ol,
+.partList ul {
+	padding: 0;
+}
+
 .partList .partList {
 	padding-left: 24px;
 }
@@ -545,8 +550,8 @@ function SettingsController($scope) {
 						</thead>
 						<tbody>
 							<tr ng-repeat="stage in staging.stages | orderBy:'-stage'">
-								<td class="stageNumber">{{$index}}</td>
-								<td>
+								<td><div class="stageNumber">{{$index}}</div><small ng-if="stage.asparagus">Asparagus</small></td>
+								<td class="partList">
 									<ol>
 										<li class="decouplers" ng-repeat="part in stage.decouplers">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
 										<li class="payload" ng-if="stage.payload > 0">Payload: {{stage.payload}}t</li>
