@@ -413,7 +413,22 @@ function findOptimalStage(args) {
 					}
 					
 					if (args.twr && KSP.Stages.twr(stage, args.planet) < args.twr) {
-						continue nextTankCount;
+						if (KSP.Stages.deltaVStage(stage, args.atm) >= args.deltaV) {
+							//last tank was too big
+							if (engine.radial) {
+								for (var x = 0; x < engineMultiplier; ++x) {
+									stage.lfoTanks.pop();
+								}
+							} else {
+								for (var x = 0; x < ec; ++x) {
+									stage.lfoTanks.pop();
+								}
+							}
+							continue nextTank;
+						} else {
+							//engine is too small
+							continue nextEngineCount;
+						}
 					} else if (KSP.Stages.deltaVStage(stage, args.atm) >= args.deltaV) {
 						stage.metric = getMetric(stage, args);
 						
@@ -446,7 +461,6 @@ function findOptimalStage(args) {
 						continue nextTank;
 					}
 				}
-				stage.lfoTanks = [];  //tanks are too heavy, restart with a lighter tank
 			}
 		}
 	}

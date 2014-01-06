@@ -1,3 +1,7 @@
+**Version 1.2 - January 6, 2014**
+* Performance improvement.
+* Added link to changelog.
+
 **Version 1.1 - January 6, 2014**
 * Added option for adding a decoupler between the payload.
 * Changed masses to use metric tons.

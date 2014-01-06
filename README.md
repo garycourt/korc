@@ -6,7 +6,7 @@ This tool calculates the most mass/cost efficient rocket possible, with the give
 
 Open index.html in a modern web browser.
 
-1. Enter the mass (in kg) of the payload you are trying to move.
+1. Enter the mass (in metric tons) of the payload you are trying to move.
 2. Enter the minimum amount of Delta-V you need to accelerate it.
 3. If you are launching it from a planet, select the planet, or enter the force of gravity at your launch point.
 4. Enter the minimum thrust-to-weight ratio you need all stages of the rocket to produce. 
