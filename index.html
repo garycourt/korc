@@ -153,6 +153,7 @@ function SettingsController($scope) {
 	$scope.parallel = false;
 	$scope.asparagus = false;
 	$scope.atmosphere = false;
+	$scope.payloadDecoupler = true;
 	$scope.packTree = _.map(PACKS, function (pack) {
 		var result = Object.create(pack);
 		result.parts = _.map(_.groupBy(pack.parts, "type"), function (parts, partId) {
@@ -177,6 +178,7 @@ function SettingsController($scope) {
 	$scope.TYPE_NAMES_PLURAL = TYPE_NAMES_PLURAL;
 	$scope.OPTIMIZATION_NAMES = OPTIMIZATION_NAMES;
 	$scope.Math = Math;
+	$scope.parseFloat = parseFloat;
 	
 	//static functions
 	function convertStaging(staging, args) {
@@ -277,6 +279,7 @@ function SettingsController($scope) {
 			atm : ($scope.atmosphere ? 1 : 0),
 			parallel : false,
 			asparagus : false,
+			decoupling : $scope.payloadDecoupler,
 			stages : $scope.stages,
 			stagesParallel : $scope.parallel || $scope.asparagus,
 			stagesAsparagus : $scope.asparagus,
@@ -371,7 +374,7 @@ function SettingsController($scope) {
 <body>
 	<div class="container">
 		<div class="page-header">
-			<h1>Optimal Rocket Calculator <small>for Kerbal Space Program 0.23</small></h1>
+			<h1>KSP Optimal Rocket Calculator <small>for Kerbal Space Program 0.23</small></h1>
 		</div>
 		
 		<div ng-controller="SettingsController">
@@ -393,8 +396,8 @@ function SettingsController($scope) {
 							<label for="settingsPayload" class="control-label col-sm-6">Payload</label>
 							<div class="col-sm-6">
 								<div class="input-group" ng-class="{'has-error': !payload}">
-									<input type="number" name="payload" required="required" min="0" step="1" placeholder="0" id="settingsPayload" class="form-control" ng-model="payload"/>
-									<span class="input-group-addon mathml"><math><mi>kg</mi></math></span>
+									<input type="number" name="payload" required="required" min="0" step="0.001" placeholder="0" id="settingsPayload" class="form-control" ng-model="payload"/>
+									<span class="input-group-addon mathml"><math><mi>t</mi></math></span>
 								</div>
 							</div>
 						</div>
@@ -453,6 +456,12 @@ function SettingsController($scope) {
 									<label>
 										<input type="checkbox" name="atmosphere" id="settingsAtmosphere" ng-model="atmosphere"/>
 										Use engine's atmospheric stats
+									</label>
+								</div>
+								<div class="checkbox">
+									<label>
+										<input type="checkbox" name="payloadDecoupler" id="settingsPayloadDecoupler" ng-model="payloadDecoupler"/>
+										Add decoupler between payload
 									</label>
 								</div>
 							</div>
@@ -519,7 +528,7 @@ function SettingsController($scope) {
 				<details class="panel panel-default" ng-repeat="staging in bestStagings" ng-open="$first">
 					<summary class="panel-heading">
 						<div class="attempt panel-heading-pill">Attempt #{{staging.attempt}}</div>
-						<div class="optimization panel-heading-pill nav-pills">{{OPTIMIZATION_NAMES[staging.optimization]}}: {{Math.round(staging.metric)}}</div>
+						<div class="optimization panel-heading-pill nav-pills">{{OPTIMIZATION_NAMES[staging.optimization]}}: {{parseFloat(staging.metric.toFixed(3))}}</div>
 						<div class="stages panel-heading-pill nav-pills">Stages: {{staging.stages.length-1}}</div>
 						<div class="deltaV panel-heading-pill nav-pills">Delta-V: {{Math.round(staging.deltaV)}}</div>
 					</summary>
@@ -529,7 +538,7 @@ function SettingsController($scope) {
 								<th>Stage</th>
 								<th>Part</th>
 								<th>Cost</th>
-								<th>Mass (<math><mi>kg</mi></math>)</th>
+								<th>Mass (<math><mi>t</mi></math>)</th>
 								<th>Delta-V (<math><mi>m</mi><mo>/</mo><msup><mi>s</mi><mn>2</mn></msup></math>)</th>
 								<th>TWR</th>
 							</tr>
@@ -540,7 +549,7 @@ function SettingsController($scope) {
 								<td>
 									<ol>
 										<li class="decouplers" ng-repeat="part in stage.decouplers">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
-										<li class="payload" ng-if="stage.payload > 0">Payload: {{stage.payload}}kg</li>
+										<li class="payload" ng-if="stage.payload > 0">Payload: {{stage.payload}}t</li>
 										<li class="others" ng-repeat="part in stage.others">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
 										<li class="lfoTanks" ng-repeat="part in stage.lfoTanks">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
 										<li class="lfoEngines" ng-repeat="part in stage.lfoEngines">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
@@ -548,7 +557,7 @@ function SettingsController($scope) {
 									</ol>
 								</td>
 								<td>{{stage.costStage}} / {{stage.costTotal}}</td>
-								<td>{{Math.round(stage.massStage)}} / {{Math.round(stage.massTotal)}}</td>
+								<td>{{parseFloat(stage.massStage.toFixed(3))}} / {{parseFloat(stage.massTotal.toFixed(3))}}</td>
 								<td>{{Math.round(stage.deltaVStage)}} / {{Math.round(stage.deltaVTotal)}}</td>
 								<td>{{stage.twr.toFixed(2)}}</td>
 							</tr>

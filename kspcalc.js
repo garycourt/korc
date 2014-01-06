@@ -31,7 +31,7 @@ var PLANETS = [
 	{name:"Moho", gravity:2.70},
 	{name:"Eve", gravity:16.7},
 	{name:"Gilly", gravity:0.049},
-	{name:"Kerbin", gravity:9.82},
+	{name:"Kerbin", gravity:9.81},
 	{name:"Mun", gravity:1.63},
 	{name:"Minmus", gravity:0.491},
 	{name:"Duna", gravity:2.94},
@@ -67,54 +67,54 @@ var PACKS = [
 		name:"Stock 0.23", 
 		parts:[
 			//LF/O Engines
-			{name:"Rockomax 'Mainsail' Liquid Engine", type:TYPES.LFO_ENGINE, cost:2850, mass:6000, thrust:1500000, isp_vac:330, isp_atm:280},
-			{name:"Rockomax 'Skipper' Liquid Engine", type:TYPES.LFO_ENGINE, cost:2850, mass:4000, thrust:650000, isp_vac:350, isp_atm:300},
-			{name:"Rockomax 'Poodle' Liquid Engine", type:TYPES.LFO_ENGINE, cost:1600, mass:2500, thrust:220000, isp_vac:390, isp_atm:270},
-			{name:"LV-N Atomic Rocket Motor", type:TYPES.LFO_ENGINE, cost:8700, mass:2250, thrust:60000, isp_vac:800, isp_atm:220},
-			{name:"R.A.P.I.E.R. Engine", type:TYPES.LFO_ENGINE, cost:5900, mass:1750, thrust:175000, isp_vac:360, isp_atm:320},
-			{name:"Toroidal Aerospike Rocket", type:TYPES.LFO_ENGINE, cost:3850, mass:1500, thrust:175000, isp_vac:390, isp_atm:388},
-			{name:"LV-T45 Liquid Fuel Engine", type:TYPES.LFO_ENGINE, cost:950, mass:1500, thrust:200000, isp_vac:370, isp_atm:320},
-			{name:"LV-T30 Liquid Fuel Engine", type:TYPES.LFO_ENGINE, cost:850, mass:1250, thrust:215000, isp_vac:370, isp_atm:320},
-			{name:"LV-909 Liquid Fuel Engine", type:TYPES.LFO_ENGINE, cost:750, mass:500, thrust:50000, isp_vac:390, isp_atm:300},
-			{name:"Rockomax 48-7S", type:TYPES.LFO_ENGINE, cost:300, mass:100, thrust:30000, isp_vac:350, isp_atm:300},
-			{name:"LV-1 Liquid Fuel Engine", type:TYPES.LFO_ENGINE, cost:350, mass:30, thrust:1500, isp_vac:290, isp_atm:220},
-			{name:"Rockomax Mark 55 Radial Mount Liquid Engine", type:TYPES.LFO_ENGINE, cost:850, mass:900, thrust:120000, isp_vac:320, isp_atm:290, radial:true},
-			{name:"Rockomax 24-77", type:TYPES.LFO_ENGINE, cost:480, mass:90, thrust:20000, isp_vac:300, isp_atm:250, radial:true},
-			{name:"LV-1R Liquid Fuel Engine", type:TYPES.LFO_ENGINE, cost:650, mass:30, thrust:1500, isp_vac:290, isp_atm:220, radial:true},
+			{name:"Rockomax 'Mainsail' Liquid Engine", type:TYPES.LFO_ENGINE, cost:2850, mass:6.000, thrust:1500, isp_vac:330, isp_atm:280},
+			{name:"Rockomax 'Skipper' Liquid Engine", type:TYPES.LFO_ENGINE, cost:2850, mass:4.000, thrust:650, isp_vac:350, isp_atm:300},
+			{name:"Rockomax 'Poodle' Liquid Engine", type:TYPES.LFO_ENGINE, cost:1600, mass:2.500, thrust:220, isp_vac:390, isp_atm:270},
+			{name:"LV-N Atomic Rocket Motor", type:TYPES.LFO_ENGINE, cost:8700, mass:2.250, thrust:60, isp_vac:800, isp_atm:220},
+			{name:"R.A.P.I.E.R. Engine", type:TYPES.LFO_ENGINE, cost:5900, mass:1.750, thrust:175, isp_vac:360, isp_atm:320},
+			{name:"Toroidal Aerospike Rocket", type:TYPES.LFO_ENGINE, cost:3850, mass:1.500, thrust:175, isp_vac:390, isp_atm:388},
+			{name:"LV-T45 Liquid Fuel Engine", type:TYPES.LFO_ENGINE, cost:950, mass:1.500, thrust:200, isp_vac:370, isp_atm:320},
+			{name:"LV-T30 Liquid Fuel Engine", type:TYPES.LFO_ENGINE, cost:850, mass:1.250, thrust:215, isp_vac:370, isp_atm:320},
+			{name:"LV-909 Liquid Fuel Engine", type:TYPES.LFO_ENGINE, cost:750, mass:0.500, thrust:50, isp_vac:390, isp_atm:300},
+			{name:"Rockomax 48-7S", type:TYPES.LFO_ENGINE, cost:300, mass:0.100, thrust:30, isp_vac:350, isp_atm:300},
+			{name:"LV-1 Liquid Fuel Engine", type:TYPES.LFO_ENGINE, cost:350, mass:0.030, thrust:1.5, isp_vac:290, isp_atm:220},
+			{name:"Rockomax Mark 55 Radial Mount Liquid Engine", type:TYPES.LFO_ENGINE, cost:850, mass:0.900, thrust:120, isp_vac:320, isp_atm:290, radial:true},
+			{name:"Rockomax 24-77", type:TYPES.LFO_ENGINE, cost:480, mass:0.090, thrust:20, isp_vac:300, isp_atm:250, radial:true},
+			{name:"LV-1R Liquid Fuel Engine", type:TYPES.LFO_ENGINE, cost:650, mass:0.030, thrust:1.5, isp_vac:290, isp_atm:220, radial:true},
 			
 			//LF/O Tanks
-			{name:"Rockomax Jumbo-64 Fuel Tank", type:TYPES.LFO_TANK, cost:10500, mass:4000, mass_fuel:32000},
-			{name:"Rockomax X200-32 Fuel Tank", type:TYPES.LFO_TANK, cost:2600, mass:2000, mass_fuel:16000},
-			{name:"Rockomax X200-16 Fuel Tank", type:TYPES.LFO_TANK, cost:1800, mass:1000, mass_fuel:8000},
-			{name:"Rockomax X200-8 Fuel Tank", type:TYPES.LFO_TANK, cost:900, mass:500, mass_fuel:4000},
-			{name:"FL-T800 Fuel Tank", type:TYPES.LFO_TANK, cost:1600, mass:500, mass_fuel:4000},
-			{name:"FL-T400 Fuel Tank", type:TYPES.LFO_TANK, cost:850, mass:250, mass_fuel:2000},
-			{name:"FL-T200 Fuel Tank", type:TYPES.LFO_TANK, cost:225, mass:125, mass_fuel:1000},
-			{name:"FL-T100 Fuel Tank", type:TYPES.LFO_TANK, cost:110, mass:62.5, mass_fuel:500},
-			{name:"ROUND-8 Toroidal Fuel Tank", type:TYPES.LFO_TANK, cost:220, mass:25, mass_fuel:111},
-			{name:"Oscar-B Fuel Tank", type:TYPES.LFO_TANK, cost:280, mass:15, mass_fuel:63.675},
+			{name:"Rockomax Jumbo-64 Fuel Tank", type:TYPES.LFO_TANK, cost:10500, mass:4.000, mass_fuel:32.000},
+			{name:"Rockomax X200-32 Fuel Tank", type:TYPES.LFO_TANK, cost:2600, mass:2.000, mass_fuel:16.000},
+			{name:"Rockomax X200-16 Fuel Tank", type:TYPES.LFO_TANK, cost:1800, mass:1.000, mass_fuel:8.000},
+			{name:"Rockomax X200-8 Fuel Tank", type:TYPES.LFO_TANK, cost:900, mass:0.500, mass_fuel:4.000},
+			{name:"FL-T800 Fuel Tank", type:TYPES.LFO_TANK, cost:1600, mass:0.500, mass_fuel:4.000},
+			{name:"FL-T400 Fuel Tank", type:TYPES.LFO_TANK, cost:850, mass:0.250, mass_fuel:2.000},
+			{name:"FL-T200 Fuel Tank", type:TYPES.LFO_TANK, cost:225, mass:0.125, mass_fuel:1.000},
+			{name:"FL-T100 Fuel Tank", type:TYPES.LFO_TANK, cost:110, mass:0.0625, mass_fuel:0.500},
+			{name:"ROUND-8 Toroidal Fuel Tank", type:TYPES.LFO_TANK, cost:220, mass:0.025, mass_fuel:0.111},
+			{name:"Oscar-B Fuel Tank", type:TYPES.LFO_TANK, cost:280, mass:0.015, mass_fuel:0.063675},
 			
 			//Solid Rocket Boosters
-			{name:"Rockomax BACC Solid Fuel Booster", type:TYPES.BOOSTER, cost:800, mass:1500, mass_fuel:6375, thrust:315000, isp_vac:250, isp_atm:230},
-			{name:"RT-10 Solid Fuel Booster", type:TYPES.BOOSTER, cost:450, mass:500, mass_fuel:3247.5, thrust:250000, isp_vac:240, isp_atm:225},
-			{name:"Sepratron I", type:TYPES.BOOSTER, cost:100, mass:12.5, mass_fuel:60, thrust:18000, isp_vac:100, isp_atm:100, radial:true},
+			{name:"Rockomax BACC Solid Fuel Booster", type:TYPES.BOOSTER, cost:800, mass:1.500, mass_fuel:6.375, thrust:315, isp_vac:250, isp_atm:230},
+			{name:"RT-10 Solid Fuel Booster", type:TYPES.BOOSTER, cost:450, mass:0.500, mass_fuel:3.2475, thrust:250, isp_vac:240, isp_atm:225},
+			{name:"Sepratron I", type:TYPES.BOOSTER, cost:100, mass:0.0125, mass_fuel:0.060, thrust:18, isp_vac:100, isp_atm:100, radial:true},
 			
 			//Decouplers
-			{name:"TR-2V Stack Decoupler", type:TYPES.DECOUPLER, cost:400, mass:15},
-			{name:"TR-2C Stack Separator", type:TYPES.DECOUPLER, cost:450, mass:20},
-			{name:"TR-18A Stack Decoupler", type:TYPES.DECOUPLER, cost:600, mass:50},
-			{name:"TR-18D Stack Separator", type:TYPES.DECOUPLER, cost:600, mass:75},
-			{name:"Rockomax Brand Decoupler", type:TYPES.DECOUPLER, cost:440, mass:400},
-			{name:"TR-XL Stack Separator", type:TYPES.DECOUPLER, cost:900, mass:450},
-			{name:"TT-38K Radial Decoupler", type:TYPES.DECOUPLER, cost:600, mass:25, radial:true},
-			{name:"TT-70 Radial Decoupler", type:TYPES.DECOUPLER, cost:700, mass:50, radial:true},
-			{name:"Structural Pylon", type:TYPES.DECOUPLER, cost:1275, mass:200, radial:true},
-			{name:"Hydraulic Detachment Manifold", type:TYPES.DECOUPLER, cost:770, mass:400, radial:true},
+			{name:"TR-2V Stack Decoupler", type:TYPES.DECOUPLER, cost:400, mass:0.015},
+			{name:"TR-2C Stack Separator", type:TYPES.DECOUPLER, cost:450, mass:0.020},
+			{name:"TR-18A Stack Decoupler", type:TYPES.DECOUPLER, cost:600, mass:0.050},
+			{name:"TR-18D Stack Separator", type:TYPES.DECOUPLER, cost:600, mass:0.075},
+			{name:"Rockomax Brand Decoupler", type:TYPES.DECOUPLER, cost:440, mass:0.400},
+			{name:"TR-XL Stack Separator", type:TYPES.DECOUPLER, cost:900, mass:0.450},
+			{name:"TT-38K Radial Decoupler", type:TYPES.DECOUPLER, cost:600, mass:0.025, radial:true},
+			{name:"TT-70 Radial Decoupler", type:TYPES.DECOUPLER, cost:700, mass:0.050, radial:true},
+			{name:"Structural Pylon", type:TYPES.DECOUPLER, cost:1275, mass:0.200, radial:true},
+			{name:"Hydraulic Detachment Manifold", type:TYPES.DECOUPLER, cost:770, mass:0.400, radial:true},
 		]
 	}
 ];
 
-var FUEL_DUCT = {name:"FTX-2 External Fuel Duct", type:TYPES.DUCT, cost:650, mass:50, radial:true};
+var FUEL_DUCT = {name:"FTX-2 External Fuel Duct", type:TYPES.DUCT, cost:650, mass:0.050, radial:true};
 
 var EARTH_GRAVITY = 9.81;  //m/s^2
 
@@ -167,17 +167,17 @@ var KSP = {
 		//Engine fuel consumption at specified atmospheric pressure (kg/s)
 		consumption : function (atm, engine) {
 			atm = Math.min(Math.max(atm, 0), 1);  //Atmospheric pressure's affect on engines maxes out at 1 (TODO: Confirm this)
-			return engine.thrust / ((engine.isp_vac * EARTH_GRAVITY) - ((engine.isp_vac - engine.isp_atm) * EARTH_GRAVITY * (atm || 0)));
+			return (engine.thrust * 1000) / ((engine.isp_vac * EARTH_GRAVITY) - ((engine.isp_vac - engine.isp_atm) * EARTH_GRAVITY * (atm || 0)));
 		},
 		
 		//Engine fuel consumption in vacuum (kg/s)
 		consumptionVac : function (engine) {
-			return engine.thrust / (engine.isp_vac * EARTH_GRAVITY);
+			return (engine.thrust * 1000) / (engine.isp_vac * EARTH_GRAVITY);
 		},
 		
 		//Engine fuel consumption in atmosphere (kg/s)
 		consumptionAtm : function (engine) {
-			return engine.thrust / (engine.isp_atm * EARTH_GRAVITY);
+			return (engine.thrust * 1000) / (engine.isp_atm * EARTH_GRAVITY);
 		}
 	},
 	
@@ -191,13 +191,13 @@ var KSP = {
 				(stage.decouplers ? stage.decouplers.map(pluckNumber.bind(this, "cost")).reduce(sum, 0) : 0);
 		},
 		
-		//Thrust of active engines during this stage only (N)
+		//Thrust of active engines during this stage only (kN)
 		thrust : function (stage) {
 			return (stage.lfoEngines ? stage.lfoEngines.map(pluckNumber.bind(this, "thrust")).reduce(sum, 0) : 0) + 
 				(stage.boosters ? stage.boosters.map(pluckNumber.bind(this, "thrust")).reduce(sum, 0) : 0);
 		},
 		
-		//Mass of this stage only (kg)
+		//Mass of this stage only (t)
 		massStart : function (stage) {
 			return (stage.payload || 0) + 
 				(stage.others ? stage.others.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
@@ -207,7 +207,7 @@ var KSP = {
 				(stage.decouplers ? stage.decouplers.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0);
 		},
 		
-		//Mass of this stage only at end of burn (kg)
+		//Mass of this stage only at end of burn (t)
 		massEndStage : function (stage) {
 			return (stage.payload || 0) + 
 				(stage.others ? stage.others.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
@@ -225,7 +225,7 @@ var KSP = {
 		
 		//Combined specific impulse at atmospheric pressure (m/s)
 		impulse : function (stage, atm) {
-			return (KSP.Stage.thrust(stage) / KSP.Stage.consumption(stage, atm)) || 0;
+			return ((KSP.Stage.thrust(stage) * 1000) / KSP.Stage.consumption(stage, atm)) || 0;
 		}
 	},
 	
@@ -236,26 +236,26 @@ var KSP = {
 				(stage.next ? KSP.Stages.cost(stage.next) : 0);
 		},
 		
-		//Thrust of all active engines during this stage (N)
+		//Thrust of all active engines during this stage (kN)
 		thrust : function (stage) {
 			return KSP.Stage.thrust(stage) +
 				(stage.parallel ? KSP.Stages.thrust(stage.next) : 0);
 		},
 		
-		//Total mass of all stages (kg)
+		//Total mass of all stages (t)
 		massStart : function (stage) {
 			return KSP.Stage.massStart(stage) +
 				(stage.next ? KSP.Stages.massStart(stage.next) : 0);
 		},
 		
-		//Total mass of all stages at end of burn of this stage (kg)
+		//Total mass of all stages at end of burn of this stage (t)
 		massEndStage : function (stage) {
 			if (stage.parallel && !stage.asparagus) throw new Error("Parallel staging (without asparagus) is not yet supported.");
 			return KSP.Stage.massEndStage(stage) +
 				(stage.next ? KSP.Stages.massStart(stage.next) : 0);
 		},
 		
-		//Total mass of all stages at end of burn of all stages (kg)
+		//Total mass of all stages at end of burn of all stages (t)
 		massEndTotal : function (stage) {
 			if (stage.parallel && !stage.asparagus) throw new Error("Parallel staging (without asparagus) is not yet supported.");
 			return KSP.Stage.massEndStage(stage) +
@@ -275,12 +275,12 @@ var KSP = {
 		
 		//Combined specific impulse at atmospheric pressure (m/s)
 		impulse : function (stage, atm) {
-			return (KSP.Stages.thrust(stage) / KSP.Stages.consumption(stage, atm)) || 0;
+			return ((KSP.Stages.thrust(stage) * 1000) / KSP.Stages.consumption(stage, atm)) || 0;
 		},
 		
 		//Delta-V at atmospheric pressure of this stage only (m/s^2)
 		deltaVStage : function (stage, atm) {
-			return Math.log(KSP.Stages.massStart(stage) / KSP.Stages.massEndStage(stage)) * KSP.Stages.impulse(stage, atm);
+			return Math.log((KSP.Stages.massStart(stage) * 1000) / (KSP.Stages.massEndStage(stage) * 1000)) * KSP.Stages.impulse(stage, atm);
 		},
 		
 		//Delta-V at atmospheric pressure of all stages (m/s^2)
@@ -319,6 +319,7 @@ function fixArgs(args) {
 	args.atm = args.atm || 0;
 	args.asparagus = !!(args.next.lfoEngines || 0).length && !!args.asparagus;
 	args.parallel = /*!!args.parallel || */args.asparagus;  //FIXME: Parallel disabled until supported without asparagus
+	args.decoupling = (args.decoupling !== false);
 	args.stages = args.stages || 1;
 	args.stagesAsparagus = !!args.stagesAsparagus;
 	args.stagesParallel = !!args.stagesParallel || args.stagesAsparagus;
@@ -374,8 +375,9 @@ function findOptimalStage(args) {
 			//add engine x multipler
 			for (var x = 0; x < engineMultiplier; ++x) {
 				stage.lfoEngines.push(engine);
-				if (!engine.radial || ec === engineMultiplier) {
-					//add decouplers
+				
+				//add decouplers
+				if (args.decoupling && (!engine.radial || ec === engineMultiplier)) {
 					if (ec === 1 && engineMultiplier === 1) {
 						if (args.parts.stackDecouplers[0]) stage.decouplers.push(args.parts.stackDecouplers[0]);
 					} else {
@@ -444,6 +446,7 @@ function findOptimalStage(args) {
 						continue nextTank;
 					}
 				}
+				stage.lfoTanks = [];  //tanks are too heavy, restart with a lighter tank
 			}
 		}
 	}
@@ -472,8 +475,8 @@ function findOptimalStage(args) {
 			for (var x = 0; x < engineMultiplier; ++x) {
 				stage.boosters.push(booster);
 				
-				if (!booster.radial || bc === engineMultiplier) {
-					//add decouplers
+				//add decouplers
+				if (args.decoupling && (!booster.radial || bc === engineMultiplier)) {
 					if (bc === 1 && engineMultiplier === 1) {
 						if (args.parts.stackDecouplers[0]) stage.decouplers.push(args.parts.stackDecouplers[0]);
 					} else {
@@ -535,6 +538,7 @@ function findRandomOptimalStaging(args) {
 			secondArgs.deltaV = args.deltaV - firstArgs.deltaV;
 			secondArgs.parallel = !!args.stagesParallel;
 			secondArgs.asparagus = !!args.stagesAsparagus;
+			secondArgs.decoupling = true;
 			secondArgs.stages = args.stages - 1;
 			var secondStage = findOptimalStage(secondArgs);
 			
