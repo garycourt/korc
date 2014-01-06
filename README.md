@@ -23,6 +23,16 @@ The program will constantly keep generating new designs, and displays only the t
 
 Be aware that this program runs locally in your web browser, and will max out your CPU while running. Don't forget to click "Stop" before switching back to Kerbal Space Program!
 
+If you are getting wildly different numbers in Kerbal Engineer, it's likely that you've enabled Atmospheric Stats in one tool and not the other. Or else you've messed up your staging.
+
+## Roadmap
+
+* Add burn time to results
+* Support parallel staging (all stages fire at same time)
+* Add parts from other mods
+* Add option for adding size adapters
+* Add options for keeping tanks/decouplers all the same size
+
 ## Support This Project
 
 Find this tool useful? Like to see it continually supported?
