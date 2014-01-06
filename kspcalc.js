@@ -1,3 +1,31 @@
+/*!
+
+Copyright (c) 2013, Gary Court
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+*/
+
 var PLANETS = [
     {name:"None", gravity:0},
 	{name:"Moho", gravity:2.70},
@@ -154,67 +182,111 @@ var KSP = {
 	},
 	
 	Stage : {
-		//Total cost of all stages
+		//Cost of this stage only
 		cost : function (stage) {
-			return (stage.other ? stage.other.map(pluckNumber.bind(this, "cost")).reduce(sum, 0) : 0) +
+			return (stage.others ? stage.others.map(pluckNumber.bind(this, "cost")).reduce(sum, 0) : 0) +
 				(stage.lfoTanks ? stage.lfoTanks.map(pluckNumber.bind(this, "cost")).reduce(sum, 0) : 0) + 
 				(stage.lfoEngines ? stage.lfoEngines.map(pluckNumber.bind(this, "cost")).reduce(sum, 0) : 0) +
 				(stage.boosters ? stage.boosters.map(pluckNumber.bind(this, "cost")).reduce(sum, 0) : 0) +
-				(stage.decouplers ? stage.decouplers.map(pluckNumber.bind(this, "cost")).reduce(sum, 0) : 0) +
-				(stage.next ? KSP.Stage.cost(stage.next) : 0);
+				(stage.decouplers ? stage.decouplers.map(pluckNumber.bind(this, "cost")).reduce(sum, 0) : 0);
 		},
 		
-		//Thrust of all active engines during this stage (N)
+		//Thrust of active engines during this stage only (N)
 		thrust : function (stage) {
 			return (stage.lfoEngines ? stage.lfoEngines.map(pluckNumber.bind(this, "thrust")).reduce(sum, 0) : 0) + 
-				(stage.boosters ? stage.boosters.map(pluckNumber.bind(this, "thrust")).reduce(sum, 0) : 0) +
-				(stage.parallel ? KSP.Stage.thrust(stage.next) : 0);
+				(stage.boosters ? stage.boosters.map(pluckNumber.bind(this, "thrust")).reduce(sum, 0) : 0);
 		},
 		
-		//Total mass at start of this stage (kg)
+		//Mass of this stage only (kg)
 		massStart : function (stage) {
 			return (stage.payload || 0) + 
-				(stage.other ? stage.other.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
+				(stage.others ? stage.others.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
 				(stage.lfoTanks ? stage.lfoTanks.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) + stage.lfoTanks.map(pluckNumber.bind(this, "mass_fuel")).reduce(sum, 0) : 0) + 
 				(stage.lfoEngines ? stage.lfoEngines.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
 				(stage.boosters ? stage.boosters.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) + stage.boosters.map(pluckNumber.bind(this, "mass_fuel")).reduce(sum, 0) : 0) +
-				(stage.decouplers ? stage.decouplers.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
-				(stage.next ? KSP.Stage.massStart(stage.next) : 0);
+				(stage.decouplers ? stage.decouplers.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0);
 		},
 		
-		//Total mass at end of this stage (kg)
-		massEnd : function (stage) {
-			if (stage.parallel && !stage.asparagus) throw new Error("Parallel staging (without asparagus) is not yet supported.");
+		//Mass of this stage only at end of burn (kg)
+		massEndStage : function (stage) {
 			return (stage.payload || 0) + 
-				(stage.other ? stage.other.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
+				(stage.others ? stage.others.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
 				(stage.lfoTanks ? stage.lfoTanks.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) + 
 				(stage.lfoEngines ? stage.lfoEngines.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
 				(stage.boosters ? stage.boosters.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
-				(stage.decouplers ? stage.decouplers.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
-				(stage.next ? KSP.Stage.massStart(stage.next) : 0);
-		},
-		
-		//Thrust-to-Weight Ratio
-		twr : function (stage, planet) {
-			return KSP.Stage.thrust(stage) / (KSP.Stage.massStart(stage) * planet.gravity);
+				(stage.decouplers ? stage.decouplers.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0);
 		},
 		
 		//Total stage fuel consumption at specified atmospheric pressure (kg/s)
 		consumption : function (stage, atm) {
 			return (stage.lfoEngines ? stage.lfoEngines.map(KSP.Engine.consumption.bind(this, atm)).reduce(sum, 0) : 0) + 
-				(stage.boosters ? stage.boosters.map(KSP.Engine.consumption.bind(this, atm)).reduce(sum, 0) : 0) +
-				(stage.parallel ? KSP.Stage.consumption(stage.next, atm) : 0);
+				(stage.boosters ? stage.boosters.map(KSP.Engine.consumption.bind(this, atm)).reduce(sum, 0) : 0);
 		},
 		
 		//Combined specific impulse at atmospheric pressure (m/s)
 		impulse : function (stage, atm) {
-			return KSP.Stage.thrust(stage) / 
-				KSP.Stage.consumption(stage, atm);
+			return (KSP.Stage.thrust(stage) / KSP.Stage.consumption(stage, atm)) || 0;
+		}
+	},
+	
+	Stages : {
+		//Total cost of all stages
+		cost : function (stage) {
+			return KSP.Stage.cost(stage) +
+				(stage.next ? KSP.Stages.cost(stage.next) : 0);
 		},
 		
-		//Delta-V at atmospheric pressure (m/s^2)
-		deltaV : function (stage, atm) {
-			return Math.log(KSP.Stage.massStart(stage) / KSP.Stage.massEnd(stage)) * KSP.Stage.impulse(stage, atm);
+		//Thrust of all active engines during this stage (N)
+		thrust : function (stage) {
+			return KSP.Stage.thrust(stage) +
+				(stage.parallel ? KSP.Stages.thrust(stage.next) : 0);
+		},
+		
+		//Total mass of all stages (kg)
+		massStart : function (stage) {
+			return KSP.Stage.massStart(stage) +
+				(stage.next ? KSP.Stages.massStart(stage.next) : 0);
+		},
+		
+		//Total mass of all stages at end of burn of this stage (kg)
+		massEndStage : function (stage) {
+			if (stage.parallel && !stage.asparagus) throw new Error("Parallel staging (without asparagus) is not yet supported.");
+			return KSP.Stage.massEndStage(stage) +
+				(stage.next ? KSP.Stages.massStart(stage.next) : 0);
+		},
+		
+		//Total mass of all stages at end of burn of all stages (kg)
+		massEndTotal : function (stage) {
+			if (stage.parallel && !stage.asparagus) throw new Error("Parallel staging (without asparagus) is not yet supported.");
+			return KSP.Stage.massEndStage(stage) +
+				(stage.next ? KSP.Stages.massEndTotal(stage.next) : 0);
+		},
+		
+		//Thrust-to-Weight Ratio
+		twr : function (stage, planet) {
+			return KSP.Stages.thrust(stage) / (KSP.Stages.massStart(stage) * planet.gravity);
+		},
+		
+		//Total stage fuel consumption at specified atmospheric pressure (kg/s)
+		consumption : function (stage, atm) {
+			return KSP.Stage.consumption(stage, atm) +
+				(stage.parallel ? KSP.Stages.consumption(stage.next, atm) : 0);
+		},
+		
+		//Combined specific impulse at atmospheric pressure (m/s)
+		impulse : function (stage, atm) {
+			return (KSP.Stages.thrust(stage) / KSP.Stages.consumption(stage, atm)) || 0;
+		},
+		
+		//Delta-V at atmospheric pressure of this stage only (m/s^2)
+		deltaVStage : function (stage, atm) {
+			return Math.log(KSP.Stages.massStart(stage) / KSP.Stages.massEndStage(stage)) * KSP.Stages.impulse(stage, atm);
+		},
+		
+		//Delta-V at atmospheric pressure of all stages (m/s^2)
+		deltaVTotal : function (stage, atm) {
+			return KSP.Stages.deltaVStage(stage, atm) +
+				(stage.next ? KSP.Stages.deltaVTotal(stage.next, atm) : 0);
 		},
 		
 		humanize : function (stage, planet, atm) {
@@ -224,16 +296,16 @@ var KSP = {
 			if (stage.lfoTanks && stage.lfoTanks.length) strBuild.push("LF/O Tanks: " + KSP.Parts.humanize(stage.lfoTanks));
 			if (stage.boosters && stage.boosters.length) strBuild.push("Boosters: " + KSP.Parts.humanize(stage.boosters));
 			if (stage.decouplers && stage.decouplers.length) strBuild.push("Decouplers: " + KSP.Parts.humanize(stage.decouplers));
-			if (stage.other && stage.other.length) strBuild.push("Other: " + KSP.Parts.humanize(stage.other));
+			if (stage.others && stage.others.length) strBuild.push("Other: " + KSP.Parts.humanize(stage.others));
 			if ((stage.lfoEngines && stage.lfoEngines.length) || (stage.boosters && stage.boosters.length)) {
-				if (typeof atm === "number") strBuild.push("Delta-V: " + Math.round(KSP.Stage.deltaV(stage, atm)));
-				if (planet) strBuild.push("TWR: " + KSP.Stage.twr(stage, planet).toFixed(2));
+				if (typeof atm === "number") strBuild.push("Delta-V: " + Math.round(KSP.Stages.deltaVStage(stage, atm)));
+				if (planet) strBuild.push("TWR: " + KSP.Stages.twr(stage, planet).toFixed(2));
 			}
 			if (stage.parallel) {
 				if (stage.asparagus) strBuild.push("ASPARAGUS");
 				else strBuild.push("PARALLEL");
 			}
-			return (stage.next ? KSP.Stage.humanize(stage.next, planet, atm) + "\n" : "") + strBuild.join("; ");
+			return (stage.next ? KSP.Stages.humanize(stage.next, planet, atm) + "\n" : "") + strBuild.join("; ");
 		}
 	}
 };
@@ -262,9 +334,9 @@ function fixArgs(args) {
 function getMetric(stage, args) {
 	var metric;
 	if (args.optimization === "cost") {
-		metric = KSP.Stage.cost(stage);
+		metric = KSP.Stages.cost(stage);
 	} else {
-		metric = KSP.Stage.massStart(stage);
+		metric = KSP.Stages.massStart(stage);
 	}
 	return metric;
 }
@@ -280,7 +352,7 @@ function findOptimalStage(args) {
 	var stage = {
 		next : args.next,
 		payload : 0,
-		other : [],
+		others : [],
 		lfoEngines : [],
 		lfoTanks : [],
 		boosters : [],
@@ -295,7 +367,7 @@ function findOptimalStage(args) {
 		var engine = args.parts.lfoEngines[e];
 		stage.lfoEngines = [];
 		stage.decouplers = [];
-		stage.other = [];
+		stage.others = [];
 		if (engineMultiplier === 1 && engine.radial) stage.lfoEngines.push(engine);  //prevents a single radial engine
 		var maxEngineCount = (engine.thrust ? (engine.radial ? 16 : 8) : 1) - stage.lfoEngines.length;
 		nextEngineCount: for (var ec = engineMultiplier; ec <= maxEngineCount; ec += engineMultiplier) {
@@ -318,7 +390,7 @@ function findOptimalStage(args) {
 					}
 					
 					//add fuel ducts for asparagus staging
-					if (stage.asparagus) stage.other.push(FUEL_DUCT);
+					if (stage.asparagus) stage.others.push(FUEL_DUCT);
 				}
 			}
 			
@@ -338,16 +410,16 @@ function findOptimalStage(args) {
 						}
 					}
 					
-					if (args.twr && KSP.Stage.twr(stage, args.planet) < args.twr) {
+					if (args.twr && KSP.Stages.twr(stage, args.planet) < args.twr) {
 						continue nextTankCount;
-					} else if (KSP.Stage.deltaV(stage, args.atm) >= args.deltaV) {
+					} else if (KSP.Stages.deltaVStage(stage, args.atm) >= args.deltaV) {
 						stage.metric = getMetric(stage, args);
 						
 						if (!bestStage || stage.metric < bestStage.metric) {
 							bestStage = {
 								next : stage.next,
 								payload : stage.payload,
-								other : stage.other.slice(),
+								others : stage.others.slice(),
 								lfoEngines : stage.lfoEngines.slice(),
 								lfoTanks : stage.lfoTanks.slice(),
 								boosters : stage.boosters.slice(),
@@ -379,7 +451,7 @@ function findOptimalStage(args) {
 	stage = {
 		next : args.next,
 		payload : 0,
-		other : [],
+		others : [],
 		lfoEngines : [],
 		lfoTanks : [],
 		boosters : [],
@@ -417,16 +489,16 @@ function findOptimalStage(args) {
 				}
 			}
 			
-			if (args.twr && KSP.Stage.twr(stage, args.planet) < args.twr) {
+			if (args.twr && KSP.Stages.twr(stage, args.planet) < args.twr) {
 				continue nextBoosterCount;
-			} else if (KSP.Stage.deltaV(stage, args.atm) >= args.deltaV) {
+			} else if (KSP.Stages.deltaVStage(stage, args.atm) >= args.deltaV) {
 				stage.metric = getMetric(stage, args);
 				
 				if (!bestStage || stage.metric < bestStage.metric) {
 					bestStage = {
 						next : stage.next,
 						payload : stage.payload,
-						other : stage.other.slice(),
+						others : stage.others.slice(),
 						lfoEngines : stage.lfoEngines.slice(),
 						lfoTanks : stage.lfoTanks.slice(),
 						boosters : stage.boosters.slice(),
@@ -483,17 +555,23 @@ function findRandomOptimalStaging(args) {
 }
 
 function searchForOptimalStaging(args, callback) {
-	var intervalId = setInterval(function () {
-		var staging = findRandomOptimalStaging(args);
-		if (staging) staging.id = args.id;
-		if (args.stages < 2) {
-			clearInterval(intervalId);
+	var timerId;
+	var cancelled = false;
+	var routine = function routine() {
+		if (!cancelled) {
+			var staging = findRandomOptimalStaging(args);
+			if (staging) staging.id = args.id;
+			if (args.stages > 1) {
+				timerId = setTimeout(routine, (args.interval || 10));
+			}
+			callback(staging);
 		}
-		callback(staging);
-	}, 100);
+	}
+	timerId = setTimeout(routine, (args.interval || 10));
 	
 	return function cancel() {
-		clearInterval(intervalId);
+		cancelled = true;
+		clearTimeout(timerId);
 	}
 }
 

@@ -1,8 +1,39 @@
 <!doctype html>
 <html ng-app>
 <head>
+	<!--
+
+Copyright (c) 2013, Gary Court
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+	-->
 	<title>KSP Optimal Rocket Calculator</title>
 	<style type="text/css">
+
+.page-footer {
+	margin-top: 32px;
+}
 
 .form-control-minimal {
 	border: none;
@@ -12,6 +43,12 @@
 .input-group-addon.mathml {
 	padding-top: 5px;
 	padding-bottom: 5px;
+}
+
+.help-block.warning {
+	margin-top: 1em;
+	font-size: 0.8em;
+	color: #f00;
 }
 
 .panel-heading-pill {
@@ -32,6 +69,8 @@
 .availableParts.well {
 	padding-top: 0;
 	padding-bottom: 0;
+	background-image: none;
+	background-color: #f5f5f5;
 }
 
 .partList .partList {
@@ -65,11 +104,15 @@
 
 .searchResults .decouplers { color: gray; }
 .searchResults .payload { color: black; }
-.searchResults .other { color: orange; }
+.searchResults .others { color: orange; }
 .searchResults .lfoTanks { color: darkblue; }
 .searchResults .lfoEngines { color: crimson; }
 .searchResults .boosters { color: darkviolet; }
 .searchResults .multiplier { font-weight: bold; }
+
+.donate-line {
+	margin: 0;
+}
 
 	</style>
 	<link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
@@ -101,12 +144,12 @@ function sortParts(parts, optimization) {
 function SettingsController($scope) {
 	//default settings
 	$scope.optimization = "mass";
-	$scope.payload = 1000;
-	$scope.deltaV = 4600;
-	$scope.planet = PLANETS[4];
+	$scope.payload;
+	$scope.deltaV;
+	$scope.planet = PLANETS[0];
 	$scope.gravity = $scope.planet.gravity;
 	$scope.twr = 1.2;
-	$scope.stages = 1;
+	$scope.stages = 3;
 	$scope.parallel = false;
 	$scope.asparagus = false;
 	$scope.atmosphere = false;
@@ -120,6 +163,7 @@ function SettingsController($scope) {
 		});
 		return result;
 	});
+	$scope.webworkersSupported = false;
 	$scope.searching = false;
 	$scope.maxStagings = 20;
 	$scope.bestStagings = [];
@@ -143,18 +187,23 @@ function SettingsController($scope) {
 				attempt : $scope.bestStagingsCount + 1,
 				optimization : staging.optimization,
 				metric : staging.metric,
-				deltaV : Math.round(KSP.Stage.deltaV(staging)),
+				deltaV : Math.round(KSP.Stages.deltaVTotal(staging)),
 				stages : []
 			};
+			var runningDeltaVTotal = 0;
 			var currentStage = staging;
 			while (currentStage) {
 				var newStage = Object.create(currentStage);
 				newStage.next = undefined;
-				newStage.cost = KSP.Stage.cost(currentStage);
-				newStage.mass = KSP.Stage.massStart(currentStage);
-				newStage.deltaV = KSP.Stage.deltaV(currentStage, args.atm) || 0;
-				newStage.twr = KSP.Stage.twr(currentStage, args.planet) || 0;
-				newStage.other = KSP.Parts.countUnique(currentStage.other);
+				newStage.costStage = KSP.Stage.cost(currentStage);
+				newStage.costTotal = KSP.Stages.cost(currentStage);
+				newStage.massStage = KSP.Stage.massStart(currentStage);
+				newStage.massTotal = KSP.Stages.massStart(currentStage);
+				newStage.deltaVStage = KSP.Stages.deltaVStage(currentStage, args.atm);
+				runningDeltaVTotal += newStage.deltaVStage
+				newStage.deltaVTotal = runningDeltaVTotal;
+				newStage.twr = KSP.Stages.twr(currentStage, args.planet);
+				newStage.others = KSP.Parts.countUnique(currentStage.others);
 				newStage.lfoEngines = KSP.Parts.countUnique(currentStage.lfoEngines).reverse();
 				newStage.lfoTanks = KSP.Parts.countUnique(currentStage.lfoTanks).reverse();
 				newStage.boosters = KSP.Parts.countUnique(currentStage.boosters).reverse();
@@ -172,7 +221,6 @@ function SettingsController($scope) {
 		staging = convertStaging(staging, $scope.bestStagingsArgs);
 		var bestStagings = $scope.bestStagings;
 		if (staging && staging.id === $scope.bestStagingsArgs.id) {
-			$scope.bestStagingsCount++;
 			if (bestStagings.length < $scope.maxStagings || staging.metric < bestStagings[bestStagings.length-1].metric) {
 				var index = _.sortedIndex(bestStagings, staging, "metric");
 				if (!bestStagings[index] || bestStagings[index].metric !== staging.metric) {
@@ -187,7 +235,12 @@ function SettingsController($scope) {
 	
 	//methods
 	$scope.startSearch = function (args) {
-		$scope.stopSearch = searchForOptimalStaging(args, onSearchResult);
+		args.interval = 500;  //slow down the search when processing in the main thread
+		$scope.stopSearch = searchForOptimalStaging(args, function (staging) {
+			$scope.$apply(function () {
+				onSearchResult(staging);
+			});
+		});
 	};
 	
 	$scope.stopSearch = function () {};  //overwritten by startSearch
@@ -305,6 +358,7 @@ function SettingsController($scope) {
 					kspcalcWorkers[x].postMessage({cancel:true});
 				}
 			};
+			$scope.webworkersSupported = true;
 		} catch (e) {
 			console.error("Failed to create web workers", e);
 			kspcalcWorkers = null;
@@ -317,13 +371,13 @@ function SettingsController($scope) {
 <body>
 	<div class="container">
 		<div class="page-header">
-			<h1>KSP Optimal Rocket Calculator</h1>
+			<h1>Optimal Rocket Calculator <small>for Kerbal Space Program 0.23</small></h1>
 		</div>
 		
 		<div ng-controller="SettingsController">
 		
-			<div class="row">
-				<div class="settings col-md-6">
+			<form name="settings" class="row">
+				<div class="col-md-6">
 					<div class="arguments form-horizontal">
 						<div class="form-group">
 							<label for="settingsOptimization" class="control-label col-sm-6">Optimize For</label>
@@ -338,8 +392,8 @@ function SettingsController($scope) {
 						<div class="form-group">
 							<label for="settingsPayload" class="control-label col-sm-6">Payload</label>
 							<div class="col-sm-6">
-								<div class="input-group">
-									<input type="number" name="payload" min="0" step="1" placeholder="0" id="settingsPayload" class="form-control" ng-model="payload"/>
+								<div class="input-group" ng-class="{'has-error': !payload}">
+									<input type="number" name="payload" required="required" min="0" step="1" placeholder="0" id="settingsPayload" class="form-control" ng-model="payload"/>
 									<span class="input-group-addon mathml"><math><mi>kg</mi></math></span>
 								</div>
 							</div>
@@ -348,8 +402,8 @@ function SettingsController($scope) {
 						<div class="form-group">
 							<label for="settingsDeltaV" class="control-label col-sm-6">Minimum Delta-V</label>
 							<div class="col-sm-6">
-								<div class="input-group">
-									<input type="number" name="deltaV" min="0" step="1" placeholder="0" id="settingsDeltaV" class="form-control" ng-model="deltaV"/>
+								<div class="input-group" ng-class="{'has-error': !deltaV}">
+									<input type="number" name="deltaV" required="required" min="0" step="1" placeholder="0" id="settingsDeltaV" class="form-control" ng-model="deltaV"/>
 									<span class="input-group-addon mathml"><math><mi>m</mi><mo>/</mo><msup><mi>s</mi><mn>2</mn></msup></math></span>
 								</div>
 							</div>
@@ -406,7 +460,8 @@ function SettingsController($scope) {
 						
 						<div class="actions row">
 							<div class="col-sm-offset-6 col-sm-6">
-								<button class="btn btn-default" ng-click="search()">Search</button>
+								<button class="btn btn-primary" ng-disabled="settings.$invalid" ng-click="search()">Search</button>
+								<p class="help-block warning" ng-if="!webworkersSupported">This browser does not support web workers, searching will be slow!</p>
 							</div>
 						</div>
 					</div>
@@ -430,12 +485,32 @@ function SettingsController($scope) {
 						</div>
 					</div>
 				</div>
+			</form>
+			
+			<div class="donate">
+				<div class="alert alert-warning">
+					<h4>Find this tool useful? Like to see it continuely supported?</h4>
+					<p>
+						I am a self-employed software developer who built this in my free time. 
+						Unfortunately, I can't work on stuff like this all the time as I have to make money to eat and live.
+						With your support, I can continue working on other great tools for Kerbal Space Program that everyone can benefit from!
+					</p>
+					<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+						<input type="hidden" name="cmd" value="_s-xclick"/>
+						<input type="hidden" name="hosted_button_id" value="6E5RDXCCFK2KC"/>
+						<p class="donate-line">
+							Every little bit helps. So please, consider donating to my cause: 
+							<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" class="btn" border="0" name="submit" alt="Donate via PayPal" style="vertical-align:middle;"/>
+						</p>
+					</form>
+				</div>
 			</div>
 		
-			<div class="searchProgress alert alert-info text-center">
-				<h2>Searched Rocket Designs: {{bestStagingsCount}}</h2>
+			<div class="searchProgress alert alert-info text-center" ng-show="bestStagingsArgs">
+				<h2 ng-if="bestStagingsArgs.stages > 1">Searched Rocket Designs: {{bestStagingsCount}}</h2>
+				<h2 ng-if="bestStagingsArgs.stages <= 1">Search Finished!</h2>
 				<div class="actions pull-right">
-					<button class="btn btn-default" ng-click="stop()" ng-disabled="!searching">Stop</button>
+					<button class="btn btn-danger" ng-click="stop()" ng-hide="!searching || bestStagingsArgs.stages <= 1">Stop</button>
 				</div>
 			</div>
 			
@@ -465,15 +540,15 @@ function SettingsController($scope) {
 									<ol>
 										<li class="decouplers" ng-repeat="part in stage.decouplers">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
 										<li class="payload" ng-if="stage.payload > 0">Payload: {{stage.payload}}kg</li>
-										<li class="other" ng-repeat="part in stage.other">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
+										<li class="others" ng-repeat="part in stage.others">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
 										<li class="lfoTanks" ng-repeat="part in stage.lfoTanks">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
 										<li class="lfoEngines" ng-repeat="part in stage.lfoEngines">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
 										<li class="boosters" ng-repeat="part in stage.boosters">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
 									</ol>
 								</td>
-								<td>{{stage.cost}}</td>
-								<td>{{Math.round(stage.mass)}}</td>
-								<td>{{Math.round(stage.deltaV)}}</td>
+								<td>{{stage.costStage}} / {{stage.costTotal}}</td>
+								<td>{{Math.round(stage.massStage)}} / {{Math.round(stage.massTotal)}}</td>
+								<td>{{Math.round(stage.deltaVStage)}} / {{Math.round(stage.deltaVTotal)}}</td>
 								<td>{{stage.twr.toFixed(2)}}</td>
 							</tr>
 						</tbody>
@@ -481,6 +556,10 @@ function SettingsController($scope) {
 				</details>
 			</div>
 			
+		</div>
+		
+		<div class="page-footer">
+			<p class="text-center">&copy; 2013 Gary Court - Licensed under the <a href="LICENSE">BSD License</a></p>
 		</div>
 	</div>
 </body>
