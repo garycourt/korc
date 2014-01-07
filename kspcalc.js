@@ -114,9 +114,10 @@ var PACKS = [
 	}
 ];
 
+var NO_ENGINE = {name:"", type:TYPES.LFO_ENGINE, cost:0, mass:0, thrust:0, isp_vac:0, isp_atm:0};
 var FUEL_DUCT = {name:"FTX-2 External Fuel Duct", type:TYPES.DUCT, cost:650, mass:0.050, radial:true};
 
-var EARTH_GRAVITY = 9.81;  //m/s^2
+var CONVERSION_FACTOR = 9.82;  //m/s^2
 
 var OPTIMIZATION_NAMES = {
 	"mass" : "Mass",
@@ -167,17 +168,17 @@ var KSP = {
 		//Engine fuel consumption at specified atmospheric pressure (kg/s)
 		consumption : function (atm, engine) {
 			atm = Math.min(Math.max(atm, 0), 1);  //Atmospheric pressure's affect on engines maxes out at 1 (TODO: Confirm this)
-			return (engine.thrust * 1000) / ((engine.isp_vac * EARTH_GRAVITY) - ((engine.isp_vac - engine.isp_atm) * EARTH_GRAVITY * (atm || 0)));
+			return ((engine.thrust * 1000) / ((engine.isp_vac * CONVERSION_FACTOR) - ((engine.isp_vac - engine.isp_atm) * CONVERSION_FACTOR * (atm || 0)))) || 0;
 		},
 		
 		//Engine fuel consumption in vacuum (kg/s)
 		consumptionVac : function (engine) {
-			return (engine.thrust * 1000) / (engine.isp_vac * EARTH_GRAVITY);
+			return ((engine.thrust * 1000) / (engine.isp_vac * CONVERSION_FACTOR)) || 0;
 		},
 		
 		//Engine fuel consumption in atmosphere (kg/s)
 		consumptionAtm : function (engine) {
-			return (engine.thrust * 1000) / (engine.isp_atm * EARTH_GRAVITY);
+			return ((engine.thrust * 1000) / (engine.isp_atm * CONVERSION_FACTOR)) || 0;
 		}
 	},
 	
@@ -264,7 +265,7 @@ var KSP = {
 		
 		//Thrust-to-Weight Ratio
 		twr : function (stage, planet) {
-			return KSP.Stages.thrust(stage) / (KSP.Stages.massStart(stage) * planet.gravity);
+			return (KSP.Stages.thrust(stage) / (KSP.Stages.massStart(stage) * planet.gravity)) || 0;
 		},
 		
 		//Total stage fuel consumption at specified atmospheric pressure (kg/s)
@@ -280,7 +281,7 @@ var KSP = {
 		
 		//Delta-V at atmospheric pressure of this stage only (m/s^2)
 		deltaVStage : function (stage, atm) {
-			return Math.log((KSP.Stages.massStart(stage) * 1000) / (KSP.Stages.massEndStage(stage) * 1000)) * KSP.Stages.impulse(stage, atm);
+			return (Math.log((KSP.Stages.massStart(stage) * 1000) / (KSP.Stages.massEndStage(stage) * 1000)) * KSP.Stages.impulse(stage, atm)) || 0;
 		},
 		
 		//Delta-V at atmospheric pressure of all stages (m/s^2)
@@ -317,7 +318,7 @@ function fixArgs(args) {
 	args.planet = args.planet || PLANETS[0];
 	args.twr = args.twr || 0;
 	args.atm = args.atm || 0;
-	args.asparagus = !!(args.next.lfoEngines || 0).length && !!args.asparagus;
+	args.asparagus = !!(args.next.lfoTanks || 0).length && !!args.asparagus;
 	args.parallel = /*!!args.parallel || */args.asparagus;  //FIXME: Parallel disabled until supported without asparagus
 	args.decoupling = (args.decoupling !== false);
 	args.stages = args.stages || 1;
@@ -364,13 +365,13 @@ function findOptimalStage(args) {
 		metric : Infinity
 	};
 	
-	nextEngine: for (var e = 0, el = args.parts.lfoEngines.length; e < el; ++e) {
-		var engine = args.parts.lfoEngines[e];
+	nextEngine: for (var e = 0, el = args.parts.lfoEngines.length; e <= el; ++e) {
+		var engine = args.parts.lfoEngines[e] || NO_ENGINE;
 		stage.lfoEngines = [];
 		stage.decouplers = [];
 		stage.others = [];
 		if (engineMultiplier === 1 && engine.radial) stage.lfoEngines.push(engine);  //prevents a single radial engine
-		var maxEngineCount = (engine.thrust ? (engine.radial ? 16 : 8) : 1) - stage.lfoEngines.length;
+		var maxEngineCount = (engine.thrust ? (engine.radial ? 16 : 8) : engineMultiplier) - stage.lfoEngines.length;
 		nextEngineCount: for (var ec = engineMultiplier; ec <= maxEngineCount; ec += engineMultiplier) {
 			//add engine x multipler
 			for (var x = 0; x < engineMultiplier; ++x) {
@@ -530,6 +531,10 @@ function findOptimalStage(args) {
 				continue nextBooster;
 			}
 		}
+	}
+	
+	if (bestStage && bestStage.lfoEngines[0] === NO_ENGINE) {
+		bestStage.lfoEngines = [];
 	}
 	
 	return bestStage;

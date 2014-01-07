@@ -1,3 +1,7 @@
+**Version 1.3 - January 6, 2014**
+* Fixed Isp conversion factor.
+* Stages are now allowed to have no LF/O engines in an asparagus setup.
+
 **Version 1.2 - January 6, 2014**
 * Added asparagus indicator to staging output.
 * Performance improvement.
