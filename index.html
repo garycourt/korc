@@ -1,6 +1,7 @@
 <!doctype html>
 <html ng-app>
 <head>
+	<meta charset="UTF-8">
 	<!--
 
 Copyright (c) 2013, Gary Court
@@ -38,6 +39,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .form-control-minimal {
 	border: none;
 	background-color: transparent;
+}
+
+.input-group-addon:not(:first-child):not(:last-child) {
+    border-left: 0px none;
+    border-right: 0px none;
 }
 
 .input-group-addon.mathml {
@@ -119,6 +125,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	margin: 0;
 }
 
+.help {
+	float: right;
+}
+
 	</style>
 	<link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
@@ -153,8 +163,9 @@ function SettingsController($scope) {
 	$scope.deltaV;
 	$scope.planet = PLANETS[0];
 	$scope.gravity = $scope.planet.gravity;
-	$scope.twr = 1.2;
-	$scope.stages = 3;
+	$scope.minTWR = 1.2;
+	$scope.maxTWR;
+	$scope.maxStages = 3;
 	$scope.parallel = false;
 	$scope.asparagus = false;
 	$scope.atmosphere = false;
@@ -174,6 +185,8 @@ function SettingsController($scope) {
 	$scope.maxStagings = 20;
 	$scope.bestStagings = [];
 	$scope.bestStagingsCount = 0;
+	$scope.bestStagingsValid = 0;
+	$scope.bestStagingsInvalid = 0;
 	$scope.bestStagingsArgs = null;
 
 	//constants
@@ -195,6 +208,7 @@ function SettingsController($scope) {
 				optimization : staging.optimization,
 				metric : staging.metric,
 				deltaV : Math.round(KSP.Stages.deltaVTotal(staging)),
+				partCount : KSP.Stages.partCount(staging),
 				stages : []
 			};
 			var runningDeltaVTotal = 0;
@@ -227,7 +241,10 @@ function SettingsController($scope) {
 		$scope.bestStagingsCount++;
 		staging = convertStaging(staging, $scope.bestStagingsArgs);
 		var bestStagings = $scope.bestStagings;
-		if (staging && staging.id === $scope.bestStagingsArgs.id) {
+		if (!staging) {
+			$scope.bestStagingsInvalid++;
+		} else if (staging.id === $scope.bestStagingsArgs.id) {
+			$scope.bestStagingsValid++;
 			if (bestStagings.length < $scope.maxStagings || staging.metric < bestStagings[bestStagings.length-1].metric) {
 				var index = _.sortedIndex(bestStagings, staging, "metric");
 				if (!bestStagings[index] || bestStagings[index].metric !== staging.metric) {
@@ -237,6 +254,8 @@ function SettingsController($scope) {
 					}
 				}
 			}
+		} else {
+			$scope.bestStagingsCount--;
 		}
 	}
 	
@@ -280,12 +299,13 @@ function SettingsController($scope) {
 			next : {payload:$scope.payload},
 			deltaV : $scope.deltaV,
 			planet : ($scope.planet ? $scope.planet : {gravity:$scope.gravity}),
-			twr : $scope.twr,
+			minTWR : $scope.minTWR,
+			maxTWR : $scope.maxTWR,
 			atm : ($scope.atmosphere ? 1 : 0),
 			parallel : false,
 			asparagus : false,
 			decoupling : $scope.payloadDecoupler,
-			stages : $scope.stages,
+			maxStages : $scope.maxStages,
 			stagesParallel : $scope.parallel || $scope.asparagus,
 			stagesAsparagus : $scope.asparagus,
 			parts : sortParts($scope.getEnabledParts())
@@ -293,6 +313,8 @@ function SettingsController($scope) {
 		
 		$scope.bestStagings = [];
 		$scope.bestStagingsCount = 0;
+		$scope.bestStagingsValid = 0;
+		$scope.bestStagingsInvalid = 0;
 		$scope.bestStagingsArgs = args;
 		
 		var singleStage = findOptimalStage(args);
@@ -301,7 +323,7 @@ function SettingsController($scope) {
 			onSearchResult(singleStage);
 		}
 		
-		if (args.stages > 1) {
+		if (args.maxStages > 1) {
 			$scope.searching = true;
 			$scope.startSearch(args);
 		}
@@ -320,7 +342,7 @@ function SettingsController($scope) {
 		$scope.planet = null;
 	};
 	$scope.onAsparagusChange = function () {
-		if ($scope.asparagus) $scope.stages = Math.max($scope.stages, 2);
+		if ($scope.asparagus) $scope.maxStages = Math.max($scope.maxStages, 2);
 	};
 	$scope.onPartListItemChange = function (partListItem) {
 		var parts = partListItem.parts;
@@ -393,6 +415,7 @@ function SettingsController($scope) {
 								<select name="optimization" id="settingsOptimization" class="form-control" ng-model="optimization">
 									<option value="mass">Mass</option>
 									<option value="cost">Cost</option>
+									<!--<option value="partCount">Part Count</option>-->
 								</select>
 							</div>
 						</div>
@@ -429,16 +452,20 @@ function SettingsController($scope) {
 						</div>
 						
 						<div class="form-group">
-							<label for="settingsTWR" class="control-label col-sm-6">Minimum Thrust-to-Weight Ratio</label>
+							<label for="settingsMinTWR" class="control-label col-sm-6">Thrust-to-Weight Ratio</label>
 							<div class="col-sm-6">
-								<input type="number" name="twr" min="0" step="0.1" id="settingsTWR" class="form-control" ng-model="twr"/>
+								<div class="input-group">
+									<input type="number" name="minTWR" min="0" step="0.1" placeholder="0" id="settingsMinTWR" class="form-control" ng-model="minTWR"/>
+									<span class="input-group-addon"> to </span>
+									<input type="number" name="maxTWR" min="0" step="0.1" placeholder="Infinity" id="settingsMaxTWR" class="form-control" ng-model="maxTWR"/>
+								</div>
 							</div>
 						</div>
 						
 						<div class="form-group">
-							<label for="settingsStages" class="control-label col-sm-6">Maximum # of Stages</label>
+							<label for="settingsMaxStages" class="control-label col-sm-6">Maximum # of Stages</label>
 							<div class="col-sm-6">
-								<input type="number" name="stages" min="1" step="1" id="settingsStages" class="form-control" ng-model="stages"/>
+								<input type="number" name="maxStages" min="1" step="1" placeholder="3" id="settingsMaxStages" class="form-control" ng-model="maxStages"/>
 							</div>
 						</div>
 						
@@ -449,6 +476,7 @@ function SettingsController($scope) {
 									<label>
 										<input type="checkbox" name="asparagus" id="settingsAsparagus" ng-model="asparagus" ng-change="onAsparagusChange()"/>
 										Asparagus
+										<a href="http://wiki.kerbalspaceprogram.com/wiki/Asparagus_staging" target="_blank" class="help">?</a>
 									</label>
 								</div>
 							</div>
@@ -509,7 +537,7 @@ function SettingsController($scope) {
 						Unfortunately, I can't work on stuff like this all the time as I have to make money to eat and live.
 						With your support, I can continue working on this and other great tools for Kerbal Space Program that everyone can benefit from!
 					</p>
-					<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+					<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
 						<input type="hidden" name="cmd" value="_s-xclick"/>
 						<input type="hidden" name="hosted_button_id" value="6E5RDXCCFK2KC"/>
 						<p class="donate-line">
@@ -522,10 +550,10 @@ function SettingsController($scope) {
 			</div>
 		
 			<div class="searchProgress alert alert-info text-center" ng-show="bestStagingsArgs">
-				<h2 ng-if="bestStagingsArgs.stages > 1">Found {{bestStagingsCount}} Rocket Designs</h2>
-				<h2 ng-if="bestStagingsArgs.stages <= 1">Most Optimal Rocket Design Found!</h2>
+				<h2 ng-if="bestStagingsArgs.maxStages > 1">Found {{bestStagingsValid}} Valid Rocket Designs<small ng-if="bestStagingsInvalid"> (and {{bestStagingsCount}} Invalid)</small></h2>
+				<h2 ng-if="bestStagingsArgs.maxStages <= 1">Most Optimal Rocket Design Found!</h2>
 				<div class="actions pull-right">
-					<button class="btn btn-danger" ng-click="stop()" ng-hide="!searching || bestStagingsArgs.stages <= 1">Stop</button>
+					<button class="btn btn-danger" ng-click="stop()" ng-hide="!searching || bestStagingsArgs.maxStages <= 1">Stop</button>
 				</div>
 			</div>
 			

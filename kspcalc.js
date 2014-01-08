@@ -115,13 +115,14 @@ var PACKS = [
 ];
 
 var NO_ENGINE = {name:"", type:TYPES.LFO_ENGINE, cost:0, mass:0, thrust:0, isp_vac:0, isp_atm:0};
-var FUEL_DUCT = {name:"FTX-2 External Fuel Duct", type:TYPES.DUCT, cost:650, mass:0.050, radial:true};
+var FUEL_DUCT = {name:"FTX-2 External Fuel Duct", type:TYPES.DUCT, cost:650, mass:0, radial:true};  //mass:0.05, but have no mass in flight
 
 var CONVERSION_FACTOR = 9.82;  //m/s^2
 
 var OPTIMIZATION_NAMES = {
 	"mass" : "Mass",
-	"cost" : "Cost"
+	"cost" : "Cost",
+	"partCount" : "Part Count"
 };
 
 function pluckNumber(key, obj) {
@@ -183,6 +184,15 @@ var KSP = {
 	},
 	
 	Stage : {
+		//Number of parts in this stage only
+		partCount : function (stage) {
+			return ((stage.others || 0).length || 0) +
+				((stage.lfoTanks || 0).length || 0) +
+				((stage.lfoEngines || 0).length || 0) +
+				((stage.boosters || 0).length || 0) +
+				((stage.decouplers || 0).length || 0);
+		},
+		
 		//Cost of this stage only
 		cost : function (stage) {
 			return (stage.others ? stage.others.map(pluckNumber.bind(this, "cost")).reduce(sum, 0) : 0) +
@@ -231,6 +241,12 @@ var KSP = {
 	},
 	
 	Stages : {
+		//Number of parts of all stages
+		partCount : function (stage) {
+			return KSP.Stage.partCount(stage) +
+				(stage.next ? KSP.Stages.partCount(stage.next) : 0);
+		},
+		
 		//Total cost of all stages
 		cost : function (stage) {
 			return KSP.Stage.cost(stage) +
@@ -316,12 +332,13 @@ function fixArgs(args) {
 	args.next = args.next || {payload:0};
 	args.deltaV = args.deltaV || 0;
 	args.planet = args.planet || PLANETS[0];
-	args.twr = args.twr || 0;
+	args.minTWR = args.minTWR || 0;
+	args.maxTWR = args.maxTWR || Infinity;
 	args.atm = args.atm || 0;
 	args.asparagus = !!(args.next.lfoTanks || 0).length && !!args.asparagus;
 	args.parallel = /*!!args.parallel || */args.asparagus;  //FIXME: Parallel disabled until supported without asparagus
 	args.decoupling = (args.decoupling !== false);
-	args.stages = args.stages || 1;
+	args.maxStages = args.maxStages || 1;
 	args.stagesAsparagus = !!args.stagesAsparagus;
 	args.stagesParallel = !!args.stagesParallel || args.stagesAsparagus;
 	args.parts = args.parts || {
@@ -335,8 +352,12 @@ function fixArgs(args) {
 
 function getMetric(stage, args) {
 	var metric;
-	if (args.optimization === "cost") {
+	if (args.optimization === "mass") {
+		metric = KSP.Stages.massStart(stage);
+	} else if (args.optimization === "cost") {
 		metric = KSP.Stages.cost(stage);
+	} else if (args.optimization === "partCount") {
+		metric = KSP.Stages.partCount(stage); /*+ 1 - (1 / KSP.Stages.massStart(stage));*/
 	} else {
 		metric = KSP.Stages.massStart(stage);
 	}
@@ -413,7 +434,8 @@ function findOptimalStage(args) {
 						}
 					}
 					
-					if (args.twr && KSP.Stages.twr(stage, args.planet) < args.twr) {
+					var twr = KSP.Stages.twr(stage, args.planet);
+					if (twr < args.minTWR) {
 						if (KSP.Stages.deltaVStage(stage, args.atm) >= args.deltaV) {
 							//last tank was too big
 							if (engine.radial) {
@@ -430,7 +452,7 @@ function findOptimalStage(args) {
 							//engine is too small
 							continue nextEngineCount;
 						}
-					} else if (KSP.Stages.deltaVStage(stage, args.atm) >= args.deltaV) {
+					} else if (twr <= args.maxTWR && KSP.Stages.deltaVStage(stage, args.atm) >= args.deltaV) {
 						stage.metric = getMetric(stage, args);
 						
 						if (!bestStage || stage.metric < bestStage.metric) {
@@ -507,8 +529,11 @@ function findOptimalStage(args) {
 				}
 			}
 			
-			if (args.twr && KSP.Stages.twr(stage, args.planet) < args.twr) {
+			var twr = KSP.Stages.twr(stage, args.planet);
+			if (twr < args.minTWR) {
 				continue nextBoosterCount;
+			} else if (twr > args.maxTWR) {
+				continue nextBooster;
 			} else if (KSP.Stages.deltaVStage(stage, args.atm) >= args.deltaV) {
 				stage.metric = getMetric(stage, args);
 				
@@ -544,7 +569,7 @@ function findRandomOptimalStaging(args) {
 	fixArgs(args);
 	var randomSolution = null;
 	
-	if (args.stages === 1) {
+	if (args.maxStages === 1) {
 		randomSolution = findOptimalStage(args);
 	} else {
 		var firstArgs = Object.create(args);
@@ -558,11 +583,11 @@ function findRandomOptimalStaging(args) {
 			secondArgs.parallel = !!args.stagesParallel;
 			secondArgs.asparagus = !!args.stagesAsparagus;
 			secondArgs.decoupling = true;
-			secondArgs.stages = args.stages - 1;
+			secondArgs.maxStages = args.maxStages - 1;
 			var secondStage = findOptimalStage(secondArgs);
 			
 			var nextStage = null;
-			if (secondArgs.stages > 1) {
+			if (secondArgs.maxStages > 1) {
 				nextStage = findRandomOptimalStaging(secondArgs);
 			}
 			
@@ -584,7 +609,7 @@ function searchForOptimalStaging(args, callback) {
 		if (!cancelled) {
 			var staging = findRandomOptimalStaging(args);
 			if (staging) staging.id = args.id;
-			if (args.stages > 1) {
+			if (args.maxStages > 1) {
 				timerId = setTimeout(routine, (args.interval || 10));
 			}
 			callback(staging);

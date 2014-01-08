@@ -32,6 +32,9 @@ If you are getting wildly different numbers in Kerbal Engineer, it's likely that
 * Add parts from other mods
 * Add option for adding size adapters
 * Add options for keeping tanks/decouplers all the same size
+* Add optimization for total part count
+* Add maximum mass constraint
+* Add maximum total part count constraint
 
 ## Support This Project
 
