@@ -8,15 +8,20 @@ Open index.html in a modern web browser.
 
 1. Enter the mass (in metric tons) of the payload you are trying to move.
 2. Enter the minimum amount of Delta-V you need to accelerate it.
-3. If you are launching it from a planet, select the planet, or enter the force of gravity at your launch point.
-4. Enter the minimum thrust-to-weight ratio you need all stages of the rocket to produce. 
-   Remember that this must be greater then 1 to leave the surface of your selected planet. This field has no affect if there is no gravity.
-5. Enter the maximum number of stages you want your rocket to have.
-   Keep this number low as it increases the calculation times exponentially.
-6. Select if you would like your rocket to use asparagus staging (all engines fire at once, fuel is taken from outer stages first). This always produces lighter rockets and the cost of greater complexity.
-7. You can optionally have all calculations use the engine's atmospheric stats. This is not normally needed as most delta-V cheat sheets use vacuum stats.
-8. Select which parts you have unlocked, or mods you have installed.
-9. Finally, hit search and watch the result come in!
+3. If you are launching your payload from a planet, select the planet, or enter the force of gravity at your launch point.
+4. Select which parts you have unlocked, or mods you have installed.
+5. Hit search and watch the result come in!
+
+Now that you've figured it out, there are many more other constraints you can configure:
+
+* What metric you would like to optimize your rocket for.
+* The minimum (and optionally, maximum) thrust-to-weight ratio you need all stages of the rocket to produce. 
+  Remember that this must be greater then 1 to leave the surface of your selected planet. This field has no affect if there is no gravity.
+* The maximum number of stages you want your rocket to have.
+  Keep this number low as it increases the calculation times exponentially.
+* If you would like your rocket to use asparagus staging (all engines fire at once, fuel is taken from outer stages first). This always produces lighter rockets and the cost of greater complexity.
+* Have all calculations use the engine's atmospheric stats. This is not normally needed as most delta-V cheat sheets use vacuum stats.
+* And many more!
 
 If your rocket has more then one stage, you will see a list of possible designs at the bottom of the page, ordered by most to least efficient.
 The program will constantly keep generating new designs, and displays only the top 20 most efficient ones. You can hit stop at any time if you see one you like.
@@ -31,8 +36,6 @@ If you are getting wildly different numbers in Kerbal Engineer, it's likely that
 * Support parallel staging (all stages fire at same time)
 * Add parts from other mods
 * Add option for adding size adapters
-* Add options for keeping tanks/decouplers all the same size
-* Add optimization for total part count
 * Add maximum mass constraint
 * Add maximum total part count constraint
 

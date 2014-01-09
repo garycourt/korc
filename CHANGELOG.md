@@ -1,3 +1,14 @@
+**Version 1.5 - January 8, 2014**
+* Added Part Count optimization, with a secondary optimization criteria.
+* Added field for changing the maximum amount of symmetry allowed per stack.
+* Added option for forcing the last stage to be a single stack.
+* Added option for forcing all tanks & stack decouplers in a stage to be the same size.
+* Added option for forcing all tanks & stack decouplers in a stage to be the same size as the engines (except radial engines).
+* Added additional summary fields to the header of search results.
+* Small visual change to search results.
+* Added part sizes to Stock parts data.
+* Fixed symmetry issues with multiple stages of radial parts. Makes rockets much easier to build.
+
 **Version 1.4 - January 7, 2014**
 * Added max thrust-to-weight ratio field.
 * Added separate valid/invalid design count.

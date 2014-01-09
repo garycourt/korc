@@ -32,6 +32,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	<title>KSP Optimal Rocket Calculator</title>
 	<style type="text/css">
 
+.strong {
+	font-weight: bold;
+}
+
 .page-footer {
 	margin-top: 32px;
 }
@@ -70,7 +74,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 .availableParts {
 	overflow: auto;
-	height: 55rem;
+	height: 61rem;
 }
 .availableParts.well {
 	padding-top: 0;
@@ -105,6 +109,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	margin-bottom: 8px;
 }
 
+.searchResults th.cost,
+.searchResults th.mass,
+.searchResults th.deltaV,
+.searchResults th.twr,
+.searchResults td.cost,
+.searchResults td.mass,
+.searchResults td.deltaV,
+.searchResults td.twr {
+	text-align: center;
+}
+
 .searchResults .stageNumber {
 	font-size: 1.4em; 
 }
@@ -129,6 +144,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	float: right;
 }
 
+.ellipsis {
+	letter-spacing: -1px;
+}
+
 	</style>
 	<link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
@@ -138,7 +157,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	<script type="text/javascript">
 	
 function sortParts(parts, optimization) {
-	optimization = optimization || "mass";
+	if (optimization !== "mass" && optimization !== "cost") {
+		optimization = "mass";
+	}
+	
 	var ascending = function (part) {
 		return part[optimization];
 	};
@@ -159,6 +181,7 @@ function sortParts(parts, optimization) {
 function SettingsController($scope) {
 	//default settings
 	$scope.optimization = "mass";
+	$scope.optimization2;
 	$scope.payload;
 	$scope.deltaV;
 	$scope.planet = PLANETS[0];
@@ -166,10 +189,14 @@ function SettingsController($scope) {
 	$scope.minTWR = 1.2;
 	$scope.maxTWR;
 	$scope.maxStages = 3;
+	$scope.maxSymmetry = 8;
 	$scope.parallel = false;
 	$scope.asparagus = false;
 	$scope.atmosphere = false;
 	$scope.payloadDecoupler = true;
+	$scope.lastStageSingle = true;
+	$scope.tankDiametersEqual = true;
+	$scope.tankDiametersEqualEngineDiameter = false;
 	$scope.packTree = _.map(PACKS, function (pack) {
 		var result = Object.create(pack);
 		result.parts = _.map(_.groupBy(pack.parts, "type"), function (parts, partId) {
@@ -190,6 +217,7 @@ function SettingsController($scope) {
 	$scope.bestStagingsArgs = null;
 
 	//constants
+	$scope.NEEDS_OPTIMIZATION2 = NEEDS_OPTIMIZATION2;
 	$scope.PLANETS = PLANETS;
 	$scope.PACKS = PACKS;
 	$scope.TYPES = TYPES;
@@ -207,8 +235,10 @@ function SettingsController($scope) {
 				attempt : $scope.bestStagingsCount + 1,
 				optimization : staging.optimization,
 				metric : staging.metric,
-				deltaV : Math.round(KSP.Stages.deltaVTotal(staging)),
 				partCount : KSP.Stages.partCount(staging),
+				cost : KSP.Stages.cost(staging),
+				mass : KSP.Stages.massStart(staging),
+				deltaV : Math.round(KSP.Stages.deltaVTotal(staging)),
 				stages : []
 			};
 			var runningDeltaVTotal = 0;
@@ -237,6 +267,7 @@ function SettingsController($scope) {
 		}
 		return result;
 	}
+	
 	function onSearchResult(staging) {
 		$scope.bestStagingsCount++;
 		staging = convertStaging(staging, $scope.bestStagingsArgs);
@@ -245,9 +276,9 @@ function SettingsController($scope) {
 			$scope.bestStagingsInvalid++;
 		} else if (staging.id === $scope.bestStagingsArgs.id) {
 			$scope.bestStagingsValid++;
-			if (bestStagings.length < $scope.maxStagings || staging.metric < bestStagings[bestStagings.length-1].metric) {
+			if (bestStagings.length < $scope.maxStagings || staging.metric <= bestStagings[bestStagings.length-1].metric) {
 				var index = _.sortedIndex(bestStagings, staging, "metric");
-				if (!bestStagings[index] || bestStagings[index].metric !== staging.metric) {
+				if (!bestStagings[index] || staging.metric !== bestStagings[index].metric) {
 					bestStagings.splice(index, 0, staging);
 					if (bestStagings.length > $scope.maxStagings) {
 						bestStagings.pop();
@@ -296,19 +327,24 @@ function SettingsController($scope) {
 		var args = {
 			id : Math.ceil(0xFFFFFFFF * Math.random()),
 			optimization : $scope.optimization,
+			optimization2 : (NEEDS_OPTIMIZATION2[$scope.optimization] ? document.getElementById("settingsOptimization2").value : null),  //workaround for Angular bug //$scope.optimization2,
 			next : {payload:$scope.payload},
 			deltaV : $scope.deltaV,
 			planet : ($scope.planet ? $scope.planet : {gravity:$scope.gravity}),
 			minTWR : $scope.minTWR,
 			maxTWR : $scope.maxTWR,
 			atm : ($scope.atmosphere ? 1 : 0),
+			maxSymmetry : ($scope.lastStageSingle ? 1 : $scope.maxSymmetry),
 			parallel : false,
 			asparagus : false,
 			decoupling : $scope.payloadDecoupler,
+			tankDiametersEqual : $scope.tankDiametersEqual,
+			tankDiametersEqualEngineDiameter : $scope.tankDiametersEqual && $scope.tankDiametersEqualEngineDiameter,
 			maxStages : $scope.maxStages,
+			stagesMaxSymmetry : $scope.maxSymmetry,
 			stagesParallel : $scope.parallel || $scope.asparagus,
 			stagesAsparagus : $scope.asparagus,
-			parts : sortParts($scope.getEnabledParts())
+			parts : sortParts($scope.getEnabledParts(), $scope.optimization)
 		};
 		
 		$scope.bestStagings = [];
@@ -335,6 +371,13 @@ function SettingsController($scope) {
 	};
 	
 	//event listeners
+	$scope.onOptimizationChange = function () {
+		if (NEEDS_OPTIMIZATION2[$scope.optimization]) {
+			if (!$scope.optimization2) $scope.optimization2 = "mass";
+		} else {
+			$scope.optimization2 = undefined;
+		}
+	};
 	$scope.onPlanetChange = function () {
 		$scope.gravity = $scope.planet.gravity;
 	};
@@ -410,19 +453,27 @@ function SettingsController($scope) {
 				<div class="col-md-6">
 					<div class="arguments form-horizontal">
 						<div class="form-group">
-							<label for="settingsOptimization" class="control-label col-sm-6">Optimize For</label>
-							<div class="col-sm-6">
-								<select name="optimization" id="settingsOptimization" class="form-control" ng-model="optimization">
-									<option value="mass">Mass</option>
-									<option value="cost">Cost</option>
-									<!--<option value="partCount">Part Count</option>-->
-								</select>
+							<label for="settingsOptimization" class="control-label col-sm-5">Optimize For</label>
+							<div class="col-sm-7">
+								<div ng-class="{'input-group': optimization == 'partCount'}">
+									<select name="optimization" id="settingsOptimization" class="form-control" ng-model="optimization" ng-change="onOptimizationChange()">
+										<option value="mass">Mass</option>
+										<option value="cost">Cost</option>
+										<option value="partCount">Part Count</option>
+									</select>
+									<span class="input-group-addon" ng-if="NEEDS_OPTIMIZATION2[optimization]"> then </span>
+									<select name="optimization2" id="settingsOptimization2" class="form-control" ng-model="optimization2"  ng-if="NEEDS_OPTIMIZATION2[optimization]">
+										<option value="mass">Mass</option>
+										<option value="cost">Cost</option>
+										<option value="deltaV">Delta-V</option>
+									</select>
+								</div>
 							</div>
 						</div>
 						
 						<div class="form-group">
-							<label for="settingsPayload" class="control-label col-sm-6">Payload</label>
-							<div class="col-sm-6">
+							<label for="settingsPayload" class="control-label col-sm-5">Payload</label>
+							<div class="col-sm-7">
 								<div class="input-group" ng-class="{'has-error': !payload}">
 									<input type="number" name="payload" required="required" min="0" step="0.001" placeholder="0" id="settingsPayload" class="form-control" ng-model="payload"/>
 									<span class="input-group-addon mathml"><math><mi>t</mi></math></span>
@@ -431,8 +482,8 @@ function SettingsController($scope) {
 						</div>
 						
 						<div class="form-group">
-							<label for="settingsDeltaV" class="control-label col-sm-6">Minimum Delta-V</label>
-							<div class="col-sm-6">
+							<label for="settingsDeltaV" class="control-label col-sm-5">Minimum Delta-V</label>
+							<div class="col-sm-7">
 								<div class="input-group" ng-class="{'has-error': !deltaV}">
 									<input type="number" name="deltaV" required="required" min="0" step="1" placeholder="0" id="settingsDeltaV" class="form-control" ng-model="deltaV"/>
 									<span class="input-group-addon mathml"><math><mi>m</mi><mo>/</mo><msup><mi>s</mi><mn>2</mn></msup></math></span>
@@ -441,8 +492,8 @@ function SettingsController($scope) {
 						</div>
 						
 						<div class="form-group">
-							<label for="settingsPlanet" class="control-label col-sm-6">Local Gravity</label>
-							<div class="col-sm-6">
+							<label for="settingsPlanet" class="control-label col-sm-5">Local Gravity</label>
+							<div class="col-sm-7">
 								<div class="input-group">
 									<span class="input-group-addon"><select name="planet" id="settingsPlanet" class="form-control-minimal" ng-model="planet" ng-options="PLANET as PLANET.name for PLANET in PLANETS" ng-change="onPlanetChange()"></select></span>
 									<input type="number" name="gravity" min="0" step="0.001" id="settingsGravity" class="form-control" ng-model="gravity" ng-change="onGravityChange()"/>
@@ -452,8 +503,8 @@ function SettingsController($scope) {
 						</div>
 						
 						<div class="form-group">
-							<label for="settingsMinTWR" class="control-label col-sm-6">Thrust-to-Weight Ratio</label>
-							<div class="col-sm-6">
+							<label for="settingsMinTWR" class="control-label col-sm-5">Thrust-to-Weight Ratio</label>
+							<div class="col-sm-7">
 								<div class="input-group">
 									<input type="number" name="minTWR" min="0" step="0.1" placeholder="0" id="settingsMinTWR" class="form-control" ng-model="minTWR"/>
 									<span class="input-group-addon"> to </span>
@@ -463,15 +514,22 @@ function SettingsController($scope) {
 						</div>
 						
 						<div class="form-group">
-							<label for="settingsMaxStages" class="control-label col-sm-6">Maximum # of Stages</label>
-							<div class="col-sm-6">
+							<label for="settingsMaxStages" class="control-label col-sm-5">Maximum # of Stages</label>
+							<div class="col-sm-7">
 								<input type="number" name="maxStages" min="1" step="1" placeholder="3" id="settingsMaxStages" class="form-control" ng-model="maxStages"/>
 							</div>
 						</div>
 						
 						<div class="form-group">
-							<label class="control-label col-sm-6">Staging Setup</label>
-							<div class="col-sm-6">
+							<label for="settingsMaxSymmetry" class="control-label col-sm-5">Maximum Symmetry</label>
+							<div class="col-sm-7">
+								<input type="number" name="maxSymmetry" min="1" step="1" max="50" placeholder="8" id="settingsMaxSymmetry" class="form-control" ng-model="maxSymmetry"/>
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<label class="control-label col-sm-5">Staging Setup</label>
+							<div class="col-sm-7">
 								<div class="checkbox">
 									<label>
 										<input type="checkbox" name="asparagus" id="settingsAsparagus" ng-model="asparagus" ng-change="onAsparagusChange()"/>
@@ -483,8 +541,8 @@ function SettingsController($scope) {
 						</div>
 						
 						<div class="form-group">
-							<label class="control-label col-sm-6">Options</label>
-							<div class="col-sm-6">
+							<label class="control-label col-sm-5">Options</label>
+							<div class="col-sm-7">
 								<div class="checkbox">
 									<label>
 										<input type="checkbox" name="atmosphere" id="settingsAtmosphere" ng-model="atmosphere"/>
@@ -497,11 +555,29 @@ function SettingsController($scope) {
 										Add decoupler between payload
 									</label>
 								</div>
+								<div class="checkbox">
+									<label>
+										<input type="checkbox" name="lastStageSingle" id="settingsLastStageSingle" ng-model="lastStageSingle"/>
+										Last stage must be a single stack
+									</label>
+								</div>
+								<div class="checkbox">
+									<label>
+										<input type="checkbox" name="tankDiametersEqual" id="settingsTankDiametersEqual" ng-model="tankDiametersEqual"/>
+										All tanks & stack decouplers in a stage must be the same diameter
+									</label>
+									<div class="checkbox">
+										<label>
+											<input type="checkbox" name="tankDiametersEqualEngineDiameter" id="settingsTankDiametersEqualEngineDiameter" ng-model="tankDiametersEqualEngineDiameter" ng-disabled="!tankDiametersEqual"/>
+											<span class="ellipsis">...</span> as the engines
+										</label>
+									</div>
+								</div>
 							</div>
 						</div>
 						
 						<div class="actions row">
-							<div class="col-sm-offset-6 col-sm-6">
+							<div class="col-sm-offset-5 col-sm-7">
 								<button class="btn btn-primary" ng-disabled="settings.$invalid" ng-click="search()">Search</button>
 								<p class="help-block warning" ng-if="!webworkersSupported">This browser does not support web workers, searching will be slow!</p>
 							</div>
@@ -561,25 +637,27 @@ function SettingsController($scope) {
 				<details class="panel panel-default" ng-repeat="staging in bestStagings" ng-open="$first">
 					<summary class="panel-heading">
 						<div class="attempt panel-heading-pill">Attempt #{{staging.attempt}}</div>
-						<div class="optimization panel-heading-pill nav-pills">{{OPTIMIZATION_NAMES[staging.optimization]}}: {{parseFloat(staging.metric.toFixed(3))}}</div>
 						<div class="stages panel-heading-pill nav-pills">Stages: {{staging.stages.length-1}}</div>
+						<div class="partCount panel-heading-pill nav-pills" ng-class="{strong: staging.optimization == 'partCount'}">Part Count: {{staging.partCount}}</div>
+						<div class="cost panel-heading-pill nav-pills" ng-class="{strong: staging.optimization == 'cost'}">Cost: {{staging.cost}}</div>
+						<div class="mass panel-heading-pill nav-pills" ng-class="{strong: staging.optimization == 'mass'}">Mass: {{staging.mass.toFixed(3)}}</div>
 						<div class="deltaV panel-heading-pill nav-pills">Delta-V: {{Math.round(staging.deltaV)}}</div>
 					</summary>
 					<table class="panel-table table">
 						<thead>
 							<tr>
-								<th>Stage</th>
-								<th>Part</th>
-								<th>Cost</th>
-								<th>Mass (<math><mi>t</mi></math>)</th>
-								<th>Delta-V (<math><mi>m</mi><mo>/</mo><msup><mi>s</mi><mn>2</mn></msup></math>)</th>
-								<th>TWR</th>
+								<th class="stage">Stage</th>
+								<th class="parts">Part</th>
+								<th class="cost">Cost</th>
+								<th class="mass">Mass (<math><mi>t</mi></math>)</th>
+								<th class="deltaV">Delta-V (<math><mi>m</mi><mo>/</mo><msup><mi>s</mi><mn>2</mn></msup></math>)</th>
+								<th class="twr">TWR</th>
 							</tr>
 						</thead>
 						<tbody>
 							<tr ng-repeat="stage in staging.stages | orderBy:'-stage'">
-								<td><div class="stageNumber">{{$index}}</div><small ng-if="stage.asparagus">Asparagus</small></td>
-								<td class="partList">
+								<td class="stage"><div class="stageNumber">{{$index}}</div><small ng-if="stage.asparagus">Asparagus</small></td>
+								<td class="parts partList">
 									<ol>
 										<li class="decouplers" ng-repeat="part in stage.decouplers">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
 										<li class="payload" ng-if="stage.payload > 0">Payload: {{stage.payload}}t</li>
@@ -589,10 +667,10 @@ function SettingsController($scope) {
 										<li class="boosters" ng-repeat="part in stage.boosters">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
 									</ol>
 								</td>
-								<td>{{stage.costStage}} / {{stage.costTotal}}</td>
-								<td>{{parseFloat(stage.massStage.toFixed(3))}} / {{parseFloat(stage.massTotal.toFixed(3))}}</td>
-								<td>{{Math.round(stage.deltaVStage)}} / {{Math.round(stage.deltaVTotal)}}</td>
-								<td>{{stage.twr.toFixed(2)}}</td>
+								<td class="cost">{{stage.costStage}} / {{stage.costTotal}}</td>
+								<td class="mass">{{stage.massStage.toFixed(3)}} / {{stage.massTotal.toFixed(3)}}</td>
+								<td class="deltaV">{{Math.round(stage.deltaVStage)}} / {{Math.round(stage.deltaVTotal)}}</td>
+								<td class="twr">{{stage.twr.toFixed(2)}}</td>
 							</tr>
 						</tbody>
 					</table>
