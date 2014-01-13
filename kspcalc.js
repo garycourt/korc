@@ -236,7 +236,7 @@ var KSP = {
 				(stage.decouplers ? stage.decouplers.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0);
 		},
 		
-		//Total stage fuel consumption at specified atmospheric pressure (kg/s)
+		//Stage fuel consumption at specified atmospheric pressure (kg/s)
 		consumption : function (stage, atm) {
 			return (stage.lfoEngines ? stage.lfoEngines.map(KSP.Engine.consumption.bind(this, atm)).reduce(sum, 0) : 0) + 
 				(stage.boosters ? stage.boosters.map(KSP.Engine.consumption.bind(this, atm)).reduce(sum, 0) : 0);
@@ -245,6 +245,11 @@ var KSP = {
 		//Combined specific impulse at atmospheric pressure (m/s)
 		impulse : function (stage, atm) {
 			return ((KSP.Stage.thrust(stage) * 1000) / KSP.Stage.consumption(stage, atm)) || 0;
+		},
+		
+		//Time required to use all fuel in this stage only at full thrust at specified atmospheric pressure (s)
+		timeStage : function (stage, atm) {
+			return (((KSP.Stage.massStart(stage) - KSP.Stage.massEndStage(stage)) * 1000) / KSP.Stage.consumption(stage, atm)) || 0;
 		}
 	},
 	
@@ -312,6 +317,17 @@ var KSP = {
 		deltaVTotal : function (stage, atm) {
 			return KSP.Stages.deltaVStage(stage, atm) +
 				(stage.next ? KSP.Stages.deltaVTotal(stage.next, atm) : 0);
+		},
+		
+		//Time required to use all fuel in this stage at full thrust at specified atmospheric pressure (s)
+		timeStage : function (stage, atm) {
+			return (((KSP.Stages.massStart(stage) - KSP.Stages.massEndStage(stage)) * 1000) / KSP.Stages.consumption(stage, atm)) || 0;
+		},
+		
+		//Time required to use all fuel in all stages at full thrust at specified atmospheric pressure (s)
+		timeTotal : function (stage, atm) {
+			if (stage.parallel && !stage.asparagus) throw new Error("Parallel staging (without asparagus) is not yet supported.");
+			return KSP.Stages.timeStage(stage, atm) + (stage.next ? KSP.Stages.timeTotal(stage.next, atm) : 0);
 		},
 		
 		humanize : function (stage, planet, atm) {

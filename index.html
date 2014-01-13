@@ -113,10 +113,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .searchResults th.mass,
 .searchResults th.deltaV,
 .searchResults th.twr,
+.searchResults th.time,
 .searchResults td.cost,
 .searchResults td.mass,
 .searchResults td.deltaV,
-.searchResults td.twr {
+.searchResults td.twr,
+.searchResults td.time {
 	text-align: center;
 }
 
@@ -238,10 +240,12 @@ function SettingsController($scope) {
 				partCount : KSP.Stages.partCount(staging),
 				cost : KSP.Stages.cost(staging),
 				mass : KSP.Stages.massStart(staging),
-				deltaV : Math.round(KSP.Stages.deltaVTotal(staging)),
+				deltaV : KSP.Stages.deltaVTotal(staging),
+				time : KSP.Stages.timeTotal(staging),
 				stages : []
 			};
 			var runningDeltaVTotal = 0;
+			var runningTimeTotal = 0;
 			var currentStage = staging;
 			while (currentStage) {
 				var newStage = Object.create(currentStage);
@@ -254,6 +258,9 @@ function SettingsController($scope) {
 				runningDeltaVTotal += newStage.deltaVStage
 				newStage.deltaVTotal = runningDeltaVTotal;
 				newStage.twr = KSP.Stages.twr(currentStage, args.planet);
+				newStage.timeStage = KSP.Stages.timeStage(currentStage, args.atm);
+				runningTimeTotal += newStage.timeStage
+				newStage.timeTotal = runningTimeTotal;
 				newStage.others = KSP.Parts.countUnique(currentStage.others);
 				newStage.lfoEngines = KSP.Parts.countUnique(currentStage.lfoEngines).reverse();
 				newStage.lfoTanks = KSP.Parts.countUnique(currentStage.lfoTanks).reverse();
@@ -642,6 +649,7 @@ function SettingsController($scope) {
 						<div class="cost panel-heading-pill nav-pills" ng-class="{strong: staging.optimization == 'cost'}">Cost: {{staging.cost}}</div>
 						<div class="mass panel-heading-pill nav-pills" ng-class="{strong: staging.optimization == 'mass'}">Mass: {{staging.mass.toFixed(3)}}</div>
 						<div class="deltaV panel-heading-pill nav-pills">Delta-V: {{Math.round(staging.deltaV)}}</div>
+						<div class="time panel-heading-pill nav-pills">Time: {{staging.time.toFixed(1)}}</div>
 					</summary>
 					<table class="panel-table table">
 						<thead>
@@ -652,6 +660,7 @@ function SettingsController($scope) {
 								<th class="mass">Mass (<math><mi>t</mi></math>)</th>
 								<th class="deltaV">Delta-V (<math><mi>m</mi><mo>/</mo><msup><mi>s</mi><mn>2</mn></msup></math>)</th>
 								<th class="twr">TWR</th>
+								<th class="time">Time (<math><mi>s</mi></math>)</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -671,6 +680,7 @@ function SettingsController($scope) {
 								<td class="mass">{{stage.massStage.toFixed(3)}} / {{stage.massTotal.toFixed(3)}}</td>
 								<td class="deltaV">{{Math.round(stage.deltaVStage)}} / {{Math.round(stage.deltaVTotal)}}</td>
 								<td class="twr">{{stage.twr.toFixed(2)}}</td>
+								<td class="time">{{stage.timeStage.toFixed(1)}} / {{stage.timeTotal.toFixed(1)}}</td>
 							</tr>
 						</tbody>
 					</table>

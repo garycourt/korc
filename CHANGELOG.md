@@ -1,3 +1,6 @@
+**Version 1.6 - January 13, 2014**
+* Added time to finish stage to results.
+
 **Version 1.5 - January 8, 2014**
 * Added Part Count optimization, with a secondary optimization criteria.
 * Added field for changing the maximum amount of symmetry allowed per stack.

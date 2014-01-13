@@ -12,6 +12,9 @@ Open index.html in a modern web browser.
 4. Select which parts you have unlocked, or mods you have installed.
 5. Hit search and watch the result come in!
 
+If your rocket has more then one stage, you will see a list of possible designs at the bottom of the page, ordered by most to least efficient.
+The program will constantly keep generating new designs, and displays only the top 20 most efficient ones. You can hit stop at any time if you see one you like.
+
 Now that you've figured it out, there are many more other constraints you can configure:
 
 * What metric you would like to optimize your rocket for.
@@ -23,16 +26,12 @@ Now that you've figured it out, there are many more other constraints you can co
 * Have all calculations use the engine's atmospheric stats. This is not normally needed as most delta-V cheat sheets use vacuum stats.
 * And many more!
 
-If your rocket has more then one stage, you will see a list of possible designs at the bottom of the page, ordered by most to least efficient.
-The program will constantly keep generating new designs, and displays only the top 20 most efficient ones. You can hit stop at any time if you see one you like.
-
 Be aware that this program runs locally in your web browser, and will max out your CPU while running. Don't forget to click "Stop" before switching back to Kerbal Space Program!
 
 If you are getting wildly different numbers in Kerbal Engineer, it's likely that you've enabled Atmospheric Stats in one tool and not the other. Or else you've messed up your staging.
 
 ## Roadmap
 
-* Add burn time to results
 * Support parallel staging (all stages fire at same time)
 * Add parts from other mods
 * Add option for adding size adapters
