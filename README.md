@@ -35,8 +35,6 @@ If you are getting wildly different numbers in Kerbal Engineer, it's likely that
 * Support parallel staging (all stages fire at same time)
 * Add parts from other mods
 * Add option for adding size adapters
-* Add maximum mass constraint
-* Add maximum total part count constraint
 
 ## Support This Project
 

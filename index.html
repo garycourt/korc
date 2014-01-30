@@ -74,7 +74,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 .availableParts {
 	overflow: auto;
-	height: 61rem;
+	height: 75rem;
 }
 .availableParts.well {
 	padding-top: 0;
@@ -134,6 +134,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .searchResults .payload { color: black; }
 .searchResults .others { color: orange; }
 .searchResults .lfoTanks { color: darkblue; }
+.searchResults .branches { color: gray; }
 .searchResults .lfoEngines { color: crimson; }
 .searchResults .boosters { color: darkviolet; }
 .searchResults .multiplier { font-weight: bold; }
@@ -176,7 +177,8 @@ function sortParts(parts, optimization) {
 		lfoTanks : _.sortBy(types[TYPES.LFO_TANK], descending),
 		boosters : _.sortBy(types[TYPES.BOOSTER], descending),
 		stackDecouplers : _.sortBy(_.where(types[TYPES.DECOUPLER], {radial:undefined}), ascending),
-		radialDecouplers : _.sortBy(_.where(types[TYPES.DECOUPLER], {radial:true}), ascending)
+		radialDecouplers : _.sortBy(_.where(types[TYPES.DECOUPLER], {radial:true}), ascending),
+		branches : types[TYPES.BRANCH]
 	}
 }
 	
@@ -190,8 +192,13 @@ function SettingsController($scope) {
 	$scope.gravity = $scope.planet.gravity;
 	$scope.minTWR = 1.2;
 	$scope.maxTWR;
+	$scope.minTime;
+	$scope.maxTime;
+	$scope.maxMass;
+	$scope.maxPartCount;
 	$scope.maxStages = 3;
 	$scope.maxSymmetry = 8;
+	$scope.cluster = true;
 	$scope.parallel = false;
 	$scope.asparagus = false;
 	$scope.atmosphere = false;
@@ -262,10 +269,11 @@ function SettingsController($scope) {
 				runningTimeTotal += newStage.timeStage
 				newStage.timeTotal = runningTimeTotal;
 				newStage.others = KSP.Parts.countUnique(currentStage.others);
-				newStage.lfoEngines = KSP.Parts.countUnique(currentStage.lfoEngines).reverse();
+				newStage.lfoEngines = KSP.Parts.countUnique(currentStage.lfoEngines);
 				newStage.lfoTanks = KSP.Parts.countUnique(currentStage.lfoTanks).reverse();
-				newStage.boosters = KSP.Parts.countUnique(currentStage.boosters).reverse();
-				newStage.decouplers = KSP.Parts.countUnique(currentStage.decouplers).reverse();
+				newStage.boosters = KSP.Parts.countUnique(currentStage.boosters);
+				newStage.decouplers = KSP.Parts.countUnique(currentStage.decouplers);
+				newStage.branches = KSP.Parts.countUnique(currentStage.branches);
 				
 				result.stages.push(newStage);
 				currentStage = currentStage.next;
@@ -340,8 +348,13 @@ function SettingsController($scope) {
 			planet : ($scope.planet ? $scope.planet : {gravity:$scope.gravity}),
 			minTWR : $scope.minTWR,
 			maxTWR : $scope.maxTWR,
+			minTime : $scope.minTime,
+			maxTime : $scope.maxTime,
+			maxMass : $scope.maxMass,
+			maxPartCount : $scope.maxPartCount,
 			atm : ($scope.atmosphere ? 1 : 0),
 			maxSymmetry : ($scope.lastStageSingle ? 1 : $scope.maxSymmetry),
+			cluster : $scope.cluster,
 			parallel : false,
 			asparagus : false,
 			decoupling : $scope.payloadDecoupler,
@@ -447,6 +460,18 @@ function SettingsController($scope) {
 }
 
 	</script>
+	<datalist id="timeSuggestions">
+		<option value="10">10 Seconds</option>
+		<option value="30">30 Seconds</option>
+		<option value="60">1 Minute</option>
+		<option value="120">2 Minutes</option>
+		<option value="180">3 Minutes</option>
+		<option value="240">4 Minutes</option>
+		<option value="300">5 Minutes</option>
+		<option value="600">10 Minutes</option>
+		<option value="900">15 Minutes</option>
+		<option value="1800">30 Minutes</option>
+	</datalist>
 </head>
 <body>
 	<div class="container">
@@ -489,7 +514,7 @@ function SettingsController($scope) {
 						</div>
 						
 						<div class="form-group">
-							<label for="settingsDeltaV" class="control-label col-sm-5">Minimum Delta-V</label>
+							<label for="settingsDeltaV" class="control-label col-sm-5">Minimum Total Delta-V</label>
 							<div class="col-sm-7">
 								<div class="input-group" ng-class="{'has-error': !deltaV}">
 									<input type="number" name="deltaV" required="required" min="0" step="1" placeholder="0" id="settingsDeltaV" class="form-control" ng-model="deltaV"/>
@@ -521,6 +546,35 @@ function SettingsController($scope) {
 						</div>
 						
 						<div class="form-group">
+							<label for="settingsMaxTime" class="control-label col-sm-5">Stage Burn Time</label>
+							<div class="col-sm-7">
+								<div class="input-group">
+									<input type="number" name="minTime" min="0" step="0.1" placeholder="0" list="timeSuggestions" id="settingsMinTime" class="form-control" ng-model="minTime"/>
+									<span class="input-group-addon"> to </span>
+									<input type="number" name="maxTime" min="0" step="0.1" placeholder="Infinity" list="timeSuggestions" id="settingsMaxTime" class="form-control" ng-model="maxTime"/>
+									<span class="input-group-addon mathml"><math><mi>s</mi></math></span>
+								</div>
+							</div>
+						</div>
+						
+						<div class="form-group" ng-hide="optimization == 'mass'">
+							<label for="settingsMaxMass" class="control-label col-sm-5">Maximum Total Mass</label>
+							<div class="col-sm-7">
+								<div class="input-group">
+									<input type="number" name="maxMass" min="{{payload}}" step="0.001" placeholder="Infinity" id="settingsMaxMass" class="form-control" ng-model="maxMass"/>
+									<span class="input-group-addon mathml"><math><mi>t</mi></math></span>
+								</div>
+							</div>
+						</div>
+						
+						<div class="form-group" ng-hide="optimization == 'partCount'">
+							<label for="settingsMaxPartCount" class="control-label col-sm-5">Maximum Total Part Count</label>
+							<div class="col-sm-7">
+								<input type="number" name="maxPartCount" min="1" step="1" placeholder="Infinity" id="settingsMaxPartCount" class="form-control" ng-model="maxPartCount"/>
+							</div>
+						</div>
+						
+						<div class="form-group">
 							<label for="settingsMaxStages" class="control-label col-sm-5">Maximum # of Stages</label>
 							<div class="col-sm-7">
 								<input type="number" name="maxStages" min="1" step="1" placeholder="3" id="settingsMaxStages" class="form-control" ng-model="maxStages"/>
@@ -538,6 +592,13 @@ function SettingsController($scope) {
 							<label class="control-label col-sm-5">Staging Setup</label>
 							<div class="col-sm-7">
 								<div class="checkbox">
+									<label>
+										<input type="checkbox" name="cluster" id="settingsCluster" ng-model="cluster"/>
+										Clustering
+									</label>
+								</div>
+								<div class="checkbox">
+									
 									<label>
 										<input type="checkbox" name="asparagus" id="settingsAsparagus" ng-model="asparagus" ng-change="onAsparagusChange()"/>
 										Asparagus
@@ -665,13 +726,18 @@ function SettingsController($scope) {
 						</thead>
 						<tbody>
 							<tr ng-repeat="stage in staging.stages | orderBy:'-stage'">
-								<td class="stage"><div class="stageNumber">{{$index}}</div><small ng-if="stage.asparagus">Asparagus</small></td>
+								<td class="stage">
+									<div class="stageNumber">{{$index}}</div>
+									<div class="stageMultiplier" ng-if="stage.multiplier > 1">x{{stage.multiplier}}</div>
+									<small ng-if="stage.asparagus">Asparagus</small>
+								</td>
 								<td class="parts partList">
 									<ol>
 										<li class="decouplers" ng-repeat="part in stage.decouplers">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
 										<li class="payload" ng-if="stage.payload > 0">Payload: {{stage.payload}}t</li>
 										<li class="others" ng-repeat="part in stage.others">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
 										<li class="lfoTanks" ng-repeat="part in stage.lfoTanks">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
+										<li class="branches" ng-repeat="part in stage.branches">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
 										<li class="lfoEngines" ng-repeat="part in stage.lfoEngines">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
 										<li class="boosters" ng-repeat="part in stage.boosters">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
 									</ol>

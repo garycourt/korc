@@ -51,7 +51,8 @@ var TYPES = {
 	LFO_TANK:2,
 	BOOSTER:3,
 	DECOUPLER:4,
-	DUCT:5
+	DUCT:5,
+	BRANCH:6
 };
 
 var TYPE_NAMES_PLURAL = {
@@ -59,7 +60,8 @@ var TYPE_NAMES_PLURAL = {
 	2:"LF/O Tanks",
 	3:"Boosters",
 	4:"Decouplers",
-	5:"Fuel Ducts"
+	5:"Fuel Ducts",
+	6:"Branches"
 }
 
 var PACKS = [
@@ -110,8 +112,61 @@ var PACKS = [
 			{name:"TT-70 Radial Decoupler", type:TYPES.DECOUPLER, size:"radial", cost:700, mass:0.050, radial:true},
 			{name:"Structural Pylon", type:TYPES.DECOUPLER, size:"radial", cost:1275, mass:0.200, radial:true},
 			{name:"Hydraulic Detachment Manifold", type:TYPES.DECOUPLER, size:"radial", cost:770, mass:0.400, radial:true},
+			
+			//Branches
+			{name:"TVR-200 Stack Bi-Coupler", type:TYPES.BRANCH, size:"bicoupler", cost:400, mass:0.100, sizeA:1, sizeB:1, multiplier:2},
+			{name:"TVR-1180C Mk1 Stack Tri-Coupler", type:TYPES.BRANCH, size:"tricoupler", cost:680, mass:0.150, sizeA:1, sizeB:1, multiplier:3},
+			{name:"TVR-2160C Mk2 Stack Quad-Coupler", type:TYPES.BRANCH, size:"quadcoupler", cost:2000, mass:0.175, sizeA:1, sizeB:1, multiplier:4},
+			{name:"TVR-200L Stack Bi-Adapter", type:TYPES.BRANCH, size:"bicoupler", cost:400, mass:0.100, sizeA:2, sizeB:1, multiplier:2},
+			{name:"TVR-300L Stack Tri-Adapter", type:TYPES.BRANCH, size:"tricoupler", cost:600, mass:0.150, sizeA:2, sizeB:1, multiplier:3},
+			{name:"TVR-400L Stack Quad-Adapter", type:TYPES.BRANCH, size:"quadcoupler", cost:800, mass:0.2, sizeA:2, sizeB:1, multiplier:4}
 		]
-	}
+	},
+	{
+		name:"KSPX 0.2.5",
+		parts:[
+			//LF/O Engines
+			{name:"LV-NB Atomic Rocket Motor", type:TYPES.LFO_ENGINE, size:2, cost:16000, mass:5, thrust:150, isp_vac:800, isp_atm:220},
+			
+			//LF/O Tanks
+			{name:"Rockomax X200-48 Fuel Tank", type:TYPES.LFO_TANK, size:2, cost:7600, mass:3.000, mass_fuel:24.000},
+			{name:"Stratus-V Cylindrified Liquid Fuel Tank & Oxidizer Tank", type:TYPES.LFO_TANK, size:"radial", cost:2000, mass:0.300, mass_fuel:0.400, radial:true},
+			{name:"Stratus-V Roundified Liquid Fuel Tank & Oxidizer Tank", type:TYPES.LFO_TANK, size:"radial", cost:900, mass:0.150, mass_fuel:0.200, radial:true}
+		]
+	}/*,
+	{
+		name:"KW Rocketry 2.5.6",
+		parts:[
+		    //LF/O Engines
+			{name:"KW Rocketry Maverick-1D", type:TYPES.LFO_ENGINE, size:1, cost:950, mass:2, thrust:350, isp_vac:355, isp_atm:320},
+			{name:"KW Rocketry Vesta VR-1", type:TYPES.LFO_ENGINE, size:1, cost:950, mass:0.6, thrust:120, isp_vac:400, isp_atm:350},
+			{name:"KW Rocketry WildCat-V", type:TYPES.LFO_ENGINE, size:1, cost:950, mass:1.5, thrust:230, isp_vac:370, isp_atm:325},
+			{name:"KW Rocketry Griffon-G8D", type:TYPES.LFO_ENGINE, size:2, cost:950, mass:8, thrust:1900, isp_vac:325, isp_atm:280},
+			{name:"KW Rocketry Maverick-V", type:TYPES.LFO_ENGINE, size:2, cost:950, mass:6, thrust:1400, isp_vac:335, isp_atm:285},
+			{name:"Service Propulsion System", type:TYPES.LFO_ENGINE, size:2, cost:700, mass:2.25, thrust:200, isp_vac:410, isp_atm:270},
+			{name:"KW Rocketry Vesta VR-9D", type:TYPES.LFO_ENGINE, size:2, cost:950, mass:5, thrust:600, isp_vac:380, isp_atm:310},
+			{name:"KW Rocketry Griffon XX", type:TYPES.LFO_ENGINE, size:3, cost:950, mass:18, thrust:4900, isp_vac:310, isp_atm:265},
+			{name:"KW Rocketry Titan-T1", type:TYPES.LFO_ENGINE, size:3, cost:950, mass:14, thrust:3600, isp_vac:315, isp_atm:270},
+			{name:"KW Rocketry Wildcat-XR", type:TYPES.LFO_ENGINE, size:3, cost:950, mass:8, thrust:1400, isp_vac:370, isp_atm:275},
+			
+			//LF/O Tanks
+			{name:"KW Rocketry SA-1 LFT Pancake", type:TYPES.LFO_TANK, size:1, cost:225, mass:0.0625, mass_fuel:0.5625},
+			{name:"KW Rocketry SA-1 LFT", type:TYPES.LFO_TANK, size:1, cost:225, mass:0.125, mass_fuel:1.125},
+			{name:"KW Rocketry SA-2 LFT", type:TYPES.LFO_TANK, size:1, cost:225, mass:0.25, mass_fuel:2.25},
+			{name:"KW Rocketry SA-4 LFT", type:TYPES.LFO_TANK, size:1, cost:225, mass:0.5, mass_fuel:4.5},
+			{name:"KW Rocketry SB-1 LFT Pancake", type:TYPES.LFO_TANK, size:2, cost:225, mass:0.5, mass_fuel:4.5},
+			{name:"KW Rocketry SB-1 LFT", type:TYPES.LFO_TANK, size:2, cost:225, mass:1, mass_fuel:9},
+			{name:"KW Rocketry SB-2 LFT", type:TYPES.LFO_TANK, size:2, cost:225, mass:2, mass_fuel:18},
+			{name:"KW Rocketry SB-4 LFT", type:TYPES.LFO_TANK, size:2, cost:225, mass:4, mass_fuel:36},
+			{name:"KW Rocketry SC-1 LFT Pancake", type:TYPES.LFO_TANK, size:3, cost:225, mass:1.6875, mass_fuel:15.1875},
+			{name:"KW Rocketry SC-1 LFT", type:TYPES.LFO_TANK, size:3, cost:225, mass:3.375, mass_fuel:30.375},
+			{name:"KW Rocketry SC-2 LFT", type:TYPES.LFO_TANK, size:3, cost:225, mass:6.75, mass_fuel:60.74875},
+			{name:"KW Rocketry SC-4 LFT", type:TYPES.LFO_TANK, size:3, cost:225, mass:13.5, mass_fuel:121.5},
+			{name:"KW Rocketry SC-4 LFT ALT", type:TYPES.LFO_TANK, size:3, cost:225, mass:13.5, mass_fuel:121.5},
+			{name:"KW Rocketry ST-25", type:TYPES.LFO_TANK, size:2, cost:225, mass:4, mass_fuel:32.4, last:true},
+			{name:"KW Rocketry ST-37", type:TYPES.LFO_TANK, size:3, cost:225, mass:13.5, mass_fuel:109.35, last:true}
+		]
+	}*/
 ];
 
 var NO_ENGINE = {name:"", type:TYPES.LFO_ENGINE, size:0, cost:0, mass:0, thrust:0, isp_vac:0, isp_atm:0};
@@ -194,52 +249,68 @@ var KSP = {
 	Stage : {
 		//Number of parts in this stage only
 		partCount : function (stage) {
-			return ((stage.others || 0).length || 0) +
+			return (
+				((stage.others || 0).length || 0) +
 				((stage.lfoTanks || 0).length || 0) +
 				((stage.lfoEngines || 0).length || 0) +
 				((stage.boosters || 0).length || 0) +
-				((stage.decouplers || 0).length || 0);
+				((stage.decouplers || 0).length || 0) +
+				((stage.branches || 0).length || 0)
+			) * (stage.multiplier || 1);
 		},
 		
 		//Cost of this stage only
 		cost : function (stage) {
-			return (stage.others ? stage.others.map(pluckNumber.bind(this, "cost")).reduce(sum, 0) : 0) +
+			return (
+				(stage.others ? stage.others.map(pluckNumber.bind(this, "cost")).reduce(sum, 0) : 0) +
 				(stage.lfoTanks ? stage.lfoTanks.map(pluckNumber.bind(this, "cost")).reduce(sum, 0) : 0) + 
 				(stage.lfoEngines ? stage.lfoEngines.map(pluckNumber.bind(this, "cost")).reduce(sum, 0) : 0) +
 				(stage.boosters ? stage.boosters.map(pluckNumber.bind(this, "cost")).reduce(sum, 0) : 0) +
-				(stage.decouplers ? stage.decouplers.map(pluckNumber.bind(this, "cost")).reduce(sum, 0) : 0);
+				(stage.decouplers ? stage.decouplers.map(pluckNumber.bind(this, "cost")).reduce(sum, 0) : 0) +
+				(stage.branches ? stage.branches.map(pluckNumber.bind(this, "cost")).reduce(sum, 0) : 0)
+			) * (stage.multiplier || 1);
 		},
 		
 		//Thrust of active engines during this stage only (kN)
 		thrust : function (stage) {
-			return (stage.lfoEngines ? stage.lfoEngines.map(pluckNumber.bind(this, "thrust")).reduce(sum, 0) : 0) + 
-				(stage.boosters ? stage.boosters.map(pluckNumber.bind(this, "thrust")).reduce(sum, 0) : 0);
+			return (
+				(stage.lfoEngines ? stage.lfoEngines.map(pluckNumber.bind(this, "thrust")).reduce(sum, 0) : 0) + 
+				(stage.boosters ? stage.boosters.map(pluckNumber.bind(this, "thrust")).reduce(sum, 0) : 0)
+			) * (stage.multiplier || 1);
 		},
 		
 		//Mass of this stage only (t)
 		massStart : function (stage) {
-			return (stage.payload || 0) + 
+			return (
+				(stage.payload || 0) + 
 				(stage.others ? stage.others.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
 				(stage.lfoTanks ? stage.lfoTanks.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) + stage.lfoTanks.map(pluckNumber.bind(this, "mass_fuel")).reduce(sum, 0) : 0) + 
 				(stage.lfoEngines ? stage.lfoEngines.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
 				(stage.boosters ? stage.boosters.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) + stage.boosters.map(pluckNumber.bind(this, "mass_fuel")).reduce(sum, 0) : 0) +
-				(stage.decouplers ? stage.decouplers.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0);
+				(stage.decouplers ? stage.decouplers.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
+				(stage.branches ? stage.branches.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0)
+			) * (stage.multiplier || 1);
 		},
 		
 		//Mass of this stage only at end of burn (t)
 		massEndStage : function (stage) {
-			return (stage.payload || 0) + 
+			return (
+				(stage.payload || 0) + 
 				(stage.others ? stage.others.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
 				(stage.lfoTanks ? stage.lfoTanks.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) + 
 				(stage.lfoEngines ? stage.lfoEngines.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
 				(stage.boosters ? stage.boosters.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
-				(stage.decouplers ? stage.decouplers.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0);
+				(stage.decouplers ? stage.decouplers.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
+				(stage.branches ? stage.branches.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0)
+			) * (stage.multiplier || 1);
 		},
 		
 		//Stage fuel consumption at specified atmospheric pressure (kg/s)
 		consumption : function (stage, atm) {
-			return (stage.lfoEngines ? stage.lfoEngines.map(KSP.Engine.consumption.bind(this, atm)).reduce(sum, 0) : 0) + 
-				(stage.boosters ? stage.boosters.map(KSP.Engine.consumption.bind(this, atm)).reduce(sum, 0) : 0);
+			return (
+				(stage.lfoEngines ? stage.lfoEngines.map(KSP.Engine.consumption.bind(this, atm)).reduce(sum, 0) : 0) + 
+				(stage.boosters ? stage.boosters.map(KSP.Engine.consumption.bind(this, atm)).reduce(sum, 0) : 0)
+			) * (stage.multiplier || 1);
 		},
 		
 		//Combined specific impulse at atmospheric pressure (m/s)
@@ -332,10 +403,12 @@ var KSP = {
 		
 		humanize : function (stage, planet, atm) {
 			var strBuild = [];
+			if (stage.multiplier > 1) strBuild.push("x" + stage.multiplier + ":");
 			if (stage.payload) strBuild.push("Payload: " + stage.payload + "kg");
 			if (stage.lfoEngines && stage.lfoEngines.length) strBuild.push("Engines: " + KSP.Parts.humanize(stage.lfoEngines));
 			if (stage.lfoTanks && stage.lfoTanks.length) strBuild.push("LF/O Tanks: " + KSP.Parts.humanize(stage.lfoTanks));
 			if (stage.boosters && stage.boosters.length) strBuild.push("Boosters: " + KSP.Parts.humanize(stage.boosters));
+			if (stage.branches && stage.branches.length) strBuild.push("Branches: " + KSP.Parts.humanize(stage.branches));
 			if (stage.decouplers && stage.decouplers.length) strBuild.push("Decouplers: " + KSP.Parts.humanize(stage.decouplers));
 			if (stage.others && stage.others.length) strBuild.push("Other: " + KSP.Parts.humanize(stage.others));
 			if ((stage.lfoEngines && stage.lfoEngines.length) || (stage.boosters && stage.boosters.length)) {
@@ -358,8 +431,13 @@ function fixArgs(args) {
 	args.planet = args.planet || PLANETS[0];
 	args.minTWR = args.minTWR || 0;
 	args.maxTWR = args.maxTWR || Infinity;
+	args.minTime  = args.minTime || 0;
+	args.maxTime = args.maxTime || Infinity;
+	args.maxMass = (args.optimization !== "mass" && args.maxMass ? args.maxMass : Infinity);
+	args.maxPartCount = (args.optimization !== "partCount" && args.maxPartCount ? args.maxPartCount : Infinity);
 	args.atm = args.atm || 0;
 	args.maxSymmetry = args.maxSymmetry || 8;
+	args.cluster = !!args.cluster;
 	args.asparagus = !!(args.next.lfoTanks || 0).length && !!args.asparagus;
 	args.parallel = /*!!args.parallel || */args.asparagus;  //FIXME: Parallel disabled until supported without asparagus
 	args.decoupling = (args.decoupling !== false);
@@ -369,13 +447,13 @@ function fixArgs(args) {
 	args.stagesMaxSymmetry = args.stagesMaxSymmetry || args.maxSymmetry;
 	args.stagesAsparagus = !!args.stagesAsparagus;
 	args.stagesParallel = !!args.stagesParallel || args.stagesAsparagus;
-	args.parts = args.parts || {
-		lfoEngines : [],
-		lfoTanks : [],
-		boosters : [],
-		stackDecouplers : [],
-		radialDecouplers : []
-	};
+	args.parts = args.parts || {};
+	args.parts.lfoEngines = args.parts.lfoEngines || [];
+	args.parts.lfoTanks = args.parts.lfoTanks || [];
+	args.parts.boosters = args.parts.boosters || [];
+	args.parts.stackDecouplers = args.parts.stackDecouplers || [];
+	args.parts.radialDecouplers = args.parts.radialDecouplers || [];
+	args.parts.branches = args.parts.branches || [];
 }
 
 function getMetric(stage, args) {
@@ -412,198 +490,213 @@ function findOptimalStage(args) {
 	fixArgs(args);
 	
 	var bestStage = null;
+	var stage = null;
+	var stackMultiplier = Math.max((args.next.multiplier || 1), (args.parallel ? 2 : 1));  //parallel stages must have two stacks, or the same # of stacks (if greater) as the next stage (simplifies design)
+	var maxStackCount = args.maxSymmetry;
 	
-	//parallel stages must have two engines, or the same # of engines/boosters (if greater) as the next stage (simplifies design)
-	var engineMultiplier = Math.max(((args.next.lfoEngines || 0).length || 0), ((args.next.boosters || 0).length || 0), (args.parallel ? 2 : 1));
-	
-	var stage = {
-		next : args.next,
-		payload : 0,
-		others : [],
-		lfoEngines : [],
-		lfoTanks : [],
-		boosters : [],
-		decouplers : [],
-		parallel : args.parallel,
-		asparagus : args.asparagus,
-		optimization : args.optimization,
-		metric : Infinity
-	};
-	
-	nextEngine: for (var e = 0, el = args.parts.lfoEngines.length; e <= el; ++e) {
-		var engine = args.parts.lfoEngines[e] || NO_ENGINE;
-		stage.lfoEngines = [];
-		stage.decouplers = [];
-		stage.others = [];
-		if (engineMultiplier === 1 && engine.radial) stage.lfoEngines.push(engine);  //prevents a single radial engine
-		var maxEngineCount = (engine.thrust ? args.maxSymmetry : engineMultiplier) - stage.lfoEngines.length;
-		nextEngineCount: for (var ec = engineMultiplier; ec <= maxEngineCount; ec += engineMultiplier) {
-			//add engine x multipler
-			for (var x = 0; x < engineMultiplier; ++x) {
-				stage.lfoEngines.push(engine);
-				
-				//add decouplers
-				if (args.decoupling && (!engine.radial || ec === engineMultiplier)) {
-					if (ec === 1 && engineMultiplier === 1) {
-						if (args.parts.stackDecouplers[0]) stage.decouplers.push(args.parts.stackDecouplers[0]);
-					} else {
-						if (args.parts.radialDecouplers[0]) {
-							if (stage.decouplers.length && !stage.decouplers[0].radial) {
-								for (var y = 0, yl = stage.decouplers.length; y < yl; ++y) {
-									stage.decouplers[y] = args.parts.radialDecouplers[0];
-								}
-							}
-							stage.decouplers.push(args.parts.radialDecouplers[0]);
-						}
-					}
-					
-					//add fuel ducts for asparagus staging
-					if (stage.asparagus) stage.others.push(FUEL_DUCT);
-				}
+	nextStackCount: for (var sc = stackMultiplier; sc <= maxStackCount; sc += stackMultiplier) {
+		stage = {
+			next : args.next,
+			multiplier : sc,
+			payload : 0,
+			others : [],
+			lfoEngines : [],
+			lfoTanks : [],
+			boosters : [],
+			decouplers : [],
+			branches : [],
+			parallel : args.parallel,
+			asparagus : args.asparagus,
+			optimization : args.optimization,
+			metric : Infinity
+		};
+
+		//add decouplers
+		if (args.decoupling) {
+			if (stage.multiplier === 1) {
+				if (args.parts.stackDecouplers[0]) stage.decouplers.push(args.parts.stackDecouplers[0]);
+			} else {
+				if (args.parts.radialDecouplers[0]) stage.decouplers.push(args.parts.radialDecouplers[0]);
+			}
+		}
+		
+		//
+		//LF/O Engines
+		//
+		
+		nextEngine: for (var e = 0, el = args.parts.lfoEngines.length; e <= el; ++e) {
+			var engine = args.parts.lfoEngines[e] || NO_ENGINE;
+			
+			if (engine.radial && stage.multiplier === 1) {
+				//prevent a single radial engine on a single stack
+				continue nextEngine;
 			}
 			
-			stage.lfoTanks = [];
-			nextTank: for (var skippedTank, t = 0, tl = args.parts.lfoTanks.length; t < tl || skippedTank; ++t) {
-				//if we are out of tanks, but skipped some, go back and try them
-				if (t >= tl) {
-					t = skippedTank - 1;  //gets incremented next time around
-					skippedTank = undefined;
-					stage.lfoTanks = [];
-					continue nextTank;
-				}
+			var branches = [];
+			
+			if (args.cluster) {
+				branches = args.parts.branches.filter(function (branch) {
+					return (args.tankDiametersEqualEngineDiameter ? branch.sizeB === engine.size : branch.sizeB >= engine.size);
+				});
+			}
+			
+			nextBranch: for (var c = -1, cl = (engine.radial ? 0 : branches.length); c < cl; ++c) {
+				var branch = branches[c];
+				var engineMultiplier = (branch || 0).multiplier || 1;
 				
-				var tank = args.parts.lfoTanks[t];
+				stage.lfoEngines = [];
+				stage.branches = [];
+				stage.others = [];
 				
-				if (args.tankDiametersEqual) {
-					if (args.tankDiametersEqualEngineDiameter && !stage.lfoEngines[0].radial && stage.lfoEngines[0].size !== tank.size) {
-						//this tank will next work
-						continue nextTank;
-					} else if (stage.lfoTanks.length && stage.lfoTanks[0].size !== tank.size) {
-						//come back to this tank later
-						if (!skippedTank) skippedTank = t;
-						continue nextTank;
-					} else if (stage.decouplers.length && !stage.decouplers[0].radial && stage.decouplers[0].size !== tank.size) {
-						//swap out the decouplers for one the matches this tank size
-						var newDecouplerIndex = args.parts.stackDecouplers.map(pluck.bind(this, "size")).indexOf(tank.size);
-						var newDecoupler = args.parts.stackDecouplers[newDecouplerIndex];
-						stage.decouplers = stage.decouplers.map(function () {
-							return newDecoupler;
-						});
-					}
-				}
+				//add fuel ducts for asparagus staging
+				if (stage.asparagus) stage.others.push(FUEL_DUCT);
 				
-				var diff = (t === 0 ? 8 : Math.ceil(args.parts.lfoTanks[t-1].mass_fuel / tank.mass_fuel));
-				nextTankCount: for (var tc = 1; tc < diff; ++tc) {
-					//fuel tanks must balance with number of engines, unless engines are radial
-					if (engine.radial) {
-						for (var x = 0; x < engineMultiplier; ++x) {
-							stage.lfoTanks.push(tank);
-						}
-					} else {
-						for (var x = 0; x < ec; ++x) {
-							stage.lfoTanks.push(tank);
-						}
+				//add branch
+				if (branch) stage.branches.push(branch);
+				
+				nextEngineCount: for (var ec = 1, ecl = (engine.radial ? args.maxSymmetry : 1); ec <= ecl; ++ec) {
+					//add engine * branch multiplier
+					for (var y = 0; y < engineMultiplier; ++y) {
+						stage.lfoEngines.push(engine);
 					}
 					
-					var twr = KSP.Stages.twr(stage, args.planet);
-					if (twr < args.minTWR) {
-						if (KSP.Stages.deltaVStage(stage, args.atm) >= args.deltaV) {
-							//last tank was too big
-							if (engine.radial) {
-								for (var x = 0; x < engineMultiplier; ++x) {
-									stage.lfoTanks.pop();
-								}
-							} else {
-								for (var x = 0; x < ec; ++x) {
-									stage.lfoTanks.pop();
-								}
-							}
+					stage.lfoTanks = [];
+					
+					nextTank: for (var skippedTank, t = 0, tl = args.parts.lfoTanks.length; t < tl || skippedTank; ++t) {
+						//if we are out of tanks, but skipped some, go back and try them
+						if (t >= tl) {
+							t = skippedTank - 1;  //gets incremented next time around
+							skippedTank = undefined;
+							stage.lfoTanks = [];
 							continue nextTank;
-						} else {
-							//engine is too small
-							continue nextEngineCount;
-						}
-					} else if (twr <= args.maxTWR && KSP.Stages.deltaVStage(stage, args.atm) >= args.deltaV) {
-						stage.metric = getMetric(stage, args);
-						
-						if (!bestStage || stage.metric < bestStage.metric) {
-							bestStage = {
-								next : stage.next,
-								payload : stage.payload,
-								others : stage.others.slice(),
-								lfoEngines : stage.lfoEngines.slice(),
-								lfoTanks : stage.lfoTanks.slice(),
-								boosters : stage.boosters.slice(),
-								decouplers : stage.decouplers.slice(),
-								parallel : stage.parallel,
-								asparagus : stage.asparagus,
-								optimization : stage.optimization,
-								metric : stage.metric
-							};
 						}
 						
-						if (engine.radial) {
-							for (var x = 0; x < engineMultiplier; ++x) {
-								stage.lfoTanks.pop();
-							}
-						} else {
-							for (var x = 0; x < ec; ++x) {
-								stage.lfoTanks.pop();
+						var tank = args.parts.lfoTanks[t];
+						
+						if (args.tankDiametersEqual && !tank.radial) {
+							if (branch && branch.sizeA !== tank.size) {
+								//this tank will not work
+								continue nextTank;
+							} else if (!branch && args.tankDiametersEqualEngineDiameter && !stage.lfoEngines[0].radial && stage.lfoEngines[0].size !== tank.size) {
+								//this tank will not work
+								continue nextTank;
+							} else if (stage.lfoTanks.length && stage.lfoTanks[0].size !== tank.size) {
+								//come back to this tank later
+								if (!skippedTank) skippedTank = t;
+								continue nextTank;
+							} else if (stage.decouplers.length && !stage.decouplers[0].radial && stage.decouplers[0].size !== tank.size) {
+								//swap out the stack decouplers for one that matches this tank size
+								var newDecouplerIndex = args.parts.stackDecouplers.map(pluck.bind(this, "size")).indexOf(tank.size);
+								if (newDecouplerIndex > -1) {
+									var newDecoupler = args.parts.stackDecouplers[newDecouplerIndex];
+									stage.decouplers = stage.decouplers.map(function () {
+										return newDecoupler;
+									});
+								}
 							}
 						}
 						
-						continue nextTank;
+						var diff = (stage.lfoTanks.length === 0 ? 8 : Math.ceil(args.parts.lfoTanks[t-1].mass_fuel / tank.mass_fuel));
+						nextTankCount: for (var tc = 1; tc < diff; ++tc) {
+							stage.lfoTanks.push(tank);
+							
+							if (KSP.Stages.partCount(stage) > args.maxPartCount) {
+								//too many parts, try something different
+								continue nextBranch;
+							}
+							
+							var twr = KSP.Stages.twr(stage, args.planet);
+							var time = KSP.Stages.timeStage(stage, args.atm);
+							
+							if (twr < args.minTWR || time > args.maxTime || KSP.Stages.massStart(stage) > args.maxMass) {
+								if (KSP.Stages.deltaVStage(stage, args.atm) >= args.deltaV) {
+									//last tank was too big
+									stage.lfoTanks.pop();
+									continue nextTank;
+								} else {
+									//engine is not a good fit
+									continue nextEngineCount;
+								}
+							} else if (twr <= args.maxTWR && time >= args.minTime && KSP.Stages.deltaVStage(stage, args.atm) >= args.deltaV) {
+								stage.metric = getMetric(stage, args);
+								
+								if (!bestStage || stage.metric < bestStage.metric) {
+									bestStage = {
+										next : stage.next,
+										multiplier : stage.multiplier,
+										payload : stage.payload,
+										others : stage.others.slice(),
+										lfoEngines : stage.lfoEngines.slice(),
+										lfoTanks : stage.lfoTanks.slice(),
+										boosters : stage.boosters.slice(),
+										decouplers : stage.decouplers.slice(),
+										branches : stage.branches.slice(),
+										parallel : stage.parallel,
+										asparagus : stage.asparagus,
+										optimization : stage.optimization,
+										metric : stage.metric
+									};
+								}
+								
+								stage.lfoTanks.pop();
+								continue nextTank;
+							}
+						}
 					}
 				}
 			}
 		}
-	}
-	
-	stage = {
-		next : args.next,
-		payload : 0,
-		others : [],
-		lfoEngines : [],
-		lfoTanks : [],
-		boosters : [],
-		decouplers : [],
-		parallel : false,  //not yet supported
-		asparagus : false,  //boosters can't share fuel
-		optimization : args.optimization,
-		metric : Infinity
-	};
-	nextBooster: for (var b = 0, bl = args.parts.boosters.length; b < bl; ++b) {
-		var booster = args.parts.boosters[b];
-		stage.boosters = [];
-		stage.decouplers = [];
-		if (engineMultiplier === 1 && booster.radial) stage.boosters.push(booster);  //prevents a single radial booster
-		var maxBoosterCount = (booster.thrust ? args.maxSymmetry : engineMultiplier) - stage.boosters.length;
-		nextBoosterCount: for (var bc = engineMultiplier; bc <= maxBoosterCount; bc += engineMultiplier) {
-			//add engine x multipler
-			for (var x = 0; x < engineMultiplier; ++x) {
-				stage.boosters.push(booster);
-				
-				//add decouplers
-				if (args.decoupling && (!booster.radial || bc === engineMultiplier)) {
-					if (bc === 1 && engineMultiplier === 1) {
-						if (args.parts.stackDecouplers[0]) stage.decouplers.push(args.parts.stackDecouplers[0]);
-					} else {
-						if (args.parts.radialDecouplers[0]) {
-							if (stage.decouplers.length && !stage.decouplers[0].radial) {
-								for (var y = 0, yl = stage.decouplers.length; y < yl; ++y) {
-									stage.decouplers[y] = args.parts.radialDecouplers[0];
-								}
-							}
-							stage.decouplers.push(args.parts.radialDecouplers[0]);
-						}
-					}
+		
+		//
+		//Boosters
+		//
+		
+		stage = {
+			next : args.next,
+			multiplier : sc,
+			payload : 0,
+			others : [],
+			lfoEngines : [],
+			lfoTanks : [],
+			boosters : [],
+			decouplers : [],
+			branches : [],
+			parallel : false,  //not yet supported
+			asparagus : false,  //boosters can't share fuel
+			optimization : args.optimization,
+			metric : Infinity
+		};
+		
+		nextBooster: for (var b = 0, bl = args.parts.boosters.length; b < bl; ++b) {
+			var booster = args.parts.boosters[b];
+			stage.boosters = [];
+			
+			if (booster.radial && stage.multiplier === 1) {
+				//prevents a single radial booster on a single stack
+				continue nextBooster;
+			}
+			
+			stage.boosters.push(booster);
+			
+			if (KSP.Stages.partCount(stage) > args.maxPartCount) {
+				//too many parts, try something different
+				break nextBooster;
+			}
+			
+			if (args.tankDiametersEqual && !booster.radial && stage.decouplers.length && !stage.decouplers[0].radial && stage.decouplers[0].size !== booster.size) {
+				//swap out the stack decouplers for one that matches this booster size
+				var newDecouplerIndex = args.parts.stackDecouplers.map(pluck.bind(this, "size")).indexOf(booster.size);
+				if (newDecouplerIndex > -1) {
+					var newDecoupler = args.parts.stackDecouplers[newDecouplerIndex];
+					stage.decouplers = stage.decouplers.map(function () {
+						return newDecoupler;
+					});
 				}
 			}
 			
 			var twr = KSP.Stages.twr(stage, args.planet);
-			if (twr < args.minTWR) {
-				continue nextBoosterCount;
-			} else if (twr > args.maxTWR) {
+			var time = KSP.Stages.timeStage(stage, args.atm);
+			if (twr < args.minTWR || twr > args.maxTWR || time < args.minTime || time > args.maxTime || KSP.Stages.massStart(stage) > args.maxMass) {
 				continue nextBooster;
 			} else if (KSP.Stages.deltaVStage(stage, args.atm) >= args.deltaV) {
 				stage.metric = getMetric(stage, args);
@@ -611,12 +704,14 @@ function findOptimalStage(args) {
 				if (!bestStage || stage.metric < bestStage.metric) {
 					bestStage = {
 						next : stage.next,
+						multiplier : stage.multiplier,
 						payload : stage.payload,
 						others : stage.others.slice(),
 						lfoEngines : stage.lfoEngines.slice(),
 						lfoTanks : stage.lfoTanks.slice(),
 						boosters : stage.boosters.slice(),
 						decouplers : stage.decouplers.slice(),
+						branches : stage.branches.slice(),
 						parallel : stage.parallel,
 						asparagus : stage.asparagus,
 						optimization : stage.optimization,
@@ -626,7 +721,9 @@ function findOptimalStage(args) {
 				
 				continue nextBooster;
 			}
+			
 		}
+		
 	}
 	
 	//remove empty engines

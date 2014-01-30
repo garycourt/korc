@@ -1,3 +1,13 @@
+**Version 1.7 - January 30, 2014**
+* Added engine clustering to search.
+* Added branch parts from Stock.
+* Added min/max burn time restriction.
+* Added maximum mass restriction.
+* Added maximum part count restriction.
+* Added KSPX 0.2.5 pack.
+* Now outputs just the parts in a stack, with a separate multiplier on how many stacks are required.
+* Fixed bug with decoupler size matching.
+
 **Version 1.6 - January 13, 2014**
 * Added time to finish stage to results.
 
