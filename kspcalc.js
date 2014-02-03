@@ -111,6 +111,51 @@ var PACKS = [
 			{name:"Structural Pylon", type:TYPES.DECOUPLER, size:"radial", cost:1275, mass:0.200, radial:true},
 			{name:"Hydraulic Detachment Manifold", type:TYPES.DECOUPLER, size:"radial", cost:770, mass:0.400, radial:true},
 		]
+	},
+	// KW Rocketry mod
+	// Not fully added
+	{
+		name: "KW Rocketry",
+		parts: [
+			//LF/O Engines
+			{name:"KW Rocketry Maverick-1D", type:TYPES.LFO_ENGINE, size:1, cost:950, mass:2.000, thrust:350, isp_vac:355, isp_atm:320},
+			{name:"KW Rocketry Vesta VR-1", type:TYPES.LFO_ENGINE, size:1, cost:950, mass:0.600, thrust:120, isp_vac:400, isp_atm:350},
+			{name:"KW Rocketry WildCat-V", type:TYPES.LFO_ENGINE, size:1, cost:950, mass:1.500, thrust:230, isp_vac:370, isp_atm:325},
+			{name:"KW Rocketry Griffon-G8D", type:TYPES.LFO_ENGINE, size:2, cost:950, mass:8.000, thrust:1900, isp_vac:325, isp_atm:280},
+			{name:"KW Rocketry Maverick-V", type:TYPES.LFO_ENGINE, size:2, cost:950, mass:6.000, thrust:1400, isp_vac:335, isp_atm:285},
+			{name:"Service Propulsion System", type:TYPES.LFO_ENGINE, size:2, cost:700, mass:2.250, thrust:200, isp_vac:410, isp_atm:270},
+			{name:"KW Rocketry Vesta VR-9D", type:TYPES.LFO_ENGINE, size:2, cost:950, mass:5.000, thrust:600, isp_vac:380, isp_atm:310},
+			{name:"KW Rocketry Griffon XX", type:TYPES.LFO_ENGINE, size:3, cost:950, mass:18.000, thrust:4900, isp_vac:310, isp_atm:265},
+			{name:"KW Rocketry Titan-T1", type:TYPES.LFO_ENGINE, size:3, cost:950, mass:14.000, thrust:3600, isp_vac:315, isp_atm:270},
+			{name:"KW Rocketry Wildcat-XR", type:TYPES.LFO_ENGINE, size:3, cost:950, mass:8.000, thrust:1400, isp_vac:370, isp_atm:275},
+			
+			//LF/O Tanks
+			{name:"KW Rocketry SA-1 LFT", type:TYPES.LFO_TANK, size:1, cost:225, mass:0.12, mass_fuel:1.130},
+			{name:"KW Rocketry SA-2 LFT", type:TYPES.LFO_TANK, size:1, cost:225, mass:0.25, mass_fuel:2.250},
+			{name:"KW Rocketry SA-4 LFT", type:TYPES.LFO_TANK, size:1, cost:225, mass:0.51, mass_fuel:4.490},
+			{name:"KW Rocketry SA-1 LFT (grey)", type:TYPES.LFO_TANK, size:1, cost:225, mass:0.065, mass_fuel:0.560},
+			{name:"KW Rocketry SB-1 LFT", type:TYPES.LFO_TANK, size:2, cost:225, mass:1.000, mass_fuel:9.000},
+			{name:"KW Rocketry SB-2 LFT", type:TYPES.LFO_TANK, size:2, cost:225, mass:2.000, mass_fuel:18.000},
+			{name:"KW Rocketry SB-4 LFT", type:TYPES.LFO_TANK, size:2, cost:225, mass:4.000, mass_fuel:36.000},
+			{name:"KW Rocketry SB-2 LFT (grey)", type:TYPES.LFO_TANK, size:2, cost:225, mass:0.500, mass_fuel:4.500},
+			{name:"KW Rocketry SC-1 LFT", type:TYPES.LFO_TANK, size:3, cost:225, mass:3.370, mass_fuel:30.380},
+			{name:"KW Rocketry SC-2 LFT", type:TYPES.LFO_TANK, size:3, cost:225, mass:6.7488, mass_fuel:60.750},
+			{name:"KW Rocketry SC-4 LFT", type:TYPES.LFO_TANK, size:3, cost:225, mass:13.510, mass_fuel:121.490},
+			{name:"KW Rocketry SC-3 LFT (grey)", type:TYPES.LFO_TANK, size:3, cost:225, mass:1.695, mass_fuel:15.180},
+			
+			//Solid Rocket Boosters
+			{name:"Globe I SRB", type:TYPES.BOOSTER, size:0, cost:200, mass:0.3025, mass_fuel:1.310, thrust:149, isp_vac:250, isp_atm:230, radial:true},
+			{name:"Globe VI SRB", type:TYPES.BOOSTER, size:1, cost:200, mass:0.750, mass_fuel:6.000, thrust:495, isp_vac:250, isp_atm:230, radial:true},
+			{name:"Globe V SRB", type:TYPES.BOOSTER, size:1, cost:200, mass:0.750, mass_fuel:4.500, thrust:372, isp_vac:250, isp_atm:230, radial:true},
+			{name:"Globe X-2 SRB", type:TYPES.BOOSTER, size:1, cost:800, mass:1.500, mass_fuel:10.800, thrust:818, isp_vac:250, isp_atm:230, radial:true},
+			{name:"Globe X SRB", type:TYPES.BOOSTER, size:1, cost:800, mass:1.500, mass_fuel:8.100, thrust:614, isp_vac:250, isp_atm:230, radial:true},
+			{name:"Globe X-5 'Thor' SRB", type:TYPES.BOOSTER, size:2, cost:800, mass:3.500, mass_fuel:42.000, thrust:1590, isp_vac:250, isp_atm:230, radial:true},
+			
+			//Decouplers
+			{name:"1.25m Stack Decoupler", type:TYPES.DECOUPLER, size:1, cost:400, mass:0.250},
+			{name:"2.5m Stack Decoupler", type:TYPES.DECOUPLER, size:2, cost:400, mass:0.500},
+			{name:"3.75m Stack Decoupler", type:TYPES.DECOUPLER, size:3, cost:400, mass:2.000}
+		]
 	}
 ];
 
