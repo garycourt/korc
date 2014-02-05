@@ -126,6 +126,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	font-size: 1.4em; 
 }
 
+.searchResults td.stageMultiplier {
+	font-size: 1.4em;
+	font-weight: bold;
+	vertical-align: middle;
+}
+
 .searchResults li {
 	list-style: none;
 }
@@ -197,15 +203,15 @@ function SettingsController($scope) {
 	$scope.maxMass;
 	$scope.maxPartCount;
 	$scope.maxStages = 3;
-	$scope.maxSymmetry = 8;
-	$scope.cluster = true;
+	$scope.maxStacks = 4;
+	$scope.cluster = false;
 	$scope.parallel = false;
 	$scope.asparagus = false;
 	$scope.atmosphere = false;
 	$scope.payloadDecoupler = true;
 	$scope.lastStageSingle = true;
 	$scope.tankDiametersEqual = true;
-	$scope.tankDiametersEqualEngineDiameter = false;
+	$scope.tankDiametersEqualEngineDiameter = true;
 	$scope.packTree = _.map(PACKS, function (pack) {
 		var result = Object.create(pack);
 		result.parts = _.map(_.groupBy(pack.parts, "type"), function (parts, partId) {
@@ -247,6 +253,7 @@ function SettingsController($scope) {
 				partCount : KSP.Stages.partCount(staging),
 				cost : KSP.Stages.cost(staging),
 				mass : KSP.Stages.massStart(staging),
+				payloadFraction : 0,
 				deltaV : KSP.Stages.deltaVTotal(staging),
 				time : KSP.Stages.timeTotal(staging),
 				stages : []
@@ -279,6 +286,7 @@ function SettingsController($scope) {
 				currentStage = currentStage.next;
 			}
 			result.stages.reverse();
+			result.payloadFraction = result.stages[0].payload / result.mass;
 		}
 		return result;
 	}
@@ -353,7 +361,7 @@ function SettingsController($scope) {
 			maxMass : $scope.maxMass,
 			maxPartCount : $scope.maxPartCount,
 			atm : ($scope.atmosphere ? 1 : 0),
-			maxSymmetry : ($scope.lastStageSingle ? 1 : $scope.maxSymmetry),
+			maxStacks : $scope.maxStacks,
 			cluster : $scope.cluster,
 			parallel : false,
 			asparagus : false,
@@ -361,7 +369,6 @@ function SettingsController($scope) {
 			tankDiametersEqual : $scope.tankDiametersEqual,
 			tankDiametersEqualEngineDiameter : $scope.tankDiametersEqual && $scope.tankDiametersEqualEngineDiameter,
 			maxStages : $scope.maxStages,
-			stagesMaxSymmetry : $scope.maxSymmetry,
 			stagesParallel : $scope.parallel || $scope.asparagus,
 			stagesAsparagus : $scope.asparagus,
 			parts : sortParts($scope.getEnabledParts(), $scope.optimization)
@@ -577,14 +584,14 @@ function SettingsController($scope) {
 						<div class="form-group">
 							<label for="settingsMaxStages" class="control-label col-sm-5">Maximum # of Stages</label>
 							<div class="col-sm-7">
-								<input type="number" name="maxStages" min="1" step="1" placeholder="3" id="settingsMaxStages" class="form-control" ng-model="maxStages"/>
+								<input type="number" name="maxStages" min="1" step="1" placeholder="1" id="settingsMaxStages" class="form-control" ng-model="maxStages"/>
 							</div>
 						</div>
 						
 						<div class="form-group">
-							<label for="settingsMaxSymmetry" class="control-label col-sm-5">Maximum Symmetry</label>
+							<label for="settingsMaxStacks" class="control-label col-sm-5">Maximum # of Stacks</label>
 							<div class="col-sm-7">
-								<input type="number" name="maxSymmetry" min="1" step="1" max="50" placeholder="8" id="settingsMaxSymmetry" class="form-control" ng-model="maxSymmetry"/>
+								<input type="number" name="maxStacks" min="2" step="1" max="50" placeholder="2" id="settingsMaxStacks" class="form-control" ng-model="maxStacks"/>
 							</div>
 						</div>
 						
@@ -708,7 +715,7 @@ function SettingsController($scope) {
 						<div class="stages panel-heading-pill nav-pills">Stages: {{staging.stages.length-1}}</div>
 						<div class="partCount panel-heading-pill nav-pills" ng-class="{strong: staging.optimization == 'partCount'}">Part Count: {{staging.partCount}}</div>
 						<div class="cost panel-heading-pill nav-pills" ng-class="{strong: staging.optimization == 'cost'}">Cost: {{staging.cost}}</div>
-						<div class="mass panel-heading-pill nav-pills" ng-class="{strong: staging.optimization == 'mass'}">Mass: {{staging.mass.toFixed(3)}}</div>
+						<div class="mass panel-heading-pill nav-pills" ng-class="{strong: staging.optimization == 'mass'}">Mass: {{staging.mass.toFixed(3)}} <abbr title="Payload Fraction">({{(staging.payloadFraction * 100).toPrecision(3)}}%)</abbr></div>
 						<div class="deltaV panel-heading-pill nav-pills">Delta-V: {{Math.round(staging.deltaV)}}</div>
 						<div class="time panel-heading-pill nav-pills">Time: {{staging.time.toFixed(1)}}</div>
 					</summary>
@@ -717,6 +724,7 @@ function SettingsController($scope) {
 							<tr>
 								<th class="stage">Stage</th>
 								<th class="parts">Part</th>
+								<th class="stageMultiplier">x</th>
 								<th class="cost">Cost</th>
 								<th class="mass">Mass (<math><mi>t</mi></math>)</th>
 								<th class="deltaV">Delta-V (<math><mi>m</mi><mo>/</mo><msup><mi>s</mi><mn>2</mn></msup></math>)</th>
@@ -728,7 +736,6 @@ function SettingsController($scope) {
 							<tr ng-repeat="stage in staging.stages | orderBy:'-stage'">
 								<td class="stage">
 									<div class="stageNumber">{{$index}}</div>
-									<div class="stageMultiplier" ng-if="stage.multiplier > 1">x{{stage.multiplier}}</div>
 									<small ng-if="stage.asparagus">Asparagus</small>
 								</td>
 								<td class="parts partList">
@@ -742,6 +749,7 @@ function SettingsController($scope) {
 										<li class="boosters" ng-repeat="part in stage.boosters">{{part.name}}<span class="multiplier" ng-if="part.count > 1"> x{{part.count}}</span></li>
 									</ol>
 								</td>
+								<td class="stageMultiplier"><span ng-if="stage.multiplier > 1">x{{stage.multiplier}}</span></td>
 								<td class="cost">{{stage.costStage}} / {{stage.costTotal}}</td>
 								<td class="mass">{{stage.massStage.toFixed(3)}} / {{stage.massTotal.toFixed(3)}}</td>
 								<td class="deltaV">{{Math.round(stage.deltaVStage)}} / {{Math.round(stage.deltaVTotal)}}</td>

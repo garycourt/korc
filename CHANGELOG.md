@@ -1,3 +1,10 @@
+**Version 1.8 - February 5, 2014**
+* Performance improvements.
+* Now displays payload fraction.
+* Changed max symmetry to maximum number of stacks.
+* Stack multiplier is now easier to read.
+* Changed default settings.
+
 **Version 1.7 - January 30, 2014**
 * Added engine clustering to search.
 * Added branch parts from Stock.

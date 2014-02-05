@@ -437,6 +437,7 @@ function fixArgs(args) {
 	args.maxPartCount = (args.optimization !== "partCount" && args.maxPartCount ? args.maxPartCount : Infinity);
 	args.atm = args.atm || 0;
 	args.maxSymmetry = args.maxSymmetry || 8;
+	args.maxStacks = Math.max(args.maxStacks, 2);
 	args.cluster = !!args.cluster;
 	args.asparagus = !!(args.next.lfoTanks || 0).length && !!args.asparagus;
 	args.parallel = /*!!args.parallel || */args.asparagus;  //FIXME: Parallel disabled until supported without asparagus
@@ -444,7 +445,6 @@ function fixArgs(args) {
 	args.tankDiametersEqual = !!args.tankDiametersEqual;
 	args.tankDiametersEqualEngineDiameter = args.tankDiametersEqual && !!args.tankDiametersEqualEngineDiameter;
 	args.maxStages = args.maxStages || 1;
-	args.stagesMaxSymmetry = args.stagesMaxSymmetry || args.maxSymmetry;
 	args.stagesAsparagus = !!args.stagesAsparagus;
 	args.stagesParallel = !!args.stagesParallel || args.stagesAsparagus;
 	args.parts = args.parts || {};
@@ -491,128 +491,146 @@ function findOptimalStage(args) {
 	
 	var bestStage = null;
 	var stage = null;
-	var stackMultiplier = Math.max((args.next.multiplier || 1), (args.parallel ? 2 : 1));  //parallel stages must have two stacks, or the same # of stacks (if greater) as the next stage (simplifies design)
-	var maxStackCount = args.maxSymmetry;
+	var stackMultiplier = Math.max((args.next.multiplier || 1), (args.parallel || (args.next.lfoEngines || 0).length > 1 ? 2 : 1));  //parallel stages must have two stacks, or the same # of stacks (if greater) as the next stage (simplifies design)
 	
-	nextStackCount: for (var sc = stackMultiplier; sc <= maxStackCount; sc += stackMultiplier) {
-		stage = {
-			next : args.next,
-			multiplier : sc,
-			payload : 0,
-			others : [],
-			lfoEngines : [],
-			lfoTanks : [],
-			boosters : [],
-			decouplers : [],
-			branches : [],
-			parallel : args.parallel,
-			asparagus : args.asparagus,
-			optimization : args.optimization,
-			metric : Infinity
-		};
+	//
+	//LF/O Engines
+	//
 
-		//add decouplers
-		if (args.decoupling) {
-			if (stage.multiplier === 1) {
-				if (args.parts.stackDecouplers[0]) stage.decouplers.push(args.parts.stackDecouplers[0]);
-			} else {
-				if (args.parts.radialDecouplers[0]) stage.decouplers.push(args.parts.radialDecouplers[0]);
-			}
+	stage = {
+		next : args.next,
+		multiplier : 0,
+		payload : 0,
+		others : [],
+		lfoEngines : [],
+		lfoTanks : [],
+		boosters : [],
+		decouplers : [],
+		branches : [],
+		parallel : args.parallel,
+		asparagus : args.asparagus,
+		optimization : args.optimization,
+		metric : Infinity
+	};
+	
+	nextEngine: for (var e = 0, el = args.parts.lfoEngines.length; e <= el; ++e) {
+		var engine = args.parts.lfoEngines[e] || NO_ENGINE;
+		var branches = [];
+		if (args.cluster) {
+			branches = args.parts.branches.filter(function (branch) {
+				return (args.tankDiametersEqualEngineDiameter ? branch.sizeB === engine.size : branch.sizeB >= engine.size);
+			});
 		}
 		
-		//
-		//LF/O Engines
-		//
-		
-		nextEngine: for (var e = 0, el = args.parts.lfoEngines.length; e <= el; ++e) {
-			var engine = args.parts.lfoEngines[e] || NO_ENGINE;
+		nextBranch: for (var c = -1, cl = (engine.radial ? 0 : branches.length); c < cl; ++c) {
+			var branch = branches[c];
+			var engineMultiplier = (branch || 0).multiplier || 1;
 			
-			if (engine.radial && stage.multiplier === 1) {
-				//prevent a single radial engine on a single stack
-				continue nextEngine;
-			}
+			stage.lfoEngines = [];
+			stage.branches = [];
+			stage.others = [];
 			
-			var branches = [];
+			//add fuel ducts for asparagus staging
+			if (stage.asparagus) stage.others.push(FUEL_DUCT);
 			
-			if (args.cluster) {
-				branches = args.parts.branches.filter(function (branch) {
-					return (args.tankDiametersEqualEngineDiameter ? branch.sizeB === engine.size : branch.sizeB >= engine.size);
-				});
-			}
+			//add branch
+			if (branch) stage.branches.push(branch);
 			
-			nextBranch: for (var c = -1, cl = (engine.radial ? 0 : branches.length); c < cl; ++c) {
-				var branch = branches[c];
-				var engineMultiplier = (branch || 0).multiplier || 1;
+			nextEngineCount: for (var ec = 1, ecl = (engine.radial ? args.maxSymmetry : 1); ec <= ecl; ++ec) {
+				//add engine * branch multiplier
+				for (var y = 0; y < engineMultiplier; ++y) {
+					stage.lfoEngines.push(engine);
+				}
 				
-				stage.lfoEngines = [];
-				stage.branches = [];
-				stage.others = [];
+				stage.lfoTanks = [];
 				
-				//add fuel ducts for asparagus staging
-				if (stage.asparagus) stage.others.push(FUEL_DUCT);
-				
-				//add branch
-				if (branch) stage.branches.push(branch);
-				
-				nextEngineCount: for (var ec = 1, ecl = (engine.radial ? args.maxSymmetry : 1); ec <= ecl; ++ec) {
-					//add engine * branch multiplier
-					for (var y = 0; y < engineMultiplier; ++y) {
-						stage.lfoEngines.push(engine);
+				nextTank: for (var skippedTank, t = 0, tl = args.parts.lfoTanks.length; t < tl || skippedTank; ++t) {
+					//if we are out of tanks, but skipped some, go back and try them
+					if (t >= tl) {
+						t = skippedTank - 1;  //gets incremented next time around
+						skippedTank = undefined;
+						stage.lfoTanks = [];
+						continue nextTank;
 					}
 					
-					stage.lfoTanks = [];
+					var tank = args.parts.lfoTanks[t];
+					var bestStackDecoupler = args.parts.stackDecouplers[0];
+					var bestRadialDecoupler = args.parts.radialDecouplers[0];
 					
-					nextTank: for (var skippedTank, t = 0, tl = args.parts.lfoTanks.length; t < tl || skippedTank; ++t) {
-						//if we are out of tanks, but skipped some, go back and try them
-						if (t >= tl) {
-							t = skippedTank - 1;  //gets incremented next time around
-							skippedTank = undefined;
-							stage.lfoTanks = [];
+					if (args.tankDiametersEqual && !tank.radial) {
+						if (branch && branch.sizeA !== tank.size) {
+							//this tank will not work
 							continue nextTank;
-						}
-						
-						var tank = args.parts.lfoTanks[t];
-						
-						if (args.tankDiametersEqual && !tank.radial) {
-							if (branch && branch.sizeA !== tank.size) {
-								//this tank will not work
-								continue nextTank;
-							} else if (!branch && args.tankDiametersEqualEngineDiameter && !stage.lfoEngines[0].radial && stage.lfoEngines[0].size !== tank.size) {
-								//this tank will not work
-								continue nextTank;
-							} else if (stage.lfoTanks.length && stage.lfoTanks[0].size !== tank.size) {
-								//come back to this tank later
-								if (!skippedTank) skippedTank = t;
-								continue nextTank;
-							} else if (stage.decouplers.length && !stage.decouplers[0].radial && stage.decouplers[0].size !== tank.size) {
-								//swap out the stack decouplers for one that matches this tank size
-								var newDecouplerIndex = args.parts.stackDecouplers.map(pluck.bind(this, "size")).indexOf(tank.size);
-								if (newDecouplerIndex > -1) {
-									var newDecoupler = args.parts.stackDecouplers[newDecouplerIndex];
-									stage.decouplers = stage.decouplers.map(function () {
-										return newDecoupler;
-									});
-								}
+						} else if (!branch && args.tankDiametersEqualEngineDiameter && !stage.lfoEngines[0].radial && stage.lfoEngines[0].size !== tank.size) {
+							//this tank will not work
+							continue nextTank;
+						} else if (stage.lfoTanks.length && stage.lfoTanks[0].size !== tank.size) {
+							//come back to this tank later
+							if (!skippedTank) skippedTank = t;
+							continue nextTank;
+						} else if (bestStackDecoupler && bestStackDecoupler.size !== tank.size) {
+							var newDecouplerIndex = args.parts.stackDecouplers.map(pluck.bind(this, "size")).indexOf(tank.size);
+							if (newDecouplerIndex > -1) {
+								bestStackDecoupler = args.parts.stackDecouplers[newDecouplerIndex];
 							}
 						}
+					}
+					
+					var diff = (stage.lfoTanks.length === 0 ? 8 : Math.ceil(args.parts.lfoTanks[t-1].mass_fuel / tank.mass_fuel));
+					nextTankCount: for (var tc = 1; tc < diff; ++tc) {
+						stage.lfoTanks.push(tank);
+						stage.decouplers = [];
 						
-						var diff = (stage.lfoTanks.length === 0 ? 8 : Math.ceil(args.parts.lfoTanks[t-1].mass_fuel / tank.mass_fuel));
-						nextTankCount: for (var tc = 1; tc < diff; ++tc) {
-							stage.lfoTanks.push(tank);
+						nextStackCount: for (var sc = stackMultiplier; sc <= args.maxStacks; sc += stackMultiplier) {
+							stage.multiplier = sc;
 							
-							if (KSP.Stages.partCount(stage) > args.maxPartCount) {
+							if (engine.radial && stage.multiplier === 1) {
+								//prevent a single radial engine on a single stack
+								continue nextStackCount;
+							}
+							
+							//add decouplers
+							if (args.decoupling) {
+								if (stage.multiplier === 1) {
+									if (bestStackDecoupler) stage.decouplers = [ bestStackDecoupler ];
+								} else {
+									if (bestRadialDecoupler) {
+										stage.decouplers = [ bestRadialDecoupler ];
+									}
+								}
+							}
+						
+							if (args.maxPartCount !== Infinity && KSP.Stages.partCount(stage) > args.maxPartCount) {
 								//too many parts, try something different
-								continue nextBranch;
+								if (sc === stackMultiplier) {
+									continue nextBranch;
+								} else {
+									break;
+								}
+							}
+							
+							if (args.maxMass !== Infinity && KSP.Stages.massStart(stage) > args.maxMass) {
+								//parts are too heavy
+								if (sc === stackMultiplier) {
+									stage.lfoTanks.pop();
+									continue nextTank;
+								} else {
+									break;
+								}
 							}
 							
 							var twr = KSP.Stages.twr(stage, args.planet);
 							var time = KSP.Stages.timeStage(stage, args.atm);
 							
-							if (twr < args.minTWR || time > args.maxTime || KSP.Stages.massStart(stage) > args.maxMass) {
+							if (twr < args.minTWR || time > args.maxTime) {
 								if (KSP.Stages.deltaVStage(stage, args.atm) >= args.deltaV) {
 									//last tank was too big
-									stage.lfoTanks.pop();
-									continue nextTank;
+									if (sc === stackMultiplier) {
+										stage.lfoTanks.pop();
+										continue nextTank;
+									} else {
+										break;
+									}
 								} else {
 									//engine is not a good fit
 									continue nextEngineCount;
@@ -638,67 +656,98 @@ function findOptimalStage(args) {
 									};
 								}
 								
-								stage.lfoTanks.pop();
-								continue nextTank;
+								if (sc === stackMultiplier) {
+									stage.lfoTanks.pop();
+									continue nextTank;
+								} else {
+									break;
+								}
 							}
+							
 						}
 					}
 				}
 			}
 		}
+	}
+	
+	//
+	//Boosters
+	//
+	
+	stage = {
+		next : args.next,
+		multiplier : 0,
+		payload : 0,
+		others : [],
+		lfoEngines : [],
+		lfoTanks : [],
+		boosters : [],
+		decouplers : [],
+		branches : [],
+		parallel : false,  //not yet supported
+		asparagus : false,  //boosters can't share fuel
+		optimization : args.optimization,
+		metric : Infinity
+	};
+	
+	nextBooster: for (var b = 0, bl = args.parts.boosters.length; b < bl; ++b) {
+		var booster = args.parts.boosters[b];
+		var bestStackDecoupler = args.parts.stackDecouplers[0];
+		var bestRadialDecoupler = args.parts.radialDecouplers[0];
 		
-		//
-		//Boosters
-		//
+		if (args.tankDiametersEqual && !booster.radial && bestStackDecoupler && bestStackDecoupler.size !== booster.size) {
+			var newDecouplerIndex = args.parts.stackDecouplers.map(pluck.bind(this, "size")).indexOf(booster.size);
+			if (newDecouplerIndex > -1) {
+				bestStackDecoupler = args.parts.stackDecouplers[newDecouplerIndex];
+			}
+		}
 		
-		stage = {
-			next : args.next,
-			multiplier : sc,
-			payload : 0,
-			others : [],
-			lfoEngines : [],
-			lfoTanks : [],
-			boosters : [],
-			decouplers : [],
-			branches : [],
-			parallel : false,  //not yet supported
-			asparagus : false,  //boosters can't share fuel
-			optimization : args.optimization,
-			metric : Infinity
-		};
+		stage.boosters = [ booster ];
 		
-		nextBooster: for (var b = 0, bl = args.parts.boosters.length; b < bl; ++b) {
-			var booster = args.parts.boosters[b];
-			stage.boosters = [];
-			
+		nextStackCount: for (var sc = stackMultiplier; sc <= args.maxStacks; sc += stackMultiplier) {
+			stage.multiplier = sc;
+		
 			if (booster.radial && stage.multiplier === 1) {
 				//prevents a single radial booster on a single stack
-				continue nextBooster;
+				continue nextStackCount;
 			}
 			
-			stage.boosters.push(booster);
-			
-			if (KSP.Stages.partCount(stage) > args.maxPartCount) {
+			//add decouplers
+			if (args.decoupling) {
+				if (stage.multiplier === 1) {
+					if (bestStackDecoupler) stage.decouplers = [ bestStackDecoupler ];
+				} else {
+					if (bestRadialDecoupler) {
+						stage.decouplers = [ bestRadialDecoupler ];
+					}
+				}
+			}
+		
+			if (args.maxPartCount !== Infinity && KSP.Stages.partCount(stage) > args.maxPartCount) {
 				//too many parts, try something different
-				break nextBooster;
+				if (sc === stackMultiplier) {
+					continue nextBooster;
+				} else {
+					break;
+				}
 			}
 			
-			if (args.tankDiametersEqual && !booster.radial && stage.decouplers.length && !stage.decouplers[0].radial && stage.decouplers[0].size !== booster.size) {
-				//swap out the stack decouplers for one that matches this booster size
-				var newDecouplerIndex = args.parts.stackDecouplers.map(pluck.bind(this, "size")).indexOf(booster.size);
-				if (newDecouplerIndex > -1) {
-					var newDecoupler = args.parts.stackDecouplers[newDecouplerIndex];
-					stage.decouplers = stage.decouplers.map(function () {
-						return newDecoupler;
-					});
+			if (args.maxMass !== Infinity && KSP.Stages.massStart(stage) > args.maxMass) {
+				//parts are too heavy
+				if (sc === stackMultiplier) {
+					stage.lfoTanks.pop();
+					continue nextBooster;
+				} else {
+					break;
 				}
 			}
 			
 			var twr = KSP.Stages.twr(stage, args.planet);
 			var time = KSP.Stages.timeStage(stage, args.atm);
-			if (twr < args.minTWR || twr > args.maxTWR || time < args.minTime || time > args.maxTime || KSP.Stages.massStart(stage) > args.maxMass) {
+			if (twr > args.maxTWR || time < args.minTime || time > args.maxTime) {
 				continue nextBooster;
-			} else if (KSP.Stages.deltaVStage(stage, args.atm) >= args.deltaV) {
+			} else if (twr >= args.minTWR && KSP.Stages.deltaVStage(stage, args.atm) >= args.deltaV) {
 				stage.metric = getMetric(stage, args);
 				
 				if (!bestStage || stage.metric < bestStage.metric) {
@@ -721,10 +770,9 @@ function findOptimalStage(args) {
 				
 				continue nextBooster;
 			}
-			
 		}
-		
 	}
+	
 	
 	//remove empty engines
 	if (bestStage && bestStage.lfoEngines[0] === NO_ENGINE) {
@@ -749,7 +797,6 @@ function findRandomOptimalStaging(args) {
 			var secondArgs = Object.create(args);
 			secondArgs.next = firstStage;
 			secondArgs.deltaV = args.deltaV - firstArgs.deltaV;
-			secondArgs.maxSymmetry = args.stagesMaxSymmetry;
 			secondArgs.parallel = !!args.stagesParallel;
 			secondArgs.asparagus = !!args.stagesAsparagus;
 			secondArgs.decoupling = true;
