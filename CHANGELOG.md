@@ -1,3 +1,8 @@
+**Version 1.9 - February 5, 2014**
+* Added KW Rocketry 2.5.6 pack.
+* Fixed bug "Last stage must be a single stack" not working
+* Fixed bug with stack decouplers being the wrong size when radial tanks are used
+
 **Version 1.8 - February 5, 2014**
 * Performance improvements.
 * Now displays payload fraction.

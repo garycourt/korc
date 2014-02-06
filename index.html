@@ -92,6 +92,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	padding-left: 24px;
 }
 
+.packName {
+	font-weight: bold;
+}
+
 .searchProgress {
 	position: relative;
 	margin-top: 32px;
@@ -361,7 +365,7 @@ function SettingsController($scope) {
 			maxMass : $scope.maxMass,
 			maxPartCount : $scope.maxPartCount,
 			atm : ($scope.atmosphere ? 1 : 0),
-			maxStacks : $scope.maxStacks,
+			maxStacks : ($scope.lastStageSingle ? 1 : $scope.maxStacks),
 			cluster : $scope.cluster,
 			parallel : false,
 			asparagus : false,
@@ -369,6 +373,7 @@ function SettingsController($scope) {
 			tankDiametersEqual : $scope.tankDiametersEqual,
 			tankDiametersEqualEngineDiameter : $scope.tankDiametersEqual && $scope.tankDiametersEqualEngineDiameter,
 			maxStages : $scope.maxStages,
+			stagesMaxStacks : $scope.maxStacks,
 			stagesParallel : $scope.parallel || $scope.asparagus,
 			stagesAsparagus : $scope.asparagus,
 			parts : sortParts($scope.getEnabledParts(), $scope.optimization)
@@ -591,7 +596,7 @@ function SettingsController($scope) {
 						<div class="form-group">
 							<label for="settingsMaxStacks" class="control-label col-sm-5">Maximum # of Stacks</label>
 							<div class="col-sm-7">
-								<input type="number" name="maxStacks" min="2" step="1" max="50" placeholder="2" id="settingsMaxStacks" class="form-control" ng-model="maxStacks"/>
+								<input type="number" name="maxStacks" min="1" step="1" max="50" placeholder="1" id="settingsMaxStacks" class="form-control" ng-model="maxStacks"/>
 							</div>
 						</div>
 						
@@ -664,7 +669,7 @@ function SettingsController($scope) {
 					<label>Available Parts</label>
 					<div class="availableParts partPacks partList well">
 						<div class="partPack partListItem checkbox" ng-repeat="pack in packTree">
-							<input type="checkbox" ng-model="pack.enabled" ng-change="onPartListItemChange(pack)"/><span>{{pack.name}}</span>
+							<input type="checkbox" ng-model="pack.enabled" ng-change="onPartListItemChange(pack)"/><span class="packName">{{pack.name}}</span>
 							<div class="partTypes partList">
 								<div class="partType partListItem" ng-repeat="type in pack.parts">
 									<input type="checkbox" ng-model="type.enabled" ng-change="onPartListItemChange(type, pack)"/><span>{{type.name}}</span>

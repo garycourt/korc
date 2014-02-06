@@ -133,7 +133,7 @@ var PACKS = [
 			{name:"Stratus-V Cylindrified Liquid Fuel Tank & Oxidizer Tank", type:TYPES.LFO_TANK, size:"radial", cost:2000, mass:0.300, mass_fuel:0.400, radial:true},
 			{name:"Stratus-V Roundified Liquid Fuel Tank & Oxidizer Tank", type:TYPES.LFO_TANK, size:"radial", cost:900, mass:0.150, mass_fuel:0.200, radial:true}
 		]
-	}/*,
+	},
 	{
 		name:"KW Rocketry 2.5.6",
 		parts:[
@@ -164,9 +164,22 @@ var PACKS = [
 			{name:"KW Rocketry SC-4 LFT", type:TYPES.LFO_TANK, size:3, cost:225, mass:13.5, mass_fuel:121.5},
 			{name:"KW Rocketry SC-4 LFT ALT", type:TYPES.LFO_TANK, size:3, cost:225, mass:13.5, mass_fuel:121.5},
 			{name:"KW Rocketry ST-25", type:TYPES.LFO_TANK, size:2, cost:225, mass:4, mass_fuel:32.4, last:true},
-			{name:"KW Rocketry ST-37", type:TYPES.LFO_TANK, size:3, cost:225, mass:13.5, mass_fuel:109.35, last:true}
+			{name:"KW Rocketry ST-37", type:TYPES.LFO_TANK, size:3, cost:225, mass:13.5, mass_fuel:109.35, last:true},
+			
+			//Solid Rocket Boosters
+			{name:"Globe I SRB", type:TYPES.BOOSTER, size:0, cost:200, mass:0.3025, mass_fuel:1.310, thrust:149, isp_vac:250, isp_atm:230, radial:true},
+			{name:"Globe VI SRB", type:TYPES.BOOSTER, size:1, cost:200, mass:0.750, mass_fuel:6.000, thrust:495, isp_vac:250, isp_atm:230, radial:true},
+			{name:"Globe V SRB", type:TYPES.BOOSTER, size:1, cost:200, mass:0.750, mass_fuel:4.500, thrust:372, isp_vac:250, isp_atm:230, radial:true},
+			{name:"Globe X-2 SRB", type:TYPES.BOOSTER, size:1, cost:800, mass:1.500, mass_fuel:10.800, thrust:818, isp_vac:250, isp_atm:230, radial:true},
+			{name:"Globe X SRB", type:TYPES.BOOSTER, size:1, cost:800, mass:1.500, mass_fuel:8.100, thrust:614, isp_vac:250, isp_atm:230, radial:true},
+			{name:"Globe X-5 'Thor' SRB", type:TYPES.BOOSTER, size:2, cost:800, mass:3.500, mass_fuel:42.000, thrust:1590, isp_vac:250, isp_atm:230, radial:true},
+			
+			//Decouplers
+			{name:"1.25m Stack Decoupler", type:TYPES.DECOUPLER, size:1, cost:400, mass:0.250},
+			{name:"2.5m Stack Decoupler", type:TYPES.DECOUPLER, size:2, cost:400, mass:0.500},
+			{name:"3.75m Stack Decoupler", type:TYPES.DECOUPLER, size:3, cost:400, mass:2.000}
 		]
-	}*/
+	}
 ];
 
 var NO_ENGINE = {name:"", type:TYPES.LFO_ENGINE, size:0, cost:0, mass:0, thrust:0, isp_vac:0, isp_atm:0};
@@ -437,7 +450,7 @@ function fixArgs(args) {
 	args.maxPartCount = (args.optimization !== "partCount" && args.maxPartCount ? args.maxPartCount : Infinity);
 	args.atm = args.atm || 0;
 	args.maxSymmetry = args.maxSymmetry || 8;
-	args.maxStacks = Math.max(args.maxStacks, 2);
+	args.maxStacks = args.maxStacks || 1;
 	args.cluster = !!args.cluster;
 	args.asparagus = !!(args.next.lfoTanks || 0).length && !!args.asparagus;
 	args.parallel = /*!!args.parallel || */args.asparagus;  //FIXME: Parallel disabled until supported without asparagus
@@ -445,6 +458,7 @@ function fixArgs(args) {
 	args.tankDiametersEqual = !!args.tankDiametersEqual;
 	args.tankDiametersEqualEngineDiameter = args.tankDiametersEqual && !!args.tankDiametersEqualEngineDiameter;
 	args.maxStages = args.maxStages || 1;
+	args.stagesMaxStacks = args.stagesMaxStacks || 1;
 	args.stagesAsparagus = !!args.stagesAsparagus;
 	args.stagesParallel = !!args.stagesParallel || args.stagesAsparagus;
 	args.parts = args.parts || {};
@@ -492,6 +506,7 @@ function findOptimalStage(args) {
 	var bestStage = null;
 	var stage = null;
 	var stackMultiplier = Math.max((args.next.multiplier || 1), (args.parallel || (args.next.lfoEngines || 0).length > 1 ? 2 : 1));  //parallel stages must have two stacks, or the same # of stacks (if greater) as the next stage (simplifies design)
+	var bestStackDecoupler, bestRadialDecoupler;
 	
 	//
 	//LF/O Engines
@@ -512,6 +527,9 @@ function findOptimalStage(args) {
 		optimization : args.optimization,
 		metric : Infinity
 	};
+	
+	bestStackDecoupler = args.parts.stackDecouplers[0];
+	bestRadialDecoupler = args.parts.radialDecouplers[0];
 	
 	nextEngine: for (var e = 0, el = args.parts.lfoEngines.length; e <= el; ++e) {
 		var engine = args.parts.lfoEngines[e] || NO_ENGINE;
@@ -554,8 +572,6 @@ function findOptimalStage(args) {
 					}
 					
 					var tank = args.parts.lfoTanks[t];
-					var bestStackDecoupler = args.parts.stackDecouplers[0];
-					var bestRadialDecoupler = args.parts.radialDecouplers[0];
 					
 					if (args.tankDiametersEqual && !tank.radial) {
 						if (branch && branch.sizeA !== tank.size) {
@@ -691,10 +707,11 @@ function findOptimalStage(args) {
 		metric : Infinity
 	};
 	
+	bestStackDecoupler = args.parts.stackDecouplers[0];
+	bestRadialDecoupler = args.parts.radialDecouplers[0];
+	
 	nextBooster: for (var b = 0, bl = args.parts.boosters.length; b < bl; ++b) {
 		var booster = args.parts.boosters[b];
-		var bestStackDecoupler = args.parts.stackDecouplers[0];
-		var bestRadialDecoupler = args.parts.radialDecouplers[0];
 		
 		if (args.tankDiametersEqual && !booster.radial && bestStackDecoupler && bestStackDecoupler.size !== booster.size) {
 			var newDecouplerIndex = args.parts.stackDecouplers.map(pluck.bind(this, "size")).indexOf(booster.size);
@@ -797,6 +814,7 @@ function findRandomOptimalStaging(args) {
 			var secondArgs = Object.create(args);
 			secondArgs.next = firstStage;
 			secondArgs.deltaV = args.deltaV - firstArgs.deltaV;
+			secondArgs.maxStacks = args.stagesMaxStacks;
 			secondArgs.parallel = !!args.stagesParallel;
 			secondArgs.asparagus = !!args.stagesAsparagus;
 			secondArgs.decoupling = true;
