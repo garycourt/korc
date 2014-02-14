@@ -74,7 +74,7 @@ var PACKS = [
 			{name:"Rockomax 'Poodle' Liquid Engine", type:TYPES.LFO_ENGINE, size:2, cost:1600, mass:2.500, thrust:220, isp_vac:390, isp_atm:270},
 			{name:"LV-N Atomic Rocket Motor", type:TYPES.LFO_ENGINE, size:1, cost:8700, mass:2.250, thrust:60, isp_vac:800, isp_atm:220},
 			{name:"R.A.P.I.E.R. Engine", type:TYPES.LFO_ENGINE, size:1, cost:5900, mass:1.750, thrust:175, isp_vac:360, isp_atm:320},
-			{name:"Toroidal Aerospike Rocket", type:TYPES.LFO_ENGINE, size:1, cost:3850, mass:1.500, thrust:175, isp_vac:390, isp_atm:388},
+			{name:"Toroidal Aerospike Rocket", type:TYPES.LFO_ENGINE, size:1, cost:3850, mass:1.500, thrust:175, isp_vac:390, isp_atm:388, last:true},
 			{name:"LV-T45 Liquid Fuel Engine", type:TYPES.LFO_ENGINE, size:1, cost:950, mass:1.500, thrust:200, isp_vac:370, isp_atm:320},
 			{name:"LV-T30 Liquid Fuel Engine", type:TYPES.LFO_ENGINE, size:1, cost:850, mass:1.250, thrust:215, isp_vac:370, isp_atm:320},
 			{name:"LV-909 Liquid Fuel Engine", type:TYPES.LFO_ENGINE, size:1, cost:750, mass:0.500, thrust:50, isp_vac:390, isp_atm:300},
@@ -163,8 +163,8 @@ var PACKS = [
 			{name:"KW Rocketry SC-2 LFT", type:TYPES.LFO_TANK, size:3, cost:225, mass:6.75, mass_fuel:60.74875},
 			{name:"KW Rocketry SC-4 LFT", type:TYPES.LFO_TANK, size:3, cost:225, mass:13.5, mass_fuel:121.5},
 			{name:"KW Rocketry SC-4 LFT ALT", type:TYPES.LFO_TANK, size:3, cost:225, mass:13.5, mass_fuel:121.5},
-			{name:"KW Rocketry ST-25", type:TYPES.LFO_TANK, size:2, cost:225, mass:4, mass_fuel:32.4, last:true},
-			{name:"KW Rocketry ST-37", type:TYPES.LFO_TANK, size:3, cost:225, mass:13.5, mass_fuel:109.35, last:true},
+			{name:"KW Rocketry ST-25", type:TYPES.LFO_TANK, size:2, cost:225, mass:4, mass_fuel:32.4},
+			{name:"KW Rocketry ST-37", type:TYPES.LFO_TANK, size:3, cost:225, mass:13.5, mass_fuel:109.35},
 			
 			//Solid Rocket Boosters
 			{name:"Globe I SRB", type:TYPES.BOOSTER, size:0, cost:200, mass:0.3025, mass_fuel:1.310, thrust:149, isp_vac:250, isp_atm:230, radial:true},
@@ -242,20 +242,20 @@ var KSP = {
 	},
 	
 	Engine : {
-		//Engine fuel consumption at specified atmospheric pressure (kg/s)
+		//Engine fuel consumption at specified atmospheric pressure (t/s)
 		consumption : function (atm, engine) {
 			atm = Math.min(Math.max(atm, 0), 1);  //Atmospheric pressure's affect on engines maxes out at 1 (TODO: Confirm this)
-			return ((engine.thrust * 1000) / ((engine.isp_vac * CONVERSION_FACTOR) - ((engine.isp_vac - engine.isp_atm) * CONVERSION_FACTOR * (atm || 0)))) || 0;
+			return (engine.thrust / ((engine.isp_vac * CONVERSION_FACTOR) - ((engine.isp_vac - engine.isp_atm) * CONVERSION_FACTOR * (atm || 0)))) || 0;
 		},
 		
-		//Engine fuel consumption in vacuum (kg/s)
+		//Engine fuel consumption in vacuum (t/s)
 		consumptionVac : function (engine) {
-			return ((engine.thrust * 1000) / (engine.isp_vac * CONVERSION_FACTOR)) || 0;
+			return (engine.thrust / (engine.isp_vac * CONVERSION_FACTOR)) || 0;
 		},
 		
-		//Engine fuel consumption in atmosphere (kg/s)
+		//Engine fuel consumption in atmosphere (t/s)
 		consumptionAtm : function (engine) {
-			return ((engine.thrust * 1000) / (engine.isp_atm * CONVERSION_FACTOR)) || 0;
+			return (engine.thrust / (engine.isp_atm * CONVERSION_FACTOR)) || 0;
 		}
 	},
 	
@@ -292,6 +292,14 @@ var KSP = {
 			) * (stage.multiplier || 1);
 		},
 		
+		//Mass of just the fuel of this stage only (t)
+		massFuelStart : function (stage) {
+			return (
+				(stage.lfoTanks ? stage.lfoTanks.map(pluckNumber.bind(this, "mass_fuel")).reduce(sum, 0) : 0) +
+				(stage.boosters ? stage.boosters.map(pluckNumber.bind(this, "mass_fuel")).reduce(sum, 0) : 0)
+			) * (stage.multiplier || 1);
+		},
+		
 		//Mass of this stage only (t)
 		massStart : function (stage) {
 			return (
@@ -303,6 +311,33 @@ var KSP = {
 				(stage.decouplers ? stage.decouplers.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
 				(stage.branches ? stage.branches.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0)
 			) * (stage.multiplier || 1);
+		},
+		
+		//Mass of this stage only at the specified time from the beginning of this stage's burn (t)
+		massAt : function (stage, atm, time) {
+			time = Math.max(time, 0);
+			var mass = (stage.payload || 0) + 
+				(stage.others ? stage.others.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
+				(stage.lfoEngines ? stage.lfoEngines.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
+				(stage.decouplers ? stage.decouplers.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
+				(stage.branches ? stage.branches.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0);
+			if (stage.lfoTanks) {
+				mass += stage.lfoTanks.map(pluckNumber.bind(this, "mass")).reduce(sum, 0);
+				var fuelMass = stage.lfoTanks.map(pluckNumber.bind(this, "mass_fuel")).reduce(sum, 0);
+				var consumption = (stage.lfoEngines ? stage.lfoEngines.map(KSP.Engine.consumption.bind(this, atm)).reduce(sum, 0) : 0);
+				fuelMass -= consumption * time;
+				if (fuelMass < 0) fuelMass = 0;
+				mass += fuelMass;
+			}
+			if (stage.boosters) {
+				mass += stage.boosters.map(pluckNumber.bind(this, "mass")).reduce(sum, 0);
+				var fuelMass = stage.boosters.map(pluckNumber.bind(this, "mass_fuel")).reduce(sum, 0);
+				var consumption = (stage.boosters ? stage.boosters.map(KSP.Engine.consumption.bind(this, atm)).reduce(sum, 0) : 0);
+				fuelMass -= consumption * time;
+				if (fuelMass < 0) fuelMass = 0;
+				mass += fuelMass;
+			}
+			return mass * (stage.multiplier || 1);
 		},
 		
 		//Mass of this stage only at end of burn (t)
@@ -318,7 +353,7 @@ var KSP = {
 			) * (stage.multiplier || 1);
 		},
 		
-		//Stage fuel consumption at specified atmospheric pressure (kg/s)
+		//Stage fuel consumption at specified atmospheric pressure (t/s)
 		consumption : function (stage, atm) {
 			return (
 				(stage.lfoEngines ? stage.lfoEngines.map(KSP.Engine.consumption.bind(this, atm)).reduce(sum, 0) : 0) + 
@@ -328,12 +363,12 @@ var KSP = {
 		
 		//Combined specific impulse at atmospheric pressure (m/s)
 		impulse : function (stage, atm) {
-			return ((KSP.Stage.thrust(stage) * 1000) / KSP.Stage.consumption(stage, atm)) || 0;
+			return (KSP.Stage.thrust(stage) / KSP.Stage.consumption(stage, atm)) || 0;
 		},
 		
 		//Time required to use all fuel in this stage only at full thrust at specified atmospheric pressure (s)
 		timeStage : function (stage, atm) {
-			return (((KSP.Stage.massStart(stage) - KSP.Stage.massEndStage(stage)) * 1000) / KSP.Stage.consumption(stage, atm)) || 0;
+			return (KSP.Stage.massFuelStart(stage) / KSP.Stage.consumption(stage, atm)) || 0;
 		}
 	},
 	
@@ -362,16 +397,44 @@ var KSP = {
 				(stage.next ? KSP.Stages.massStart(stage.next) : 0);
 		},
 		
+		//Total mass of all stages at the specified time from the beginning of this stage's burn, assuming no jettisoned stages (t)
+		massAt : function (stage, atm, time) {
+			var mass;
+			
+			if (time > 0) {
+				var timeEmpty = KSP.Stages.timeStage(stage, atm);
+				
+				if (time < timeEmpty) {
+					mass = KSP.Stage.massStart(stage) - (consumption * time);
+				} else {
+					mass = KSP.Stage.massEndStage(stage);  //assume we haven't jettisoned this stage yet
+				}
+				
+				if (stage.next) {
+					if (stage.parallel && !stage.asparagus) {
+						mass += KSP.Stages.massAt(stage.next, atm, time);
+					} else {
+						mass += KSP.Stages.massAt(stage.next, atm, time - timeEmpty);
+					}
+				}
+			} else {
+				mass = KSP.Stages.massStart(stage);
+			}
+			
+			return mass;
+		},
+		
 		//Total mass of all stages at end of burn of this stage (t)
-		massEndStage : function (stage) {
-			if (stage.parallel && !stage.asparagus) throw new Error("Parallel staging (without asparagus) is not yet supported.");
+		massEndStage : function (stage, atm) {
+			if (stage.parallel && !stage.asparagus) {
+				return KSP.Stages.massAt(stage, atm, KSP.Stages.timeStage(stage, atm));
+			}
 			return KSP.Stage.massEndStage(stage) +
 				(stage.next ? KSP.Stages.massStart(stage.next) : 0);
 		},
 		
-		//Total mass of all stages at end of burn of all stages (t)
+		//Total mass of all stages at end of burn of all stages, assuming no jettisoned stages (t)
 		massEndTotal : function (stage) {
-			if (stage.parallel && !stage.asparagus) throw new Error("Parallel staging (without asparagus) is not yet supported.");
 			return KSP.Stage.massEndStage(stage) +
 				(stage.next ? KSP.Stages.massEndTotal(stage.next) : 0);
 		},
@@ -381,7 +444,7 @@ var KSP = {
 			return (KSP.Stages.thrust(stage) / (KSP.Stages.massStart(stage) * planet.gravity)) || 0;
 		},
 		
-		//Total stage fuel consumption at specified atmospheric pressure (kg/s)
+		//Total stage fuel consumption at specified atmospheric pressure (t/s)
 		consumption : function (stage, atm) {
 			return KSP.Stage.consumption(stage, atm) +
 				(stage.parallel ? KSP.Stages.consumption(stage.next, atm) : 0);
@@ -389,15 +452,15 @@ var KSP = {
 		
 		//Combined specific impulse at atmospheric pressure (m/s)
 		impulse : function (stage, atm) {
-			return ((KSP.Stages.thrust(stage) * 1000) / KSP.Stages.consumption(stage, atm)) || 0;
+			return (KSP.Stages.thrust(stage) / KSP.Stages.consumption(stage, atm)) || 0;
 		},
 		
-		//Delta-V at atmospheric pressure of this stage only (m/s^2)
+		//Delta-V at atmospheric pressure of this stage only (m/s)
 		deltaVStage : function (stage, atm) {
-			return (Math.log((KSP.Stages.massStart(stage) * 1000) / (KSP.Stages.massEndStage(stage) * 1000)) * KSP.Stages.impulse(stage, atm)) || 0;
+			return (Math.log((KSP.Stages.massStart(stage) * 1000) / (KSP.Stages.massEndStage(stage, atm) * 1000)) * KSP.Stages.impulse(stage, atm)) || 0;
 		},
 		
-		//Delta-V at atmospheric pressure of all stages (m/s^2)
+		//Delta-V at atmospheric pressure of all stages (m/s)
 		deltaVTotal : function (stage, atm) {
 			return KSP.Stages.deltaVStage(stage, atm) +
 				(stage.next ? KSP.Stages.deltaVTotal(stage.next, atm) : 0);
@@ -405,19 +468,29 @@ var KSP = {
 		
 		//Time required to use all fuel in this stage at full thrust at specified atmospheric pressure (s)
 		timeStage : function (stage, atm) {
-			return (((KSP.Stages.massStart(stage) - KSP.Stages.massEndStage(stage)) * 1000) / KSP.Stages.consumption(stage, atm)) || 0;
+			return (KSP.Stage.massFuelStart(stage) / KSP.Stages.consumption(stage, atm)) || 0;
 		},
 		
 		//Time required to use all fuel in all stages at full thrust at specified atmospheric pressure (s)
 		timeTotal : function (stage, atm) {
-			if (stage.parallel && !stage.asparagus) throw new Error("Parallel staging (without asparagus) is not yet supported.");
-			return KSP.Stages.timeStage(stage, atm) + (stage.next ? KSP.Stages.timeTotal(stage.next, atm) : 0);
+			var time = KSP.Stages.timeStage(stage, atm);
+			
+			while (stage.next && stage.parallel && !stage.asparagus) {
+				time = Math.max(time, KSP.Stages.timeStage(stage.next, atm));
+				stage = stage.next;
+			}
+			
+			if (stage.next) {
+				time += KSP.Stages.timeTotal(stage.next, atm);
+			}
+			
+			return time;
 		},
 		
 		humanize : function (stage, planet, atm) {
 			var strBuild = [];
 			if (stage.multiplier > 1) strBuild.push("x" + stage.multiplier + ":");
-			if (stage.payload) strBuild.push("Payload: " + stage.payload + "kg");
+			if (stage.payload) strBuild.push("Payload: " + stage.payload + "t");
 			if (stage.lfoEngines && stage.lfoEngines.length) strBuild.push("Engines: " + KSP.Parts.humanize(stage.lfoEngines));
 			if (stage.lfoTanks && stage.lfoTanks.length) strBuild.push("LF/O Tanks: " + KSP.Parts.humanize(stage.lfoTanks));
 			if (stage.boosters && stage.boosters.length) strBuild.push("Boosters: " + KSP.Parts.humanize(stage.boosters));
@@ -451,12 +524,13 @@ function fixArgs(args) {
 	args.atm = args.atm || 0;
 	args.maxSymmetry = args.maxSymmetry || 8;
 	args.maxStacks = args.maxStacks || 1;
-	args.cluster = !!args.cluster;
+	args.cluster = (args.maxStacks > 1 || args.stagesMaxStacks > 1) && !!args.cluster;
 	args.asparagus = !!(args.next.lfoTanks || 0).length && !!args.asparagus;
 	args.parallel = /*!!args.parallel || */args.asparagus;  //FIXME: Parallel disabled until supported without asparagus
 	args.decoupling = (args.decoupling !== false);
 	args.tankDiametersEqual = !!args.tankDiametersEqual;
 	args.tankDiametersEqualEngineDiameter = args.tankDiametersEqual && !!args.tankDiametersEqualEngineDiameter;
+	args.tankDiametersGreaterThenEngineDiameter = args.tankDiametersEqual && !!args.tankDiametersGreaterThenEngineDiameter;
 	args.maxStages = args.maxStages || 1;
 	args.stagesMaxStacks = args.stagesMaxStacks || 1;
 	args.stagesAsparagus = !!args.stagesAsparagus;
@@ -505,7 +579,7 @@ function findOptimalStage(args) {
 	
 	var bestStage = null;
 	var stage = null;
-	var stackMultiplier = Math.max((args.next.multiplier || 1), (args.parallel || (args.next.lfoEngines || 0).length > 1 ? 2 : 1));  //parallel stages must have two stacks, or the same # of stacks (if greater) as the next stage (simplifies design)
+	var stackMultiplier = Math.max((args.next.multiplier || 1), (args.parallel || (args.next.lfoEngines && (args.next.lfoEngines.length > 1 || (args.next.lfoEngines[0] || 0).last)) ? 2 : 1));  //parallel stages must have two stacks, or the same # of stacks (if greater) as the next stage (simplifies design)
 	var bestStackDecoupler, bestRadialDecoupler;
 	
 	//
@@ -577,7 +651,7 @@ function findOptimalStage(args) {
 						if (branch && branch.sizeA !== tank.size) {
 							//this tank will not work
 							continue nextTank;
-						} else if (!branch && args.tankDiametersEqualEngineDiameter && !stage.lfoEngines[0].radial && stage.lfoEngines[0].size !== tank.size) {
+						} else if (!branch && !stage.lfoEngines[0].radial && ((tank.size < stage.lfoEngines[0].size && args.tankDiametersEqualEngineDiameter) || (tank.size > stage.lfoEngines[0].size && !args.tankDiametersGreaterThenEngineDiameter))) {
 							//this tank will not work
 							continue nextTank;
 						} else if (stage.lfoTanks.length && stage.lfoTanks[0].size !== tank.size) {

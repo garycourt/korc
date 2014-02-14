@@ -180,11 +180,14 @@ function sortParts(parts, optimization) {
 	var descending = function (part) {
 		return -part[optimization];
 	};
+	var descending_fuelmass = function (part) {
+		return -part.mass_fuel;
+	};
 	
 	var types = _.groupBy(parts, "type");
 	return {
 		lfoEngines : _.sortBy(types[TYPES.LFO_ENGINE], descending),
-		lfoTanks : _.sortBy(types[TYPES.LFO_TANK], descending),
+		lfoTanks : _.sortBy(types[TYPES.LFO_TANK], descending_fuelmass),
 		boosters : _.sortBy(types[TYPES.BOOSTER], descending),
 		stackDecouplers : _.sortBy(_.where(types[TYPES.DECOUPLER], {radial:undefined}), ascending),
 		radialDecouplers : _.sortBy(_.where(types[TYPES.DECOUPLER], {radial:true}), ascending),
@@ -216,6 +219,7 @@ function SettingsController($scope) {
 	$scope.lastStageSingle = true;
 	$scope.tankDiametersEqual = true;
 	$scope.tankDiametersEqualEngineDiameter = true;
+	$scope.tankDiametersGreaterThenEngineDiameter = true;
 	$scope.packTree = _.map(PACKS, function (pack) {
 		var result = Object.create(pack);
 		result.parts = _.map(_.groupBy(pack.parts, "type"), function (parts, partId) {
@@ -372,6 +376,7 @@ function SettingsController($scope) {
 			decoupling : $scope.payloadDecoupler,
 			tankDiametersEqual : $scope.tankDiametersEqual,
 			tankDiametersEqualEngineDiameter : $scope.tankDiametersEqual && $scope.tankDiametersEqualEngineDiameter,
+			tankDiametersGreaterThenEngineDiameter : $scope.tankDiametersEqual && $scope.tankDiametersGreaterThenEngineDiameter,
 			maxStages : $scope.maxStages,
 			stagesMaxStacks : $scope.maxStacks,
 			stagesParallel : $scope.parallel || $scope.asparagus,
@@ -416,9 +421,23 @@ function SettingsController($scope) {
 	$scope.onGravityChange = function () {
 		$scope.planet = null;
 	};
+	$scope.onMaxStagesChange = function () {
+		if ($scope.maxStages <= 1) {
+			$scope.asparagus = false;
+		}
+	};
+	$scope.onMaxStacksChange = function () {
+		if ($scope.maxStacks <= 1) {
+			$scope.cluster = false;
+			$scope.asparagus = false;
+		}
+	};
 	$scope.onAsparagusChange = function () {
 		if ($scope.asparagus) $scope.maxStages = Math.max($scope.maxStages, 2);
 	};
+	$scope.onTankDiametersEqualChange = function () {
+		if (!$scope.tankDiametersEqual) $scope.tankDiametersEqualEngineDiameter = false;
+	}
 	$scope.onPartListItemChange = function (partListItem) {
 		var parts = partListItem.parts;
 		if (parts) {
@@ -530,7 +549,7 @@ function SettingsController($scope) {
 							<div class="col-sm-7">
 								<div class="input-group" ng-class="{'has-error': !deltaV}">
 									<input type="number" name="deltaV" required="required" min="0" step="1" placeholder="0" id="settingsDeltaV" class="form-control" ng-model="deltaV"/>
-									<span class="input-group-addon mathml"><math><mi>m</mi><mo>/</mo><msup><mi>s</mi><mn>2</mn></msup></math></span>
+									<span class="input-group-addon mathml"><math><mi>m</mi><mo>/</mo><mi>s</mi></math></span>
 								</div>
 							</div>
 						</div>
@@ -589,14 +608,14 @@ function SettingsController($scope) {
 						<div class="form-group">
 							<label for="settingsMaxStages" class="control-label col-sm-5">Maximum # of Stages</label>
 							<div class="col-sm-7">
-								<input type="number" name="maxStages" min="1" step="1" placeholder="1" id="settingsMaxStages" class="form-control" ng-model="maxStages"/>
+								<input type="number" name="maxStages" min="1" step="1" placeholder="1" id="settingsMaxStages" class="form-control" ng-model="maxStages" ng-change="onMaxStagesChange()"/>
 							</div>
 						</div>
 						
 						<div class="form-group">
 							<label for="settingsMaxStacks" class="control-label col-sm-5">Maximum # of Stacks</label>
 							<div class="col-sm-7">
-								<input type="number" name="maxStacks" min="1" step="1" max="50" placeholder="1" id="settingsMaxStacks" class="form-control" ng-model="maxStacks"/>
+								<input type="number" name="maxStacks" min="1" step="1" max="50" placeholder="1" id="settingsMaxStacks" class="form-control" ng-model="maxStacks" ng-change="onMaxStacksChange()"/>
 							</div>
 						</div>
 						
@@ -605,15 +624,14 @@ function SettingsController($scope) {
 							<div class="col-sm-7">
 								<div class="checkbox">
 									<label>
-										<input type="checkbox" name="cluster" id="settingsCluster" ng-model="cluster"/>
-										Clustering
+										<input type="checkbox" name="cluster" id="settingsCluster" ng-model="cluster" ng-disabled="maxStacks <= 1"/>
+										Engine clustering
 									</label>
 								</div>
 								<div class="checkbox">
-									
 									<label>
-										<input type="checkbox" name="asparagus" id="settingsAsparagus" ng-model="asparagus" ng-change="onAsparagusChange()"/>
-										Asparagus
+										<input type="checkbox" name="asparagus" id="settingsAsparagus" ng-model="asparagus" ng-disabled="maxStacks <= 1" ng-change="onAsparagusChange()"/>
+										Asparagus fuel routing
 										<a href="http://wiki.kerbalspaceprogram.com/wiki/Asparagus_staging" target="_blank" class="help">?</a>
 									</label>
 								</div>
@@ -643,7 +661,7 @@ function SettingsController($scope) {
 								</div>
 								<div class="checkbox">
 									<label>
-										<input type="checkbox" name="tankDiametersEqual" id="settingsTankDiametersEqual" ng-model="tankDiametersEqual"/>
+										<input type="checkbox" name="tankDiametersEqual" id="settingsTankDiametersEqual" ng-model="tankDiametersEqual" ng-change="onTankDiametersEqualChange()"/>
 										All tanks & stack decouplers in a stage must be the same diameter
 									</label>
 									<div class="checkbox">
@@ -651,6 +669,12 @@ function SettingsController($scope) {
 											<input type="checkbox" name="tankDiametersEqualEngineDiameter" id="settingsTankDiametersEqualEngineDiameter" ng-model="tankDiametersEqualEngineDiameter" ng-disabled="!tankDiametersEqual"/>
 											<span class="ellipsis">...</span> as the engines
 										</label>
+										<div class="checkbox">
+											<label>
+												<input type="checkbox" name="tankDiametersGreaterThenEngineDiameter" id="settingsTankDiametersGreaterThenEngineDiameter" ng-model="tankDiametersGreaterThenEngineDiameter" ng-disabled="!tankDiametersEqual || !tankDiametersEqualEngineDiameter"/>
+												<span class="ellipsis">...</span> or larger
+											</label>
+										</div>
 									</div>
 								</div>
 							</div>
@@ -732,7 +756,7 @@ function SettingsController($scope) {
 								<th class="stageMultiplier">x</th>
 								<th class="cost">Cost</th>
 								<th class="mass">Mass (<math><mi>t</mi></math>)</th>
-								<th class="deltaV">Delta-V (<math><mi>m</mi><mo>/</mo><msup><mi>s</mi><mn>2</mn></msup></math>)</th>
+								<th class="deltaV">Delta-V (<math><mi>m</mi><mo>/</mo><mi>s</mi></math>)</th>
 								<th class="twr">TWR</th>
 								<th class="time">Time (<math><mi>s</mi></math>)</th>
 							</tr>

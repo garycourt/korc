@@ -35,6 +35,8 @@ If you are getting wildly different numbers in Kerbal Engineer, it's likely that
 * Support parallel staging (all stages fire at same time)
 * Add option for adding size adapters
 * Add option to ensure stage 1 has thrust vectoring
+* Serialize and output arguments used (for debugging)
+* Output stats of parts in the parts list (for debugging)
 * Add parts from other mods
 
 ## Support This Project

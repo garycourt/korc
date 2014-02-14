@@ -1,7 +1,13 @@
+**Version 1.10 - February 13, 2014**
+* Added option to allow equal tank sizes to be bigger then the engines.
+* Fixed Delta-V unit typo.
+* Fixed single stacks from being created under an Aerospike Rocket (as KSP 0.23 doesn't allow this).
+* Fixed bug where single stack rockets would have clustered engines.
+
 **Version 1.9 - February 5, 2014**
 * Added KW Rocketry 2.5.6 pack.
-* Fixed bug "Last stage must be a single stack" not working
-* Fixed bug with stack decouplers being the wrong size when radial tanks are used
+* Fixed bug "Last stage must be a single stack" not working.
+* Fixed bug with stack decouplers being the wrong size when radial tanks are used.
 
 **Version 1.8 - February 5, 2014**
 * Performance improvements.
