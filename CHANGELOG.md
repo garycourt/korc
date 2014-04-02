@@ -1,3 +1,7 @@
+**Version 1.11 - April 1, 2014**
+* Updated and added new parts from KSP 0.23.5.
+* Disabled LFB KR-1x2 until code can support liquid boosters.
+
 **Version 1.10 - February 13, 2014**
 * Added option to allow equal tank sizes to be bigger then the engines.
 * Fixed Delta-V unit typo.

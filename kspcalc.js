@@ -66,9 +66,11 @@ var TYPE_NAMES_PLURAL = {
 
 var PACKS = [
 	{
-		name:"Stock 0.23", 
+		name:"Stock 0.23.5", 
 		parts:[
 			//LF/O Engines
+			{name:"S3 KS-25x4 Engine Cluster", type:TYPES.LFO_ENGINE, size:3, cost:5900, mass:9.750, thrust:3200, isp_vac:360, isp_atm:320},
+			{name:"Kerbodyne KR-2L Advanced Engine", type:TYPES.LFO_ENGINE, size:3, cost:2850, mass:6.500, thrust:2500, isp_vac:380, isp_atm:280},
 			{name:"Rockomax 'Mainsail' Liquid Engine", type:TYPES.LFO_ENGINE, size:2, cost:2850, mass:6.000, thrust:1500, isp_vac:330, isp_atm:280},
 			{name:"Rockomax 'Skipper' Liquid Engine", type:TYPES.LFO_ENGINE, size:2, cost:2850, mass:4.000, thrust:650, isp_vac:350, isp_atm:300},
 			{name:"Rockomax 'Poodle' Liquid Engine", type:TYPES.LFO_ENGINE, size:2, cost:1600, mass:2.500, thrust:220, isp_vac:390, isp_atm:270},
@@ -79,12 +81,17 @@ var PACKS = [
 			{name:"LV-T30 Liquid Fuel Engine", type:TYPES.LFO_ENGINE, size:1, cost:850, mass:1.250, thrust:215, isp_vac:370, isp_atm:320},
 			{name:"LV-909 Liquid Fuel Engine", type:TYPES.LFO_ENGINE, size:1, cost:750, mass:0.500, thrust:50, isp_vac:390, isp_atm:300},
 			{name:"Rockomax 48-7S", type:TYPES.LFO_ENGINE, size:0, cost:300, mass:0.100, thrust:30, isp_vac:350, isp_atm:300},
-			{name:"LV-1 Liquid Fuel Engine", type:TYPES.LFO_ENGINE, size:0, cost:350, mass:0.030, thrust:1.5, isp_vac:290, isp_atm:220},
+			{name:"LV-1 Liquid Fuel Engine", type:TYPES.LFO_ENGINE, size:0, cost:350, mass:0.030, thrust:4, isp_vac:290, isp_atm:220},
 			{name:"Rockomax Mark 55 Radial Mount Liquid Engine", type:TYPES.LFO_ENGINE, size:"radial", cost:850, mass:0.900, thrust:120, isp_vac:320, isp_atm:290, radial:true},
 			{name:"Rockomax 24-77", type:TYPES.LFO_ENGINE, size:"radial", cost:480, mass:0.090, thrust:20, isp_vac:300, isp_atm:250, radial:true},
-			{name:"LV-1R Liquid Fuel Engine", type:TYPES.LFO_ENGINE, size:"radial", cost:650, mass:0.030, thrust:1.5, isp_vac:290, isp_atm:220, radial:true},
+			{name:"LV-1R Liquid Fuel Engine", type:TYPES.LFO_ENGINE, size:"radial", cost:650, mass:0.030, thrust:4, isp_vac:290, isp_atm:220, radial:true},
+			//disabled until code can support liquid boosters:
+			//{name:"LFB KR-1x2", type:TYPES.LFO_ENGINE, size:2, cost:5900, mass:10.000, mass_fuel:32.000, thrust:2000, isp_vac:360, isp_atm:320, disabled:true},
 			
 			//LF/O Tanks
+			{name:"Kerbodyne S3-14400 Tank", type:TYPES.LFO_TANK, size:3, cost:2600, mass:10.000, mass_fuel:72.000},
+			{name:"Kerbodyne S3-7200 Tank", type:TYPES.LFO_TANK, size:3, cost:2600, mass:5.000, mass_fuel:36.000},
+			{name:"Kerbodyne S3-3600 Tank", type:TYPES.LFO_TANK, size:3, cost:2600, mass:2.500, mass_fuel:18.000},
 			{name:"Rockomax Jumbo-64 Fuel Tank", type:TYPES.LFO_TANK, size:2, cost:10500, mass:4.000, mass_fuel:32.000},
 			{name:"Rockomax X200-32 Fuel Tank", type:TYPES.LFO_TANK, size:2, cost:2600, mass:2.000, mass_fuel:16.000},
 			{name:"Rockomax X200-16 Fuel Tank", type:TYPES.LFO_TANK, size:2, cost:1800, mass:1.000, mass_fuel:8.000},
@@ -97,6 +104,7 @@ var PACKS = [
 			{name:"Oscar-B Fuel Tank", type:TYPES.LFO_TANK, size:0, cost:280, mass:0.015, mass_fuel:0.063675},
 			
 			//Solid Rocket Boosters
+			{name:"S1 SRB-KD25k", type:TYPES.BOOSTER, size:1, cost:800, mass:3.000, mass_fuel:18.750, thrust:650, isp_vac:250, isp_atm:230},
 			{name:"Rockomax BACC Solid Fuel Booster", type:TYPES.BOOSTER, size:1, cost:800, mass:1.500, mass_fuel:6.375, thrust:315, isp_vac:250, isp_atm:230},
 			{name:"RT-10 Solid Fuel Booster", type:TYPES.BOOSTER, size:1, cost:450, mass:0.500, mass_fuel:3.2475, thrust:250, isp_vac:240, isp_atm:225},
 			{name:"Sepratron I", type:TYPES.BOOSTER, size:"radial", cost:100, mass:0.0125, mass_fuel:0.060, thrust:18, isp_vac:100, isp_atm:100, radial:true},
@@ -108,6 +116,7 @@ var PACKS = [
 			{name:"TR-18D Stack Separator", type:TYPES.DECOUPLER, size:1, cost:600, mass:0.075},
 			{name:"Rockomax Brand Decoupler", type:TYPES.DECOUPLER, size:2, cost:440, mass:0.400},
 			{name:"TR-XL Stack Separator", type:TYPES.DECOUPLER, size:2, cost:900, mass:0.450},
+			{name:"TR-38-D", type:TYPES.DECOUPLER, size:3, cost:600, mass:0.800},
 			{name:"TT-38K Radial Decoupler", type:TYPES.DECOUPLER, size:"radial", cost:600, mass:0.025, radial:true},
 			{name:"TT-70 Radial Decoupler", type:TYPES.DECOUPLER, size:"radial", cost:700, mass:0.050, radial:true},
 			{name:"Structural Pylon", type:TYPES.DECOUPLER, size:"radial", cost:1275, mass:0.200, radial:true},
