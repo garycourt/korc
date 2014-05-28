@@ -751,7 +751,8 @@ function findOptimalStage(args) {
 										parallel : stage.parallel,
 										asparagus : stage.asparagus,
 										optimization : stage.optimization,
-										metric : stage.metric
+										metric : stage.metric,
+										deltaV : KSP.Stages.deltaVStage(stage, args.atm)
 									};
 								}
 								
@@ -864,7 +865,8 @@ function findOptimalStage(args) {
 						parallel : stage.parallel,
 						asparagus : stage.asparagus,
 						optimization : stage.optimization,
-						metric : stage.metric
+						metric : stage.metric,
+						deltaV : KSP.Stages.deltaVStage(stage, args.atm)
 					};
 				}
 				
@@ -896,7 +898,7 @@ function findRandomOptimalStaging(args) {
 		if (firstStage) {
 			var secondArgs = Object.create(args);
 			secondArgs.next = firstStage;
-			secondArgs.deltaV = args.deltaV - firstArgs.deltaV;
+			secondArgs.deltaV = args.deltaV - firstStage.deltaV;
 			secondArgs.maxStacks = args.stagesMaxStacks;
 			secondArgs.parallel = !!args.stagesParallel;
 			secondArgs.asparagus = !!args.stagesAsparagus;
