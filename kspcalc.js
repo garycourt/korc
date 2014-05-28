@@ -608,7 +608,8 @@ function findOptimalStage(args) {
 		parallel : args.parallel,
 		asparagus : args.asparagus,
 		optimization : args.optimization,
-		metric : Infinity
+		metric : Infinity,
+		deltaV : 0
 	};
 	
 	bestStackDecoupler = args.parts.stackDecouplers[0];
@@ -734,36 +735,38 @@ function findOptimalStage(args) {
 									//engine is not a good fit
 									continue nextEngineCount;
 								}
-							} else if (twr <= args.maxTWR && time >= args.minTime && KSP.Stages.deltaVStage(stage, args.atm) >= args.deltaV) {
-								stage.metric = getMetric(stage, args);
-								
-								if (!bestStage || stage.metric < bestStage.metric) {
-									bestStage = {
-										next : stage.next,
-										multiplier : stage.multiplier,
-										payload : stage.payload,
-										others : stage.others.slice(),
-										lfoEngines : stage.lfoEngines.slice(),
-										lfoTanks : stage.lfoTanks.slice(),
-										boosters : stage.boosters.slice(),
-										decouplers : stage.decouplers.slice(),
-										branches : stage.branches.slice(),
-										parallel : stage.parallel,
-										asparagus : stage.asparagus,
-										optimization : stage.optimization,
-										metric : stage.metric,
-										deltaV : KSP.Stages.deltaVStage(stage, args.atm)
-									};
-								}
-								
-								if (sc === stackMultiplier) {
-									stage.lfoTanks.pop();
-									continue nextTank;
-								} else {
-									break;
+							} else {
+								var dV = KSP.Stages.deltaVStage(stage, args.atm);
+								if (twr <= args.maxTWR && time >= args.minTime && dV >= args.deltaV) {
+									stage.metric = getMetric(stage, args);
+									
+									if (!bestStage || stage.metric < bestStage.metric) {
+										bestStage = {
+											next : stage.next,
+											multiplier : stage.multiplier,
+											payload : stage.payload,
+											others : stage.others.slice(),
+											lfoEngines : stage.lfoEngines.slice(),
+											lfoTanks : stage.lfoTanks.slice(),
+											boosters : stage.boosters.slice(),
+											decouplers : stage.decouplers.slice(),
+											branches : stage.branches.slice(),
+											parallel : stage.parallel,
+											asparagus : stage.asparagus,
+											optimization : stage.optimization,
+											metric : stage.metric,
+											deltaV : dV
+										};
+									}
+									
+									if (sc === stackMultiplier) {
+										stage.lfoTanks.pop();
+										continue nextTank;
+									} else {
+										break;
+									}
 								}
 							}
-							
 						}
 					}
 				}
@@ -788,7 +791,8 @@ function findOptimalStage(args) {
 		parallel : false,  //not yet supported
 		asparagus : false,  //boosters can't share fuel
 		optimization : args.optimization,
-		metric : Infinity
+		metric : Infinity,
+		deltaV : 0
 	};
 	
 	bestStackDecoupler = args.parts.stackDecouplers[0];
@@ -848,29 +852,32 @@ function findOptimalStage(args) {
 			var time = KSP.Stages.timeStage(stage, args.atm);
 			if (twr > args.maxTWR || time < args.minTime || time > args.maxTime) {
 				continue nextBooster;
-			} else if (twr >= args.minTWR && KSP.Stages.deltaVStage(stage, args.atm) >= args.deltaV) {
-				stage.metric = getMetric(stage, args);
-				
-				if (!bestStage || stage.metric < bestStage.metric) {
-					bestStage = {
-						next : stage.next,
-						multiplier : stage.multiplier,
-						payload : stage.payload,
-						others : stage.others.slice(),
-						lfoEngines : stage.lfoEngines.slice(),
-						lfoTanks : stage.lfoTanks.slice(),
-						boosters : stage.boosters.slice(),
-						decouplers : stage.decouplers.slice(),
-						branches : stage.branches.slice(),
-						parallel : stage.parallel,
-						asparagus : stage.asparagus,
-						optimization : stage.optimization,
-						metric : stage.metric,
-						deltaV : KSP.Stages.deltaVStage(stage, args.atm)
-					};
+			} else {
+				var dV = KSP.Stages.deltaVStage(stage, args.atm);
+				if (twr >= args.minTWR && dV >= args.deltaV) {
+					stage.metric = getMetric(stage, args);
+					
+					if (!bestStage || stage.metric < bestStage.metric) {
+						bestStage = {
+							next : stage.next,
+							multiplier : stage.multiplier,
+							payload : stage.payload,
+							others : stage.others.slice(),
+							lfoEngines : stage.lfoEngines.slice(),
+							lfoTanks : stage.lfoTanks.slice(),
+							boosters : stage.boosters.slice(),
+							decouplers : stage.decouplers.slice(),
+							branches : stage.branches.slice(),
+							parallel : stage.parallel,
+							asparagus : stage.asparagus,
+							optimization : stage.optimization,
+							metric : stage.metric,
+							deltaV : dV
+						};
+					}
+					
+					continue nextBooster;
 				}
-				
-				continue nextBooster;
 			}
 		}
 	}

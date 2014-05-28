@@ -1,3 +1,6 @@
+**Version 1.11.1 - May 27, 2014**
+* Performance improvement by Apexo.
+
 **Version 1.11 - April 1, 2014**
 * Updated and added new parts from KSP 0.23.5.
 * Disabled LFB KR-1x2 until code can support liquid boosters.
