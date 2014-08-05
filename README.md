@@ -40,6 +40,7 @@ If you are getting wildly different numbers in Kerbal Engineer, it's likely that
 * Serialize and output arguments used (for debugging)
 * Output stats of parts in the parts list (for debugging)
 * Add parts from other mods
+* Support per stage settings
 
 ## Support This Project
 

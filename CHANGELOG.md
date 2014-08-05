@@ -1,5 +1,8 @@
+**Version 1.12 - August 5, 2014**
+* Updated parts for KSP 0.24.2 (by pee8379)
+
 **Version 1.11.1 - May 27, 2014**
-* Performance improvement by Apexo.
+* Performance improvement (by Apexo).
 
 **Version 1.11 - April 1, 2014**
 * Updated and added new parts from KSP 0.23.5.

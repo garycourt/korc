@@ -66,7 +66,7 @@ var TYPE_NAMES_PLURAL = {
 
 var PACKS = [
 	{
-		name:"Stock 0.23.5", 
+		name:"Stock 0.24.2", 
 		parts:[
 			//LF/O Engines
 			{name:"S3 KS-25x4 Engine Cluster", type:TYPES.LFO_ENGINE, size:3, cost:32400, mass:9.750, thrust:3200, isp_vac:360, isp_atm:320},
