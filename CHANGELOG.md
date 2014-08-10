@@ -1,3 +1,7 @@
+**Version 1.13 - August 9, 2014**
+* Created part_parser for parsing part files and generating part lists for kspcalc.js.
+* Updated all parts to their latest version using part_parser.
+
 **Version 1.12 - August 5, 2014**
 * Updated parts for KSP 0.24.2 (by pee8379)
 

@@ -32,9 +32,7 @@ If you are getting wildly different numbers in Kerbal Engineer, it's likely that
 
 ## Roadmap
 
-* Support liquid fuel boosters (LFB KR-1x2)
 * Support parallel staging (all stages fire at same time)
-* Create tool for auto-generating parts list
 * Add option for adding size adapters
 * Add option to ensure stage 1 has thrust vectoring
 * Serialize and output arguments used (for debugging)
