@@ -220,6 +220,7 @@ function SettingsController($scope) {
 	$scope.tankDiametersEqual = true;
 	$scope.tankDiametersEqualEngineDiameter = true;
 	$scope.tankDiametersGreaterThenEngineDiameter = true;
+	$scope.gimbal = true;
 	$scope.packTree = _.map(PACKS, function (pack) {
 		var result = Object.create(pack);
 		result.parts = _.map(_.groupBy(pack.parts, "type"), function (parts, partId) {
@@ -377,6 +378,7 @@ function SettingsController($scope) {
 			tankDiametersEqual : $scope.tankDiametersEqual,
 			tankDiametersEqualEngineDiameter : $scope.tankDiametersEqual && $scope.tankDiametersEqualEngineDiameter,
 			tankDiametersGreaterThenEngineDiameter : $scope.tankDiametersEqual && $scope.tankDiametersGreaterThenEngineDiameter,
+			gimbal : $scope.gimbal,
 			maxStages : $scope.maxStages,
 			stagesMaxStacks : $scope.maxStacks,
 			stagesParallel : $scope.parallel || $scope.asparagus,
@@ -676,6 +678,12 @@ function SettingsController($scope) {
 											</label>
 										</div>
 									</div>
+								</div>
+								<div class="checkbox">
+									<label>
+										<input type="checkbox" name="gimbal" id="settingsGimbal" ng-model="gimbal"/>
+										Each stage must have a gimbaling engine
+									</label>
 								</div>
 							</div>
 						</div>

@@ -1,3 +1,6 @@
+**Version 1.14 - August 10, 2014**
+* Added option to force each stage to have a gimbaling (thrust vectoring) engine.
+
 **Version 1.13 - August 9, 2014**
 * Created part_parser for parsing part files and generating part lists for kspcalc.js.
 * Updated all parts to their latest version using part_parser.

@@ -576,6 +576,7 @@ function fixArgs(args) {
 	args.tankDiametersEqual = !!args.tankDiametersEqual;
 	args.tankDiametersEqualEngineDiameter = args.tankDiametersEqual && !!args.tankDiametersEqualEngineDiameter;
 	args.tankDiametersGreaterThenEngineDiameter = args.tankDiametersEqual && !!args.tankDiametersGreaterThenEngineDiameter;
+	args.gimbal = !!args.gimbal;
 	args.maxStages = args.maxStages || 1;
 	args.stagesMaxStacks = args.stagesMaxStacks || 1;
 	args.stagesAsparagus = !!args.stagesAsparagus;
@@ -653,6 +654,9 @@ function findOptimalStage(args) {
 	
 	nextEngine: for (var e = 0, el = args.parts.lfoEngines.length; e <= el; ++e) {
 		var engine = args.parts.lfoEngines[e] || NO_ENGINE;
+		
+		if (args.gimbal && !engine.gimbal) continue nextEngine;
+		
 		var branches = [];
 		if (args.cluster) {
 			branches = args.parts.branches.filter(function (branch) {
@@ -836,6 +840,8 @@ function findOptimalStage(args) {
 	
 	nextBooster: for (var b = 0, bl = args.parts.boosters.length; b < bl; ++b) {
 		var booster = args.parts.boosters[b];
+		
+		if (args.gimbal && !booster.gimbal) continue nextBooster;
 		
 		if (args.tankDiametersEqual && !booster.radial && bestStackDecoupler && bestStackDecoupler.size !== booster.size) {
 			var newDecouplerIndex = args.parts.stackDecouplers.map(pluck.bind(this, "size")).indexOf(booster.size);
