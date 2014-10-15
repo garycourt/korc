@@ -1,3 +1,7 @@
+**Version 1.15 - October 14, 2014**
+* Updated parts for KSP 0.25.
+* Non-round parts are not selected by default.
+
 **Version 1.14 - August 10, 2014**
 * Added option to force each stage to have a gimbaling (thrust vectoring) engine.
 

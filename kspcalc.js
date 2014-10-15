@@ -67,7 +67,7 @@ var TYPE_NAMES_PLURAL = {
 
 var PACKS = [
 	{
-		name:"Stock 0.24.2", 
+		name:"Stock 0.25",
 		parts:[
 			//LF/O Engines
 			{"name":"S3 KS-25x4 Engine Cluster","type":TYPES.LFO_ENGINE,"size":3,"cost":32400,"mass":9.75,"thrust":3200,"isp_vac":360,"isp_atm":320,"gimbal":0.5,"last":true},
@@ -76,8 +76,8 @@ var PACKS = [
 			{"name":"Rockomax \"Skipper\" Liquid Engine","type":TYPES.LFO_ENGINE,"size":2,"cost":2850,"mass":3,"thrust":650,"isp_vac":370,"isp_atm":320,"gimbal":1},
 			{"name":"Rockomax \"Poodle\" Liquid Engine","type":TYPES.LFO_ENGINE,"size":2,"cost":1600,"mass":2,"thrust":220,"isp_vac":390,"isp_atm":270,"gimbal":2.5},
 			{"name":"LV-N Atomic Rocket Motor","type":TYPES.LFO_ENGINE,"size":1,"cost":8700,"mass":2.25,"thrust":60,"isp_vac":800,"isp_atm":220,"gimbal":1},
-			{"name":"Toroidal Aerospike Rocket","type":TYPES.LFO_ENGINE,"size":1,"cost":3850,"mass":1.5,"thrust":175,"isp_vac":390,"isp_atm":388,"last":true},
 			{"name":"LV-T45 Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":950,"mass":1.5,"thrust":200,"isp_vac":370,"isp_atm":320,"gimbal":1},
+			{"name":"Toroidal Aerospike Rocket","type":TYPES.LFO_ENGINE,"size":1,"cost":3850,"mass":1.5,"thrust":175,"isp_vac":390,"isp_atm":388,"last":true},
 			{"name":"LV-T30 Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":850,"mass":1.25,"thrust":215,"isp_vac":370,"isp_atm":320},
 			{"name":"R.A.P.I.E.R. Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":3600,"mass":1.2,"thrust":175,"isp_vac":360,"isp_atm":320,"gimbal":3},
 			{"name":"LV-909 Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":750,"mass":0.5,"thrust":50,"isp_vac":390,"isp_atm":300,"gimbal":0.5},
@@ -101,12 +101,16 @@ var PACKS = [
 			{"name":"FL-T100 Fuel Tank","type":TYPES.LFO_TANK,"size":1,"cost":250,"mass":0.0625,"mass_fuel":0.5},
 			{"name":"ROUND-8 Toroidal Fuel Tank","type":TYPES.LFO_TANK,"size":1,"cost":360,"mass":0.025,"mass_fuel":0.111},
 			{"name":"Oscar-B Fuel Tank","type":TYPES.LFO_TANK,"size":0,"cost":180,"mass":0.015,"mass_fuel":0.06367500000000001},
+			{"name":"Mk2 LF+O Fuselage","type":TYPES.LFO_TANK,"size":"Mk2","cost":750,"mass":0.5,"mass_fuel":3},
+			{"name":"Mk2 to 1.25m Adapter Long","type":TYPES.LFO_TANK,"size":"Mk2","cost":700,"mass":0.4,"mass_fuel":2.5},
+			{"name":"Mk2 LF+O Fuselage Short","type":TYPES.LFO_TANK,"size":"Mk2","cost":750,"mass":0.25,"mass_fuel":1.5},
+			{"name":"Mk2 to 1.25m Adapter","type":TYPES.LFO_TANK,"size":"Mk2","cost":550,"mass":0.2,"mass_fuel":1.5},
 			
 			//Boosters
 			{"name":"LFB KR-1x2","type":TYPES.BOOSTER,"size":2,"cost":16400,"mass":10,"thrust":2000,"isp_vac":340,"isp_atm":290,"gimbal":0.5,"mass_fuel":32,"last":true},
 			{"name":"S1 SRB-KD25k","type":TYPES.BOOSTER,"size":1,"cost":1800,"mass":3,"thrust":650,"isp_vac":250,"isp_atm":230,"mass_fuel":18.75},
-			{"name":"RT-10 Solid Fuel Booster","type":TYPES.BOOSTER,"size":1,"cost":325,"mass":0.5,"thrust":250,"isp_vac":240,"isp_atm":225,"mass_fuel":3.2475},
 			{"name":"Rockomax BACC Solid Fuel Booster","type":TYPES.BOOSTER,"size":1,"cost":700,"mass":1.5,"thrust":315,"isp_vac":250,"isp_atm":230,"mass_fuel":6.375},
+			{"name":"RT-10 Solid Fuel Booster","type":TYPES.BOOSTER,"size":1,"cost":325,"mass":0.5,"thrust":250,"isp_vac":240,"isp_atm":225,"mass_fuel":3.2475},
 			{"name":"Launch Escape System","type":TYPES.BOOSTER,"size":-1,"cost":800,"mass":1,"thrust":750,"isp_vac":360,"isp_atm":320,"mass_fuel":0.11249999999999999},
 			{"name":"Sepratron I","type":TYPES.BOOSTER,"size":-1,"cost":50,"mass":0.0125,"thrust":18,"isp_vac":100,"isp_atm":100,"mass_fuel":0.06,"last":true,"radial":true},
 			
@@ -129,7 +133,8 @@ var PACKS = [
 			{"name":"TVR-200L Stack Bi-Adapter","type":TYPES.BRANCH,"size":2,"cost":400,"mass":0.1,"sizeA":2,"sizeB":1,"multiplier":2},
 			{"name":"TVR-2160C Mk2 Stack Quad-Coupler","type":TYPES.BRANCH,"size":1,"cost":2000,"mass":0.175,"sizeA":1,"sizeB":1,"multiplier":4},
 			{"name":"TVR-1180C Mk1 Stack Tri-Coupler","type":TYPES.BRANCH,"size":1,"cost":680,"mass":0.15,"sizeA":1,"sizeB":1,"multiplier":3},
-			{"name":"TVR-200 Stack Bi-Coupler","type":TYPES.BRANCH,"size":1,"cost":400,"mass":0.1,"sizeA":1,"sizeB":1,"multiplier":2}
+			{"name":"TVR-200 Stack Bi-Coupler","type":TYPES.BRANCH,"size":1,"cost":400,"mass":0.1,"sizeA":1,"sizeB":1,"multiplier":2},
+			{"name":"Mk2 Bicoupler","type":TYPES.BRANCH,"size":"Mk2","cost":860,"mass":0.2,"mass_fuel":1.5,"sizeA":"Mk2","sizeB":1,"multiplier":2}
 		]
 	},
 	{
