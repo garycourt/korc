@@ -53,6 +53,13 @@ function parseFile(file) {
 	return partTree;
 }
 
+function last(arr, defaultValue) {
+	if (arr && arr.length) {
+		return arr[arr.length - 1] || defaultValue;
+	}
+	return defaultValue;
+}
+
 var results = [];
 findFiles(partDir).map(parseFile).forEach(function (fileParts) {
 	var parts = fileParts.PART;
@@ -88,7 +95,9 @@ findFiles(partDir).map(parseFile).forEach(function (fileParts) {
 				moduleEngines = moduleEngines[0];
 				
 				result.type = "TYPES.LFO_ENGINE";  //WATCH: Might be a booster. If so, gets fixed in Tank section
-				result.thrust = parseInt(moduleEngines.maxThrust[moduleEngines.maxThrust.length-1]);
+				result.thrust_min = parseInt(moduleEngines.minThrust[moduleEngines.minThrust.length-1]);
+				result.thrust_max = parseInt(moduleEngines.maxThrust[moduleEngines.maxThrust.length-1]);
+				result.throttleable = (last(moduleEngines.throttleLocked, "").toLowerCase() !== "true" && (!result.thrust_min || last(moduleEngines.allowShutdown,  "").toLowerCase() !== "false"));
 				
 				var isps = moduleEngines.atmosphereCurve[moduleEngines.atmosphereCurve.length-1].key;
 				isps.forEach(function (isp) {

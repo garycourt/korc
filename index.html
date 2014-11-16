@@ -74,7 +74,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 .availableParts {
 	overflow: auto;
-	height: 75rem;
+	height: 77rem;
 }
 .availableParts.well {
 	padding-top: 0;
@@ -149,6 +149,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .searchResults .boosters { color: darkviolet; }
 .searchResults .multiplier { font-weight: bold; }
 
+.donate {
+	margin-top: 1em;
+}
+
 .donate-line {
 	margin: 0;
 }
@@ -221,6 +225,7 @@ function SettingsController($scope) {
 	$scope.tankDiametersEqualEngineDiameter = true;
 	$scope.tankDiametersGreaterThenEngineDiameter = true;
 	$scope.gimbal = true;
+	$scope.throttleable = true;
 	$scope.packTree = _.map(PACKS, function (pack) {
 		var result = Object.create(pack);
 		result.parts = _.map(_.groupBy(pack.parts, "type"), function (parts, partId) {
@@ -378,11 +383,13 @@ function SettingsController($scope) {
 			tankDiametersEqual : $scope.tankDiametersEqual,
 			tankDiametersEqualEngineDiameter : $scope.tankDiametersEqual && $scope.tankDiametersEqualEngineDiameter,
 			tankDiametersGreaterThenEngineDiameter : $scope.tankDiametersEqual && $scope.tankDiametersGreaterThenEngineDiameter,
-			gimbal : $scope.gimbal,
+			gimbal : $scope.gimbal || undefined,
+			throttleable : $scope.throttleable || undefined,
 			maxStages : $scope.maxStages,
 			stagesMaxStacks : $scope.maxStacks,
 			stagesParallel : $scope.parallel || $scope.asparagus,
 			stagesAsparagus : $scope.asparagus,
+			stagesThrottleable : undefined,
 			parts : sortParts($scope.getEnabledParts(), $scope.optimization)
 		};
 		
@@ -572,7 +579,7 @@ function SettingsController($scope) {
 						</div>
 						
 						<div class="form-group">
-							<label for="settingsMinTWR" class="control-label col-sm-5">Thrust-to-Weight Ratio</label>
+							<label for="settingsMinTWR" class="control-label col-sm-5">Initial Thrust-to-Weight Ratio</label>
 							<div class="col-sm-7">
 								<div class="input-group">
 									<input type="number" name="minTWR" min="0" step="0.1" placeholder="0" id="settingsMinTWR" class="form-control" ng-model="minTWR"/>
@@ -687,6 +694,12 @@ function SettingsController($scope) {
 									<label>
 										<input type="checkbox" name="gimbal" id="settingsGimbal" ng-model="gimbal"/>
 										Each stage must have a gimbaling engine
+									</label>
+								</div>
+								<div class="checkbox">
+									<label>
+										<input type="checkbox" name="throttleable" id="settingsThrottleable" ng-model="throttleable"/>
+										Last stage must have a throttleable engine
 									</label>
 								</div>
 							</div>

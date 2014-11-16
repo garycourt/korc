@@ -70,22 +70,22 @@ var PACKS = [
 		name:"Stock 0.25",
 		parts:[
 			//LF/O Engines
-			{"name":"S3 KS-25x4 Engine Cluster","type":TYPES.LFO_ENGINE,"size":3,"cost":32400,"mass":9.75,"thrust":3200,"isp_vac":360,"isp_atm":320,"gimbal":0.5,"last":true},
-			{"name":"Kerbodyne KR-2L Advanced Engine","type":TYPES.LFO_ENGINE,"size":3,"cost":20850,"mass":6.5,"thrust":2500,"isp_vac":380,"isp_atm":280,"gimbal":1},
-			{"name":"Rockomax \"Mainsail\" Liquid Engine","type":TYPES.LFO_ENGINE,"size":2,"cost":5650,"mass":6,"thrust":1500,"isp_vac":360,"isp_atm":320,"gimbal":1},
-			{"name":"Rockomax \"Skipper\" Liquid Engine","type":TYPES.LFO_ENGINE,"size":2,"cost":2850,"mass":3,"thrust":650,"isp_vac":370,"isp_atm":320,"gimbal":1},
-			{"name":"Rockomax \"Poodle\" Liquid Engine","type":TYPES.LFO_ENGINE,"size":2,"cost":1600,"mass":2,"thrust":220,"isp_vac":390,"isp_atm":270,"gimbal":2.5},
-			{"name":"LV-N Atomic Rocket Motor","type":TYPES.LFO_ENGINE,"size":1,"cost":8700,"mass":2.25,"thrust":60,"isp_vac":800,"isp_atm":220,"gimbal":1},
-			{"name":"LV-T45 Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":950,"mass":1.5,"thrust":200,"isp_vac":370,"isp_atm":320,"gimbal":1},
-			{"name":"Toroidal Aerospike Rocket","type":TYPES.LFO_ENGINE,"size":1,"cost":3850,"mass":1.5,"thrust":175,"isp_vac":390,"isp_atm":388,"last":true},
-			{"name":"LV-T30 Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":850,"mass":1.25,"thrust":215,"isp_vac":370,"isp_atm":320},
-			{"name":"R.A.P.I.E.R. Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":3600,"mass":1.2,"thrust":175,"isp_vac":360,"isp_atm":320,"gimbal":3},
-			{"name":"LV-909 Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":750,"mass":0.5,"thrust":50,"isp_vac":390,"isp_atm":300,"gimbal":0.5},
-			{"name":"Rockomax 48-7S","type":TYPES.LFO_ENGINE,"size":0,"cost":300,"mass":0.1,"thrust":30,"isp_vac":350,"isp_atm":300,"gimbal":1},
-			{"name":"LV-1 Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":0,"cost":350,"mass":0.03,"thrust":4,"isp_vac":290,"isp_atm":220},
-			{"name":"Rockomax Mark 55 Radial Mount Liquid Engine","type":TYPES.LFO_ENGINE,"size":-1,"cost":850,"mass":0.9,"thrust":120,"isp_vac":320,"isp_atm":290,"gimbal":3,"last":true,"radial":true},
-			{"name":"Rockomax 24-77","type":TYPES.LFO_ENGINE,"size":-1,"cost":480,"mass":0.09,"thrust":20,"isp_vac":300,"isp_atm":250,"gimbal":1,"last":true,"radial":true},
-			{"name":"LV-1R Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":-1,"cost":650,"mass":0.03,"thrust":4,"isp_vac":290,"isp_atm":220,"last":true,"radial":true},
+			{"name":"S3 KS-25x4 Engine Cluster","type":TYPES.LFO_ENGINE,"size":3,"cost":32400,"mass":9.75,"thrust_min":0,"thrust_max":3200,"throttleable":true,"isp_vac":360,"isp_atm":320,"gimbal":0.5,"last":true},
+			{"name":"Kerbodyne KR-2L Advanced Engine","type":TYPES.LFO_ENGINE,"size":3,"cost":20850,"mass":6.5,"thrust_min":0,"thrust_max":2500,"throttleable":true,"isp_vac":380,"isp_atm":280,"gimbal":1},
+			{"name":"Rockomax \"Mainsail\" Liquid Engine","type":TYPES.LFO_ENGINE,"size":2,"cost":5650,"mass":6,"thrust_min":0,"thrust_max":1500,"throttleable":true,"isp_vac":360,"isp_atm":320,"gimbal":1},
+			{"name":"Rockomax \"Skipper\" Liquid Engine","type":TYPES.LFO_ENGINE,"size":2,"cost":2850,"mass":3,"thrust_min":0,"thrust_max":650,"throttleable":true,"isp_vac":370,"isp_atm":320,"gimbal":1},
+			{"name":"Rockomax \"Poodle\" Liquid Engine","type":TYPES.LFO_ENGINE,"size":2,"cost":1600,"mass":2,"thrust_min":0,"thrust_max":220,"throttleable":true,"isp_vac":390,"isp_atm":270,"gimbal":2.5},
+			{"name":"LV-N Atomic Rocket Motor","type":TYPES.LFO_ENGINE,"size":1,"cost":8700,"mass":2.25,"thrust_min":0,"thrust_max":60,"throttleable":true,"isp_vac":800,"isp_atm":220,"gimbal":1},
+			{"name":"LV-T45 Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":950,"mass":1.5,"thrust_min":0,"thrust_max":200,"throttleable":true,"isp_vac":370,"isp_atm":320,"gimbal":1},
+			{"name":"Toroidal Aerospike Rocket","type":TYPES.LFO_ENGINE,"size":1,"cost":3850,"mass":1.5,"thrust_min":0,"thrust_max":175,"throttleable":true,"isp_vac":390,"isp_atm":388,"last":true},
+			{"name":"LV-T30 Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":850,"mass":1.25,"thrust_min":0,"thrust_max":215,"throttleable":true,"isp_vac":370,"isp_atm":320},
+			{"name":"R.A.P.I.E.R. Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":3600,"mass":1.2,"thrust_min":0,"thrust_max":175,"throttleable":true,"isp_vac":360,"isp_atm":320,"gimbal":3},
+			{"name":"LV-909 Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":750,"mass":0.5,"thrust_min":0,"thrust_max":50,"throttleable":true,"isp_vac":390,"isp_atm":300,"gimbal":0.5},
+			{"name":"Rockomax 48-7S","type":TYPES.LFO_ENGINE,"size":0,"cost":300,"mass":0.1,"thrust_min":0,"thrust_max":30,"throttleable":true,"isp_vac":350,"isp_atm":300,"gimbal":1},
+			{"name":"LV-1 Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":0,"cost":350,"mass":0.03,"thrust_min":0,"thrust_max":4,"throttleable":true,"isp_vac":290,"isp_atm":220},
+			{"name":"Rockomax Mark 55 Radial Mount Liquid Engine","type":TYPES.LFO_ENGINE,"size":-1,"cost":850,"mass":0.9,"thrust_min":0,"thrust_max":120,"throttleable":true,"isp_vac":320,"isp_atm":290,"gimbal":3,"last":true,"radial":true},
+			{"name":"Rockomax 24-77","type":TYPES.LFO_ENGINE,"size":-1,"cost":480,"mass":0.09,"thrust_min":0,"thrust_max":20,"throttleable":true,"isp_vac":300,"isp_atm":250,"gimbal":1,"last":true,"radial":true},
+			{"name":"LV-1R Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":-1,"cost":650,"mass":0.03,"thrust_min":0,"thrust_max":4,"throttleable":true,"isp_vac":290,"isp_atm":220,"last":true,"radial":true},
 			
 			//LF/O Tanks
 			{"name":"Kerbodyne S3-14400 Tank","type":TYPES.LFO_TANK,"size":3,"cost":22800,"mass":10,"mass_fuel":72},
@@ -107,12 +107,12 @@ var PACKS = [
 			{"name":"Mk2 to 1.25m Adapter","type":TYPES.LFO_TANK,"size":"Mk2","cost":550,"mass":0.2,"mass_fuel":1.5},
 			
 			//Boosters
-			{"name":"LFB KR-1x2","type":TYPES.BOOSTER,"size":2,"cost":16400,"mass":10,"thrust":2000,"isp_vac":340,"isp_atm":290,"gimbal":0.5,"mass_fuel":32,"last":true},
-			{"name":"S1 SRB-KD25k","type":TYPES.BOOSTER,"size":1,"cost":1800,"mass":3,"thrust":650,"isp_vac":250,"isp_atm":230,"mass_fuel":18.75},
-			{"name":"Rockomax BACC Solid Fuel Booster","type":TYPES.BOOSTER,"size":1,"cost":700,"mass":1.5,"thrust":315,"isp_vac":250,"isp_atm":230,"mass_fuel":6.375},
-			{"name":"RT-10 Solid Fuel Booster","type":TYPES.BOOSTER,"size":1,"cost":325,"mass":0.5,"thrust":250,"isp_vac":240,"isp_atm":225,"mass_fuel":3.2475},
-			{"name":"Launch Escape System","type":TYPES.BOOSTER,"size":-1,"cost":800,"mass":1,"thrust":750,"isp_vac":360,"isp_atm":320,"mass_fuel":0.11249999999999999},
-			{"name":"Sepratron I","type":TYPES.BOOSTER,"size":-1,"cost":50,"mass":0.0125,"thrust":18,"isp_vac":100,"isp_atm":100,"mass_fuel":0.06,"last":true,"radial":true},
+			{"name":"LFB KR-1x2","type":TYPES.BOOSTER,"size":2,"cost":16400,"mass":10,"thrust_min":0,"thrust_max":2000,"throttleable":true,"isp_vac":340,"isp_atm":290,"gimbal":0.5,"mass_fuel":32,"last":true},
+			{"name":"S1 SRB-KD25k","type":TYPES.BOOSTER,"size":1,"cost":1800,"mass":3,"thrust_min":0,"thrust_max":650,"throttleable":false,"isp_vac":250,"isp_atm":230,"mass_fuel":18.75},
+			{"name":"Rockomax BACC Solid Fuel Booster","type":TYPES.BOOSTER,"size":1,"cost":700,"mass":1.5,"thrust_min":0,"thrust_max":315,"throttleable":false,"isp_vac":250,"isp_atm":230,"mass_fuel":6.375},
+			{"name":"RT-10 Solid Fuel Booster","type":TYPES.BOOSTER,"size":1,"cost":325,"mass":0.5,"thrust_min":0,"thrust_max":250,"throttleable":false,"isp_vac":240,"isp_atm":225,"mass_fuel":3.2475},
+			{"name":"Launch Escape System","type":TYPES.BOOSTER,"size":-1,"cost":800,"mass":1,"thrust_min":0,"thrust_max":750,"throttleable":false,"isp_vac":360,"isp_atm":320,"mass_fuel":0.11249999999999999},
+			{"name":"Sepratron I","type":TYPES.BOOSTER,"size":-1,"cost":50,"mass":0.0125,"thrust_min":0,"thrust_max":18,"throttleable":false,"isp_vac":100,"isp_atm":100,"mass_fuel":0.06,"last":true,"radial":true},
 			
 			//Decouplers
 			{"name":"TR-38-D","type":TYPES.DECOUPLER,"size":3,"cost":600,"mass":0.8,"ejection_force":100},
@@ -141,7 +141,7 @@ var PACKS = [
 		name:"KSPX 0.2.6.1",
 		parts:[
 			//LF/O Engines
-			{"name":"LV-NB Atomic Rocket Motor","type":TYPES.LFO_ENGINE,"size":2,"cost":16000,"mass":5,"thrust":150,"isp_vac":800,"isp_atm":220,"gimbal":1},
+			{"name":"LV-NB Atomic Rocket Motor","type":TYPES.LFO_ENGINE,"size":2,"cost":16000,"mass":5,"thrust_min":0,"thrust_max":150,"throttleable":true,"isp_vac":800,"isp_atm":220,"gimbal":1},
 			
 			//LF/O Tanks
 			{"name":"Rockomax X200-48 Fuel Tank","type":TYPES.LFO_TANK,"size":2,"cost":7600,"mass":3,"mass_fuel":24},
@@ -149,24 +149,24 @@ var PACKS = [
 			{name:"Stratus-V Roundified Liquid Fuel Tank & Oxidizer Tank", type:TYPES.LFO_TANK, size:"radial", cost:900, mass:0.150, mass_fuel:0.200, radial:true},
 			
 			//Boosters
-			{"name":"Escape Tower","type":TYPES.BOOSTER,"size":-1,"cost":1800,"mass":0.5,"thrust":750,"isp_vac":240,"isp_atm":225,"mass_fuel":0.6,"ejection_force":25}
+			{"name":"Escape Tower","type":TYPES.BOOSTER,"size":-1,"cost":1800,"mass":0.5,"thrust_min":0,"thrust_max":750,"throttleable":false,"isp_vac":240,"isp_atm":225,"mass_fuel":0.6,"ejection_force":25}
 		]
 	},
 	{
 		name:"KW Rocketry 2.6c",
 		parts:[
 		    //LF/O Engines
-			{"name":"KW Rocketry Griffon Century","type":TYPES.LFO_ENGINE,"size":4,"cost":55000,"mass":32,"thrust":11000,"isp_vac":300,"isp_atm":257,"gimbal":0.55,"sizeA":4,"sizeB":1,"multiplier":4},
-			{"name":"KW Rocketry Titan V","type":TYPES.LFO_ENGINE,"size":4,"cost":28000,"mass":22,"thrust":5800,"isp_vac":335,"isp_atm":260,"gimbal":1},
-			{"name":"KW Rocketry Griffon XX","type":TYPES.LFO_ENGINE,"size":3,"cost":15000,"mass":18,"thrust":5000,"isp_vac":310,"isp_atm":265,"gimbal":0.5},
-			{"name":"KW Rocketry Titan-T1","type":TYPES.LFO_ENGINE,"size":3,"cost":10000,"mass":14,"thrust":3600,"isp_vac":325,"isp_atm":270,"gimbal":1.5},
-			{"name":"KW Rocketry Wildcat-XR","type":TYPES.LFO_ENGINE,"size":3,"cost":7500,"mass":8,"thrust":1400,"isp_vac":370,"isp_atm":275,"gimbal":0.75},
-			{"name":"KW Rocketry Griffon-G8D","type":TYPES.LFO_ENGINE,"size":2,"cost":3300,"mass":8,"thrust":1900,"isp_vac":325,"isp_atm":280,"gimbal":0.5},
-			{"name":"KW Rocketry Maverick-V","type":TYPES.LFO_ENGINE,"size":2,"cost":2650,"mass":6,"thrust":1400,"isp_vac":335,"isp_atm":285,"gimbal":1},
-			{"name":"KW Rocketry Vesta VR-9D","type":TYPES.LFO_ENGINE,"size":2,"cost":2200,"mass":5,"thrust":600,"isp_vac":380,"isp_atm":310,"gimbal":1.5},
-			{"name":"KW Rocketry Maverick-1D","type":TYPES.LFO_ENGINE,"size":1,"cost":1200,"mass":2,"thrust":350,"isp_vac":355,"isp_atm":320,"gimbal":0.25},
-			{"name":"KW Rocketry WildCat-V","type":TYPES.LFO_ENGINE,"size":1,"cost":950,"mass":1.5,"thrust":230,"isp_vac":370,"isp_atm":325,"gimbal":0.5},
-			{"name":"KW Rocketry Vesta VR-1","type":TYPES.LFO_ENGINE,"size":1,"cost":1200,"mass":0.75,"thrust":90,"isp_vac":400,"isp_atm":350,"gimbal":0.75},
+			{"name":"KW Rocketry Griffon Century","type":TYPES.LFO_ENGINE,"size":4,"cost":55000,"mass":32,"thrust_min":0,"thrust_max":11000,"throttleable":true,"isp_vac":300,"isp_atm":257,"gimbal":0.55,"sizeA":4,"sizeB":1,"multiplier":4},
+			{"name":"KW Rocketry Titan V","type":TYPES.LFO_ENGINE,"size":4,"cost":28000,"mass":22,"thrust_min":0,"thrust_max":5800,"throttleable":true,"isp_vac":335,"isp_atm":260,"gimbal":1},
+			{"name":"KW Rocketry Griffon XX","type":TYPES.LFO_ENGINE,"size":3,"cost":15000,"mass":18,"thrust_min":0,"thrust_max":5000,"throttleable":true,"isp_vac":310,"isp_atm":265,"gimbal":0.5},
+			{"name":"KW Rocketry Titan-T1","type":TYPES.LFO_ENGINE,"size":3,"cost":10000,"mass":14,"thrust_min":0,"thrust_max":3600,"throttleable":true,"isp_vac":325,"isp_atm":270,"gimbal":1.5},
+			{"name":"KW Rocketry Wildcat-XR","type":TYPES.LFO_ENGINE,"size":3,"cost":7500,"mass":8,"thrust_min":0,"thrust_max":1400,"throttleable":true,"isp_vac":370,"isp_atm":275,"gimbal":0.75},
+			{"name":"KW Rocketry Griffon-G8D","type":TYPES.LFO_ENGINE,"size":2,"cost":3300,"mass":8,"thrust_min":0,"thrust_max":1900,"throttleable":true,"isp_vac":325,"isp_atm":280,"gimbal":0.5},
+			{"name":"KW Rocketry Maverick-V","type":TYPES.LFO_ENGINE,"size":2,"cost":2650,"mass":6,"thrust_min":0,"thrust_max":1400,"throttleable":true,"isp_vac":335,"isp_atm":285,"gimbal":1},
+			{"name":"KW Rocketry Vesta VR-9D","type":TYPES.LFO_ENGINE,"size":2,"cost":2200,"mass":5,"thrust_min":0,"thrust_max":600,"throttleable":true,"isp_vac":380,"isp_atm":310,"gimbal":1.5},
+			{"name":"KW Rocketry Maverick-1D","type":TYPES.LFO_ENGINE,"size":1,"cost":1200,"mass":2,"thrust_min":0,"thrust_max":350,"throttleable":true,"isp_vac":355,"isp_atm":320,"gimbal":0.25},
+			{"name":"KW Rocketry WildCat-V","type":TYPES.LFO_ENGINE,"size":1,"cost":950,"mass":1.5,"thrust_min":0,"thrust_max":230,"throttleable":true,"isp_vac":370,"isp_atm":325,"gimbal":0.5},
+			{"name":"KW Rocketry Vesta VR-1","type":TYPES.LFO_ENGINE,"size":1,"cost":1200,"mass":0.75,"thrust_min":0,"thrust_max":90,"throttleable":true,"isp_vac":400,"isp_atm":350,"gimbal":0.75},
 			
 			//LF/O Tanks
 			{"name":"KW Rocketry v-35 LFT","type":TYPES.LFO_TANK,"size":4,"cost":107520,"mass":30,"mass_fuel":268.8},
@@ -201,17 +201,17 @@ var PACKS = [
 			{"name":"KW Rocketry ST-25","type":TYPES.LFO_TANK,"size":2,"cost":5760,"mass":4,"mass_fuel":32.4},
 			
 			//Boosters
-			{"name":"Large Ullage Motor","type":TYPES.BOOSTER,"size":3,"cost":250,"mass":0.45,"thrust":325,"isp_vac":220,"isp_atm":220,"gimbal":0.3,"mass_fuel":0.375,"last":true,"radial":true},
-			{"name":"Globe X-10L \"Thor II\" SRB","type":TYPES.BOOSTER,"size":2,"cost":13900,"mass":6.5,"thrust":3015,"isp_vac":250,"isp_atm":230,"gimbal":0.5,"mass_fuel":79.6125},
-			{"name":"Globe X-10S \"Thor II\" SRB","type":TYPES.BOOSTER,"size":2,"cost":10750,"mass":5,"thrust":2315,"isp_vac":250,"isp_atm":230,"gimbal":0.5,"mass_fuel":61.199999999999996},
-			{"name":"Globe X-5 \"Thor\" SRB","type":TYPES.BOOSTER,"size":2,"cost":7350,"mass":3.5,"thrust":1590,"isp_vac":250,"isp_atm":230,"gimbal":0.3,"mass_fuel":42,"last":true,"radial":true},
-			{"name":"1.25m SRB Nose Cone","type":TYPES.BOOSTER,"size":2,"cost":800,"mass":0.25,"thrust":10,"isp_vac":100,"isp_atm":100,"mass_fuel":0.03},
-			{"name":"Globe X SRB","type":TYPES.BOOSTER,"size":1,"cost":1425,"mass":1.5,"thrust":614,"isp_vac":250,"isp_atm":230,"gimbal":0.3,"mass_fuel":8.1},
-			{"name":"Globe X-2 SRB","type":TYPES.BOOSTER,"size":1,"cost":1880,"mass":1.5,"thrust":818,"isp_vac":250,"isp_atm":230,"gimbal":0.3,"mass_fuel":10.799999999999999},
-			{"name":"Globe V SRB","type":TYPES.BOOSTER,"size":1,"cost":780,"mass":0.75,"thrust":372,"isp_vac":250,"isp_atm":230,"gimbal":0.2,"mass_fuel":4.5,"last":true,"radial":true},
-			{"name":"Globe VI SRB","type":TYPES.BOOSTER,"size":1,"cost":1050,"mass":0.75,"thrust":495,"isp_vac":250,"isp_atm":230,"gimbal":0.2,"mass_fuel":6,"last":true,"radial":true},
-			{"name":"Globe I SRB","type":TYPES.BOOSTER,"size":-1,"cost":230,"mass":0.3,"thrust":149,"isp_vac":250,"isp_atm":230,"gimbal":0.3,"mass_fuel":1.3125,"last":true,"radial":true},
-			{"name":"Ullage Motor","type":TYPES.BOOSTER,"size":-1,"cost":50,"mass":0.25,"thrust":75,"isp_vac":250,"isp_atm":250,"gimbal":0.3,"mass_fuel":0.075,"last":true,"radial":true},
+			{"name":"Large Ullage Motor","type":TYPES.BOOSTER,"size":3,"cost":250,"mass":0.45,"thrust_min":325,"thrust_max":325,"throttleable":false,"isp_vac":220,"isp_atm":220,"gimbal":0.3,"mass_fuel":0.375,"last":true,"radial":true},
+			{"name":"Globe X-10L \"Thor II\" SRB","type":TYPES.BOOSTER,"size":2,"cost":13900,"mass":6.5,"thrust_min":1507,"thrust_max":3015,"throttleable":false,"isp_vac":250,"isp_atm":230,"gimbal":0.5,"mass_fuel":79.6125},
+			{"name":"Globe X-10S \"Thor II\" SRB","type":TYPES.BOOSTER,"size":2,"cost":10750,"mass":5,"thrust_min":1157,"thrust_max":2315,"throttleable":false,"isp_vac":250,"isp_atm":230,"gimbal":0.5,"mass_fuel":61.199999999999996},
+			{"name":"Globe X-5 \"Thor\" SRB","type":TYPES.BOOSTER,"size":2,"cost":7350,"mass":3.5,"thrust_min":795,"thrust_max":1590,"throttleable":false,"isp_vac":250,"isp_atm":230,"gimbal":0.3,"mass_fuel":42,"last":true,"radial":true},
+			{"name":"1.25m SRB Nose Cone","type":TYPES.BOOSTER,"size":2,"cost":800,"mass":0.25,"thrust_min":0,"thrust_max":10,"throttleable":false,"isp_vac":100,"isp_atm":100,"mass_fuel":0.03},
+			{"name":"Globe X SRB","type":TYPES.BOOSTER,"size":1,"cost":1425,"mass":1.5,"thrust_min":312,"thrust_max":614,"throttleable":false,"isp_vac":250,"isp_atm":230,"gimbal":0.3,"mass_fuel":8.1},
+			{"name":"Globe X-2 SRB","type":TYPES.BOOSTER,"size":1,"cost":1880,"mass":1.5,"thrust_min":414,"thrust_max":818,"throttleable":false,"isp_vac":250,"isp_atm":230,"gimbal":0.3,"mass_fuel":10.799999999999999},
+			{"name":"Globe V SRB","type":TYPES.BOOSTER,"size":1,"cost":780,"mass":0.75,"thrust_min":186,"thrust_max":372,"throttleable":false,"isp_vac":250,"isp_atm":230,"gimbal":0.2,"mass_fuel":4.5,"last":true,"radial":true},
+			{"name":"Globe VI SRB","type":TYPES.BOOSTER,"size":1,"cost":1050,"mass":0.75,"thrust_min":247,"thrust_max":495,"throttleable":false,"isp_vac":250,"isp_atm":230,"gimbal":0.2,"mass_fuel":6,"last":true,"radial":true},
+			{"name":"Globe I SRB","type":TYPES.BOOSTER,"size":-1,"cost":230,"mass":0.3,"thrust_min":75,"thrust_max":149,"throttleable":false,"isp_vac":250,"isp_atm":230,"gimbal":0.3,"mass_fuel":1.3125,"last":true,"radial":true},
+			{"name":"Ullage Motor","type":TYPES.BOOSTER,"size":-1,"cost":50,"mass":0.25,"thrust_min":75,"thrust_max":75,"throttleable":false,"isp_vac":250,"isp_atm":250,"gimbal":0.3,"mass_fuel":0.075,"last":true,"radial":true},
 			
 			//Decouplers
 			{"name":"5m Expanded Fairing Base","type":TYPES.DECOUPLER,"size":4,"cost":4800,"mass":3.6,"ejection_force":1500},
@@ -232,7 +232,7 @@ var PACKS = [
 	}
 ];
 
-var NO_ENGINE = {name:"", type:TYPES.LFO_ENGINE, size:0, cost:0, mass:0, thrust:0, isp_vac:0, isp_atm:0};
+var NO_ENGINE = {name:"", type:TYPES.LFO_ENGINE, size:0, cost:0, mass:0, thrust_min:0, thrust_max:0, isp_vac:0, isp_atm:0};
 var FUEL_DUCT = {name:"FTX-2 External Fuel Duct", type:TYPES.DUCT, size:"radial", cost:650, mass:0, radial:true};  //mass:0.05, but have no mass in flight
 
 var CONVERSION_FACTOR = 9.82;  //m/s^2
@@ -295,17 +295,17 @@ var KSP = {
 		//Engine fuel consumption at specified atmospheric pressure (t/s)
 		consumption : function (atm, engine) {
 			atm = Math.min(Math.max(atm, 0), 1);  //Atmospheric pressure's affect on engines maxes out at 1 (TODO: Confirm this)
-			return (engine.thrust / ((engine.isp_vac * CONVERSION_FACTOR) - ((engine.isp_vac - engine.isp_atm) * CONVERSION_FACTOR * (atm || 0)))) || 0;
+			return (engine.thrust_max / ((engine.isp_vac * CONVERSION_FACTOR) - ((engine.isp_vac - engine.isp_atm) * CONVERSION_FACTOR * (atm || 0)))) || 0;
 		},
 		
 		//Engine fuel consumption in vacuum (t/s)
 		consumptionVac : function (engine) {
-			return (engine.thrust / (engine.isp_vac * CONVERSION_FACTOR)) || 0;
+			return (engine.thrust_max / (engine.isp_vac * CONVERSION_FACTOR)) || 0;
 		},
 		
 		//Engine fuel consumption in atmosphere (t/s)
 		consumptionAtm : function (engine) {
-			return (engine.thrust / (engine.isp_atm * CONVERSION_FACTOR)) || 0;
+			return (engine.thrust_max / (engine.isp_atm * CONVERSION_FACTOR)) || 0;
 		}
 	},
 	
@@ -337,8 +337,8 @@ var KSP = {
 		//Thrust of active engines during this stage only (kN)
 		thrust : function (stage) {
 			return (
-				(stage.lfoEngines ? stage.lfoEngines.map(pluckNumber.bind(this, "thrust")).reduce(sum, 0) : 0) + 
-				(stage.boosters ? stage.boosters.map(pluckNumber.bind(this, "thrust")).reduce(sum, 0) : 0)
+				(stage.lfoEngines ? stage.lfoEngines.map(pluckNumber.bind(this, "thrust_max")).reduce(sum, 0) : 0) + 
+				(stage.boosters ? stage.boosters.map(pluckNumber.bind(this, "thrust_max")).reduce(sum, 0) : 0)
 			) * (stage.multiplier || 1);
 		},
 		
@@ -581,11 +581,13 @@ function fixArgs(args) {
 	args.tankDiametersEqual = !!args.tankDiametersEqual;
 	args.tankDiametersEqualEngineDiameter = args.tankDiametersEqual && !!args.tankDiametersEqualEngineDiameter;
 	args.tankDiametersGreaterThenEngineDiameter = args.tankDiametersEqual && !!args.tankDiametersGreaterThenEngineDiameter;
-	args.gimbal = !!args.gimbal;
+	args.gimbal = args.gimbal;
+	args.throttleable = args.throttleable;
 	args.maxStages = args.maxStages || 1;
 	args.stagesMaxStacks = args.stagesMaxStacks || 1;
 	args.stagesAsparagus = !!args.stagesAsparagus;
 	args.stagesParallel = !!args.stagesParallel || args.stagesAsparagus;
+	args.stagesThrottleable = args.stagesThrottleable; 
 	args.parts = args.parts || {};
 	args.parts.lfoEngines = args.parts.lfoEngines || [];
 	args.parts.lfoTanks = args.parts.lfoTanks || [];
@@ -630,7 +632,8 @@ function findOptimalStage(args) {
 	
 	var bestStage = null;
 	var stage = null;
-	var stackMultiplier = Math.max((args.next.multiplier || 1), (args.parallel || (args.next.lfoEngines && (args.next.lfoEngines.length > 1 || (args.next.lfoEngines[0] || 0).last)) ? 2 : 1));  //parallel stages must have two stacks, or the same # of stacks (if greater) as the next stage (simplifies design)
+	//parallel stages must have two stacks, or the same # of stacks (if greater) as the next stage (simplifies design)
+	var stackMultiplier = Math.max((args.next.multiplier || 1), ((args.parallel || (args.next.lfoEngines && (args.next.lfoEngines.length > 1 || (args.next.lfoEngines[0] || 0).last)) || (args.next.boosters && (args.next.boosters.length > 1 || (args.next.boosters[0] || 0).last))) ? 2 : 1));
 	var bestStackDecoupler, bestRadialDecoupler;
 	
 	//
@@ -660,7 +663,8 @@ function findOptimalStage(args) {
 	nextEngine: for (var e = 0, el = args.parts.lfoEngines.length; e <= el; ++e) {
 		var engine = args.parts.lfoEngines[e] || NO_ENGINE;
 		
-		if (args.gimbal && !engine.gimbal) continue nextEngine;
+		if (typeof args.gimbal === "boolean" && args.gimbal != engine.gimbal) continue nextEngine;
+		if (typeof args.throttleable === "boolean" && typeof engine.throttleable === "boolean" && args.throttleable != engine.throttleable) continue nextEngine;
 		
 		var branches = [];
 		if (args.cluster) {
@@ -846,7 +850,8 @@ function findOptimalStage(args) {
 	nextBooster: for (var b = 0, bl = args.parts.boosters.length; b < bl; ++b) {
 		var booster = args.parts.boosters[b];
 		
-		if (args.gimbal && !booster.gimbal) continue nextBooster;
+		if (typeof args.gimbal === "boolean" && args.gimbal != booster.gimbal) continue nextBooster;
+		if (typeof args.throttleable === "boolean" && typeof booster.throttleable === "boolean" && args.throttleable != booster.throttleable) continue nextBooster;
 		
 		if (args.tankDiametersEqual && !booster.radial && bestStackDecoupler && bestStackDecoupler.size !== booster.size) {
 			var newDecouplerIndex = args.parts.stackDecouplers.map(pluck.bind(this, "size")).indexOf(booster.size);
@@ -954,8 +959,9 @@ function findRandomOptimalStaging(args) {
 			secondArgs.next = firstStage;
 			secondArgs.deltaV = args.deltaV - firstStage.deltaV;
 			secondArgs.maxStacks = args.stagesMaxStacks;
-			secondArgs.parallel = !!args.stagesParallel;
-			secondArgs.asparagus = !!args.stagesAsparagus;
+			secondArgs.parallel = args.stagesParallel;
+			secondArgs.asparagus = args.stagesAsparagus;
+			secondArgs.throttleable = args.stagesThrottleable;
 			secondArgs.decoupling = true;
 			secondArgs.maxStages = args.maxStages - 1;
 			var secondStage = findOptimalStage(secondArgs);
