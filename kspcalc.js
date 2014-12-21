@@ -101,9 +101,20 @@ var PACKS = [
 			{"name":"FL-T100 Fuel Tank","type":TYPES.LFO_TANK,"size":1,"cost":250,"mass":0.0625,"mass_fuel":0.5},
 			{"name":"ROUND-8 Toroidal Fuel Tank","type":TYPES.LFO_TANK,"size":1,"cost":360,"mass":0.025,"mass_fuel":0.111},
 			{"name":"Oscar-B Fuel Tank","type":TYPES.LFO_TANK,"size":0,"cost":180,"mass":0.015,"mass_fuel":0.06367500000000001},
-			{"name":"Mk2 LF+O Fuselage","type":TYPES.LFO_TANK,"size":"Mk2","cost":750,"mass":0.5,"mass_fuel":3},
+			{"name":"Mk3 Rocket Fuel Fuselage Long","type":TYPES.LFO_TANK,"size":"Mk3","cost":30000,"mass":6,"mass_fuel":50},
+			{"name":"Mk3 Rocket Fuel Fuselage","type":TYPES.LFO_TANK,"size":"Mk3","cost":15000,"mass":3,"mass_fuel":25},
+			{"name":"Mk3 to 3.75m Adapter","type":TYPES.LFO_TANK,"size":"Mk3","cost":1500,"mass":1.5,"mass_fuel":12.5},
+			{"name":"Mk3 Rocket Fuel Fuselage Short","type":TYPES.LFO_TANK,"size":"Mk3","cost":7500,"mass":1.5,"mass_fuel":12.5},
+			{"name":"Mk3 to 2.5m Adapter","type":TYPES.LFO_TANK,"size":"Mk3","cost":1500,"mass":1.5,"mass_fuel":12.5},
+			{"name":"Mk3 to 2.5m Adapter Slanted","type":TYPES.LFO_TANK,"size":"Mk3","cost":1500,"mass":1.5,"mass_fuel":12.5},
+			{"name":"Mk3 to Mk2 Adapter","type":TYPES.LFO_TANK,"size":"Mk3","cost":1500,"mass":1.2,"mass_fuel":10},
+			{"name":"C7 Brand Adapter - 2.5m to 1.25m","type":TYPES.LFO_TANK,"size":"C7","cost":800,"mass":0.5,"mass_fuel":4},
+			{"name":"C7 Brand Adapter Slanted - 2.5m to 1.25m","type":TYPES.LFO_TANK,"size":"C7","cost":800,"mass":0.5,"mass_fuel":4},
+			{"name":"Mk2 Rocket Fuel Fuselage","type":TYPES.LFO_TANK,"size":"Mk2","cost":750,"mass":0.5,"mass_fuel":3},
+			{"name":"2.5m to Mk2 Adapter","type":TYPES.LFO_TANK,"size":"Mk2","cost":800,"mass":0.5,"mass_fuel":4},
 			{"name":"Mk2 to 1.25m Adapter Long","type":TYPES.LFO_TANK,"size":"Mk2","cost":700,"mass":0.4,"mass_fuel":2.5},
-			{"name":"Mk2 LF+O Fuselage Short","type":TYPES.LFO_TANK,"size":"Mk2","cost":750,"mass":0.25,"mass_fuel":1.5},
+			{"name":"Mk2 Rocket Fuel Fuselage Short","type":TYPES.LFO_TANK,"size":"Mk2","cost":750,"mass":0.25,"mass_fuel":1.5},
+			{"name":"Mk2 Bicoupler","type":TYPES.LFO_TANK,"size":"Mk2","cost":860,"mass":0.2,"mass_fuel":1.5,"sizeA":1,"sizeB":1,"multiplier":2},
 			{"name":"Mk2 to 1.25m Adapter","type":TYPES.LFO_TANK,"size":"Mk2","cost":550,"mass":0.2,"mass_fuel":1.5},
 			
 			//Boosters
@@ -134,7 +145,9 @@ var PACKS = [
 			{"name":"TVR-2160C Mk2 Stack Quad-Coupler","type":TYPES.BRANCH,"size":1,"cost":2000,"mass":0.175,"sizeA":1,"sizeB":1,"multiplier":4},
 			{"name":"TVR-1180C Mk1 Stack Tri-Coupler","type":TYPES.BRANCH,"size":1,"cost":680,"mass":0.15,"sizeA":1,"sizeB":1,"multiplier":3},
 			{"name":"TVR-200 Stack Bi-Coupler","type":TYPES.BRANCH,"size":1,"cost":400,"mass":0.1,"sizeA":1,"sizeB":1,"multiplier":2},
-			{"name":"Mk2 Bicoupler","type":TYPES.BRANCH,"size":"Mk2","cost":860,"mass":0.2,"mass_fuel":1.5,"sizeA":"Mk2","sizeB":1,"multiplier":2}
+			{"name":"Mk2 Bicoupler","type":TYPES.BRANCH,"size":"Mk2","cost":860,"mass":0.2,"mass_fuel":1.5,"sizeA":"Mk2","sizeB":1,"multiplier":2},
+			{"name":"TVR-2160C Mk2 Stack Quad-Coupler","type":TYPES.BRANCH,"size":"Mk2","cost":2000,"mass":0.175,"sizeA":"Mk2","sizeB":1,"multiplier":4},
+			{"name":"TVR-1180C Mk1 Stack Tri-Coupler","type":TYPES.BRANCH,"size":"Mk1","cost":680,"mass":0.15,"sizeA":"Mk1","sizeB":1,"multiplier":3}
 		]
 	},
 	{

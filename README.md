@@ -39,6 +39,8 @@ If you are getting wildly different numbers in Kerbal Engineer, it's likely that
 * Add parts from other mods
 * Support per stage settings
 * Quickly toggle parts by size or science node
+* Optimize by X per Delta-V
+* Restrict SRBs to the first stage(s)
 
 ## Support This Project
 

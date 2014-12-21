@@ -1,3 +1,6 @@
+**Version 1.17 - December 20, 2014**
+* Updated parts for KSP 0.90.
+
 **Version 1.16 - November 16, 2014**
 * Added option to force last stage to have a thrust adjustable engine.
 * Updated parts to include throttle data.
