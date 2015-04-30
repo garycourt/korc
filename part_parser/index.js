@@ -95,8 +95,8 @@ findFiles(partDir).map(parseFile).forEach(function (fileParts) {
 				moduleEngines = moduleEngines[0];
 				
 				result.type = "TYPES.LFO_ENGINE";  //WATCH: Might be a booster. If so, gets fixed in Tank section
-				result.thrust_min = parseInt(moduleEngines.minThrust[moduleEngines.minThrust.length-1]);
-				result.thrust_max = parseInt(moduleEngines.maxThrust[moduleEngines.maxThrust.length-1]);
+				result.thrust_min = parseFloat(moduleEngines.minThrust[moduleEngines.minThrust.length-1]);
+				result.thrust_max = parseFloat(moduleEngines.maxThrust[moduleEngines.maxThrust.length-1]);
 				result.throttleable = (last(moduleEngines.throttleLocked, "").toLowerCase() !== "true" && (!result.thrust_min || last(moduleEngines.allowShutdown,  "").toLowerCase() !== "false"));
 				
 				var isps = moduleEngines.atmosphereCurve[moduleEngines.atmosphereCurve.length-1].key;
@@ -194,7 +194,19 @@ findFiles(partDir).map(parseFile).forEach(function (fileParts) {
 				result.last = true;
 			}
 			
-			if (radial) result.radial = true;
+			if (radial) {
+				result.radial = true;
+				result.size = -1;
+			}
+			
+			//Remove useless parts
+			if (result.name === "Launch Escape System" || /Mk[123] |C7 Brand|Service Bay/.test(result.name)) result.type = "TYPES.UNKNOWN";
+			
+			//Change thrust to use vacuum again
+			//FIXME: Change thrust calculations in kspcalc instead
+			if (result.thrust_max) {
+				result.thrust_max = Math.round((result.thrust_max / result.isp_atm) * result.isp_vac);  //WATCH: in rare cases, this rounds off fractions
+			}
 			
 			results.push(result);
 		});

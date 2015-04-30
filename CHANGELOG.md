@@ -1,3 +1,8 @@
+**Version 1.18 - April 29, 2015**
+* Updated parts for KSP 1.0. Removed parts packs that haven't been updated.
+* Fixed bug in gimbal check.
+* Disabled atmospheric engine stats.
+
 **Version 1.17 - December 20, 2014**
 * Updated parts for KSP 0.90.
 
