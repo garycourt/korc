@@ -1,5 +1,8 @@
+**Version 1.19 - May 5, 2015**
+* Re-enabled atmospheric engine stats.
+
 **Version 1.18 - April 29, 2015**
-* Updated parts for KSP 1.0. Removed parts packs that haven't been updated.
+* Updated parts for KSP 1.0. Removed part packs that haven't been updated.
 * Fixed bug in gimbal check.
 * Disabled atmospheric engine stats.
 

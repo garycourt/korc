@@ -268,7 +268,7 @@ function SettingsController($scope) {
 				cost : KSP.Stages.cost(staging),
 				mass : KSP.Stages.massStart(staging),
 				payloadFraction : 0,
-				deltaV : KSP.Stages.deltaVTotal(staging),
+				deltaV : KSP.Stages.deltaVTotal(staging, args.atm),
 				time : KSP.Stages.timeTotal(staging),
 				stages : []
 			};
@@ -285,7 +285,7 @@ function SettingsController($scope) {
 				newStage.deltaVStage = KSP.Stages.deltaVStage(currentStage, args.atm);
 				runningDeltaVTotal += newStage.deltaVStage
 				newStage.deltaVTotal = runningDeltaVTotal;
-				newStage.twr = KSP.Stages.twr(currentStage, args.planet);
+				newStage.twr = KSP.Stages.twr(currentStage, args.atm, args.planet);
 				newStage.timeStage = KSP.Stages.timeStage(currentStage, args.atm);
 				runningTimeTotal += newStage.timeStage
 				newStage.timeTotal = runningTimeTotal;
@@ -654,14 +654,12 @@ function SettingsController($scope) {
 						<div class="form-group">
 							<label class="control-label col-sm-5">Options</label>
 							<div class="col-sm-7">
-								<!-- 
 								<div class="checkbox">
 									<label>
 										<input type="checkbox" name="atmosphere" id="settingsAtmosphere" ng-model="atmosphere"/>
 										Use engine's atmospheric stats
 									</label>
 								</div>
-								 -->
 								<div class="checkbox">
 									<label>
 										<input type="checkbox" name="payloadDecoupler" id="settingsPayloadDecoupler" ng-model="payloadDecoupler"/>

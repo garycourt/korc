@@ -112,6 +112,11 @@ findFiles(partDir).map(parseFile).forEach(function (fileParts) {
 						}
 					}
 				});
+				
+				//Change thrust to use vacuum again
+				//FIXME: Change thrust calculations in kspcalc instead
+				result.thrust_atm = result.thrust_max;
+				result.thrust_vac = Math.round((result.thrust_max / result.isp_atm) * result.isp_vac);  //WATCH: in rare cases, this rounds off fractions
 			}
 			
 			var moduleGimbal = jsonPath(part, "$.MODULE[?(@.name[-1:]=='ModuleGimbal')]");
@@ -201,12 +206,6 @@ findFiles(partDir).map(parseFile).forEach(function (fileParts) {
 			
 			//Remove useless parts
 			if (result.name === "Launch Escape System" || /Mk[123] |C7 Brand|Service Bay/.test(result.name)) result.type = "TYPES.UNKNOWN";
-			
-			//Change thrust to use vacuum again
-			//FIXME: Change thrust calculations in kspcalc instead
-			if (result.thrust_max) {
-				result.thrust_max = Math.round((result.thrust_max / result.isp_atm) * result.isp_vac);  //WATCH: in rare cases, this rounds off fractions
-			}
 			
 			results.push(result);
 		});
