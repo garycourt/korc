@@ -70,6 +70,7 @@ var PACKS = [
 		name:"Stock 1.0",
 		parts:[
 			//LF/O Engines
+ 			{"name":"LV-N \"Nerv\" Atomic Rocket Motor","type":TYPES.LFO_ENGINE,"size":1,"cost":10000,"mass":3,"thrust_min":0,"thrust_max":60.0,"throttleable":true,"isp_vac":800,"isp_atm":185,"thrust_atm":13.875,"thrust_vac":60,"gimbal":2,"last":true},
 			{"name":"S3 KS-25x4 \"Mammoth\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":3,"cost":39000,"mass":15,"thrust_min":0,"thrust_max":3746.031746,"throttleable":true,"isp_vac":315,"isp_atm":295,"thrust_atm":3746.031746,"thrust_vac":4000,"gimbal":2,"last":true},
 			{"name":"Kerbodyne KR-2L+ \"Rhino\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":3,"cost":21000,"mass":8.5,"thrust_min":0,"thrust_max":1000,"throttleable":true,"isp_vac":340,"isp_atm":170,"thrust_atm":1000,"thrust_vac":2000,"gimbal":4},
 			{"name":"RE-M3 \"Mainsail\" Liquid Engine","type":TYPES.LFO_ENGINE,"size":2,"cost":13000,"mass":6,"thrust_min":0,"thrust_max":1379.032258,"throttleable":true,"isp_vac":310,"isp_atm":285,"thrust_atm":1379.032258,"thrust_vac":1500,"gimbal":2},
