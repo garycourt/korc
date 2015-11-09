@@ -1,3 +1,6 @@
+**Version 1.20 - November 9, 2015**
+* Updated parts for 1.0.5
+
 **Version 1.19 - May 5, 2015**
 * Re-enabled atmospheric engine stats.
 
