@@ -115,8 +115,8 @@ findFiles(partDir).map(parseFile).forEach(function (fileParts) {
 				
 				//Change thrust to use vacuum again
 				//FIXME: Change thrust calculations in kspcalc instead
-				result.thrust_atm = result.thrust_max;
-				result.thrust_vac = Math.round((result.thrust_max / result.isp_atm) * result.isp_vac);  //WATCH: in rare cases, this rounds off fractions
+				result.thrust_atm = parseFloat(((result.thrust_max / result.isp_vac) * result.isp_atm).toFixed(15));
+				result.thrust_vac = result.thrust_max;
 			}
 			
 			var moduleGimbal = jsonPath(part, "$.MODULE[?(@.name[-1:]=='ModuleGimbal')]");
