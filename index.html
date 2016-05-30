@@ -218,7 +218,7 @@ function SettingsController($scope) {
 	$scope.cluster = false;
 	$scope.parallel = false;
 	$scope.asparagus = false;
-	$scope.atmosphere = false;
+	$scope.atm = $scope.planet.atmosphere;
 	$scope.payloadDecoupler = true;
 	$scope.lastStageSingle = true;
 	$scope.tankDiametersEqual = true;
@@ -374,7 +374,7 @@ function SettingsController($scope) {
 			maxTime : $scope.maxTime,
 			maxMass : $scope.maxMass,
 			maxPartCount : $scope.maxPartCount,
-			atm : ($scope.atmosphere ? 1 : 0),
+			atm : $scope.atm,
 			maxStacks : ($scope.lastStageSingle ? 1 : $scope.maxStacks),
 			cluster : $scope.cluster,
 			parallel : false,
@@ -426,8 +426,12 @@ function SettingsController($scope) {
 	};
 	$scope.onPlanetChange = function () {
 		$scope.gravity = $scope.planet.gravity;
+		$scope.atm = $scope.planet.atmosphere;
 	};
 	$scope.onGravityChange = function () {
+		$scope.planet = null;
+	};
+	$scope.onAtmChange = function () {
 		$scope.planet = null;
 	};
 	$scope.onMaxStagesChange = function () {
@@ -579,6 +583,16 @@ function SettingsController($scope) {
 						</div>
 						
 						<div class="form-group">
+							<label for="settingsAtm" class="control-label col-sm-5">Atmospheric pressure</label>
+							<div class="col-sm-7">
+								<div class="input-group">
+									<input type="number" name="atm" required="required" min="0" step="1" placeholder="0" id="settingsAtm" class="form-control" ng-model="atm" ng-change="onAtmChange()"/>
+									<span class="input-group-addon mathml"><math><mi>atm</mi></math></span>
+								</div>
+							</div>
+						</div>
+						
+						<div class="form-group">
 							<label for="settingsMinTWR" class="control-label col-sm-5">Initial Thrust-to-Weight Ratio</label>
 							<div class="col-sm-7">
 								<div class="input-group">
@@ -654,12 +668,6 @@ function SettingsController($scope) {
 						<div class="form-group">
 							<label class="control-label col-sm-5">Options</label>
 							<div class="col-sm-7">
-								<div class="checkbox">
-									<label>
-										<input type="checkbox" name="atmosphere" id="settingsAtmosphere" ng-model="atmosphere"/>
-										Use engine's atmospheric stats
-									</label>
-								</div>
 								<div class="checkbox">
 									<label>
 										<input type="checkbox" name="payloadDecoupler" id="settingsPayloadDecoupler" ng-model="payloadDecoupler"/>
