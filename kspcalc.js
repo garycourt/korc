@@ -193,21 +193,11 @@ var KSP = {
 	},
 	
 	Engine : {
-		//Engine fuel consumption at specified atmospheric pressure (t/s)
-		consumption : function (atm, engine) {
-			atm = Math.min(Math.max(atm, 0), 1);  //Atmospheric pressure's affect on engines maxes out at 1 (TODO: Confirm this)
-			return ((atm ? engine.thrust_atm : engine.thrust_vac) / ((engine.isp_vac * CONVERSION_FACTOR) - ((engine.isp_vac - engine.isp_atm) * CONVERSION_FACTOR * (atm || 0)))) || 0;
+		//Engine fuel consumption (t/s)
+		consumption : function (engine) {
+			return (engine.thrust_max  / (engine.isp_vac * CONVERSION_FACTOR)) || 0;
 		},
-		
-		//Engine fuel consumption in vacuum (t/s)
-		consumptionVac : function (engine) {
-			return (engine.thrust_vac / (engine.isp_vac * CONVERSION_FACTOR)) || 0;
-		},
-		
-		//Engine fuel consumption in atmosphere (t/s)
-		consumptionAtm : function (engine) {
-			return (engine.thrust_atm / (engine.isp_atm * CONVERSION_FACTOR)) || 0;
-		}
+
 	},
 	
 	Stage : {
@@ -265,7 +255,7 @@ var KSP = {
 		},
 		
 		//Mass of this stage only at the specified time from the beginning of this stage's burn (t)
-		massAt : function (stage, atm, time) {
+		massAt : function (stage, time) {
 			time = Math.max(time, 0);
 			var mass = (stage.payload || 0) + 
 				(stage.others ? stage.others.map(pluckNumber.bind(this, "mass")).reduce(sum, 0) : 0) +
@@ -275,7 +265,7 @@ var KSP = {
 			if (stage.lfoTanks) {
 				mass += stage.lfoTanks.map(pluckNumber.bind(this, "mass")).reduce(sum, 0);
 				var fuelMass = stage.lfoTanks.map(pluckNumber.bind(this, "mass_fuel")).reduce(sum, 0);
-				var consumption = (stage.lfoEngines ? stage.lfoEngines.map(KSP.Engine.consumption.bind(this, atm)).reduce(sum, 0) : 0);
+				var consumption = (stage.lfoEngines ? stage.lfoEngines.map(KSP.Engine.consumption.bind(this)).reduce(sum, 0) : 0);
 				fuelMass -= consumption * time;
 				if (fuelMass < 0) fuelMass = 0;
 				mass += fuelMass;
@@ -283,7 +273,7 @@ var KSP = {
 			if (stage.boosters) {
 				mass += stage.boosters.map(pluckNumber.bind(this, "mass")).reduce(sum, 0);
 				var fuelMass = stage.boosters.map(pluckNumber.bind(this, "mass_fuel")).reduce(sum, 0);
-				var consumption = (stage.boosters ? stage.boosters.map(KSP.Engine.consumption.bind(this, atm)).reduce(sum, 0) : 0);
+				var consumption = (stage.boosters ? stage.boosters.map(KSP.Engine.consumption.bind(this)).reduce(sum, 0) : 0);
 				fuelMass -= consumption * time;
 				if (fuelMass < 0) fuelMass = 0;
 				mass += fuelMass;
@@ -304,22 +294,22 @@ var KSP = {
 			) * (stage.multiplier || 1);
 		},
 		
-		//Stage fuel consumption at specified atmospheric pressure (t/s)
-		consumption : function (stage, atm) {
+		//Stage fuel consumption (t/s)
+		consumption : function (stage) {
 			return (
-				(stage.lfoEngines ? stage.lfoEngines.map(KSP.Engine.consumption.bind(this, atm)).reduce(sum, 0) : 0) + 
-				(stage.boosters ? stage.boosters.map(KSP.Engine.consumption.bind(this, atm)).reduce(sum, 0) : 0)
+				(stage.lfoEngines ? stage.lfoEngines.map(KSP.Engine.consumption.bind(this)).reduce(sum, 0) : 0) + 
+				(stage.boosters ? stage.boosters.map(KSP.Engine.consumption.bind(this)).reduce(sum, 0) : 0)
 			) * (stage.multiplier || 1);
 		},
 		
 		//Combined specific impulse at atmospheric pressure (m/s)
 		impulse : function (stage, atm) {
-			return (KSP.Stage.thrust(stage, atm) / KSP.Stage.consumption(stage, atm)) || 0;
+			return (KSP.Stage.thrust(stage, atm) / KSP.Stage.consumption(stage)) || 0;
 		},
 		
-		//Time required to use all fuel in this stage only at full thrust at specified atmospheric pressure (s)
-		timeStage : function (stage, atm) {
-			return (KSP.Stage.massFuelStart(stage) / KSP.Stage.consumption(stage, atm)) || 0;
+		//Time required to use all fuel in this stage only at full thrust (s)
+		timeStage : function (stage) {
+			return (KSP.Stage.massFuelStart(stage) / KSP.Stage.consumption(stage)) || 0;
 		}
 	},
 	
@@ -349,11 +339,11 @@ var KSP = {
 		},
 		
 		//Total mass of all stages at the specified time from the beginning of this stage's burn, assuming no jettisoned stages (t)
-		massAt : function (stage, atm, time) {
+		massAt : function (stage, time) {
 			var mass;
 			
 			if (time > 0) {
-				var timeEmpty = KSP.Stages.timeStage(stage, atm);
+				var timeEmpty = KSP.Stages.timeStage(stage);
 				
 				if (time < timeEmpty) {
 					mass = KSP.Stage.massStart(stage) - (consumption * time);
@@ -363,9 +353,9 @@ var KSP = {
 				
 				if (stage.next) {
 					if (stage.parallel && !stage.asparagus) {
-						mass += KSP.Stages.massAt(stage.next, atm, time);
+						mass += KSP.Stages.massAt(stage.next, time);
 					} else {
-						mass += KSP.Stages.massAt(stage.next, atm, time - timeEmpty);
+						mass += KSP.Stages.massAt(stage.next, time - timeEmpty);
 					}
 				}
 			} else {
@@ -376,9 +366,9 @@ var KSP = {
 		},
 		
 		//Total mass of all stages at end of burn of this stage (t)
-		massEndStage : function (stage, atm) {
+		massEndStage : function (stage) {
 			if (stage.parallel && !stage.asparagus) {
-				return KSP.Stages.massAt(stage, atm, KSP.Stages.timeStage(stage, atm));
+				return KSP.Stages.massAt(stage, KSP.Stages.timeStage(stage));
 			}
 			return KSP.Stage.massEndStage(stage) +
 				(stage.next ? KSP.Stages.massStart(stage.next) : 0);
@@ -395,20 +385,20 @@ var KSP = {
 			return (KSP.Stages.thrust(stage, atm) / (KSP.Stages.massStart(stage) * planet.gravity)) || 0;
 		},
 		
-		//Total stage fuel consumption at specified atmospheric pressure (t/s)
-		consumption : function (stage, atm) {
-			return KSP.Stage.consumption(stage, atm) +
-				(stage.parallel ? KSP.Stages.consumption(stage.next, atm) : 0);
+		//Total stage fuel consumption (t/s)
+		consumption : function (stage) {
+			return KSP.Stage.consumption(stage) +
+				(stage.parallel ? KSP.Stages.consumption(stage.next) : 0);
 		},
 		
 		//Combined specific impulse at atmospheric pressure (m/s)
 		impulse : function (stage, atm) {
-			return (KSP.Stages.thrust(stage, atm) / KSP.Stages.consumption(stage, atm)) || 0;
+			return (KSP.Stages.thrust(stage, atm) / KSP.Stages.consumption(stage)) || 0;
 		},
 		
 		//Delta-V at atmospheric pressure of this stage only (m/s)
 		deltaVStage : function (stage, atm) {
-			return (Math.log((KSP.Stages.massStart(stage) * 1000) / (KSP.Stages.massEndStage(stage, atm) * 1000)) * KSP.Stages.impulse(stage, atm)) || 0;
+			return (Math.log((KSP.Stages.massStart(stage) * 1000) / (KSP.Stages.massEndStage(stage) * 1000)) * KSP.Stages.impulse(stage, atm)) || 0;
 		},
 		
 		//Delta-V at atmospheric pressure of all stages (m/s)
@@ -417,22 +407,22 @@ var KSP = {
 				(stage.next ? KSP.Stages.deltaVTotal(stage.next, atm) : 0);
 		},
 		
-		//Time required to use all fuel in this stage at full thrust at specified atmospheric pressure (s)
-		timeStage : function (stage, atm) {
-			return (KSP.Stage.massFuelStart(stage) / KSP.Stages.consumption(stage, atm)) || 0;
+		//Time required to use all fuel in this stage at full thrust (s)
+		timeStage : function (stage) {
+			return (KSP.Stage.massFuelStart(stage) / KSP.Stages.consumption(stage)) || 0;
 		},
 		
-		//Time required to use all fuel in all stages at full thrust at specified atmospheric pressure (s)
-		timeTotal : function (stage, atm) {
-			var time = KSP.Stages.timeStage(stage, atm);
+		//Time required to use all fuel in all stages at full thrust (s)
+		timeTotal : function (stage) {
+			var time = KSP.Stages.timeStage(stage);
 			
 			while (stage.next && stage.parallel && !stage.asparagus) {
-				time = Math.max(time, KSP.Stages.timeStage(stage.next, atm));
+				time = Math.max(time, KSP.Stages.timeStage(stage.next));
 				stage = stage.next;
 			}
 			
 			if (stage.next) {
-				time += KSP.Stages.timeTotal(stage.next, atm);
+				time += KSP.Stages.timeTotal(stage.next);
 			}
 			
 			return time;
@@ -802,7 +792,7 @@ function findOptimalStage(args) {
 			}
 			
 			var twr = KSP.Stages.twr(stage, args.atm, args.planet);
-			var time = KSP.Stages.timeStage(stage, args.atm);
+			var time = KSP.Stages.timeStage(stage);
 			if (twr > args.maxTWR || time < args.minTime || time > args.maxTime) {
 				continue nextBooster;
 			} else {
