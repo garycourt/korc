@@ -27,23 +27,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 var PLANETS = [
-    {name:"None", gravity:0},
-	{name:"Moho", gravity:2.70},
-	{name:"Eve", gravity:16.7},
-	{name:"Gilly", gravity:0.049},
-	{name:"Kerbin", gravity:9.81},
-	{name:"Mun", gravity:1.63},
-	{name:"Minmus", gravity:0.491},
-	{name:"Duna", gravity:2.94},
-	{name:"Ike", gravity:1.10},
-	{name:"Dres", gravity:1.13},
-	{name:"Jool", gravity:7.85},
-	{name:"Laythe", gravity:7.85},
-	{name:"Vall", gravity:2.31},
-	{name:"Tylo", gravity:7.85},
-	{name:"Bop", gravity:0.589},
-	{name:"Pol", gravity:0.373},
-	{name:"Eeloo", gravity:1.69}
+    {name:"None", gravity:0, atmosphere : 0},
+	{name:"Moho", gravity:2.70, atmosphere : 0},
+	{name:"Eve", gravity:16.7, atmosphere : 5},
+	{name:"Gilly", gravity:0.049, atmosphere : 0},
+	{name:"Kerbin", gravity:9.81, atmosphere : 1},
+	{name:"Mun", gravity:1.63, atmosphere : 0},
+	{name:"Minmus", gravity:0.491, atmosphere : 0},
+	{name:"Duna", gravity:2.94, atmosphere : 0.0666667},
+	{name:"Ike", gravity:1.10, atmosphere : 0},
+	{name:"Dres", gravity:1.13, atmosphere : 0},
+	{name:"Jool", gravity:7.85, atmosphere : 15},
+	{name:"Laythe", gravity:7.85, atmosphere : 0.6},
+	{name:"Vall", gravity:2.31, atmosphere : 0},
+	{name:"Tylo", gravity:7.85, atmosphere : 0},
+	{name:"Bop", gravity:0.589, atmosphere : 0},
+	{name:"Pol", gravity:0.373, atmosphere : 0},
+	{name:"Eeloo", gravity:1.69, atmosphere : 0}
 ];
 
 var TYPES = {
@@ -70,22 +70,22 @@ var PACKS = [
 		name:"Stock 1.0.5",
 		parts:[
 			//LF/O Engines
-			{"name":"S3 KS-25x4 \"Mammoth\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":3,"cost":39000,"mass":15,"thrust_min":0,"thrust_max":4000,"throttleable":true,"isp_vac":315,"isp_atm":295,"thrust_atm":3746.031746031746,"thrust_vac":4000,"gimbal":2,"last":true},
-			{"name":"Kerbodyne KR-2L+ \"Rhino\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":3,"cost":25000,"mass":9,"thrust_min":0,"thrust_max":2000,"throttleable":true,"isp_vac":340,"isp_atm":255,"thrust_atm":1500,"thrust_vac":2000,"gimbal":4},
-			{"name":"RE-M3 \"Mainsail\" Liquid Engine","type":TYPES.LFO_ENGINE,"size":2,"cost":13000,"mass":6,"thrust_min":0,"thrust_max":1500,"throttleable":true,"isp_vac":310,"isp_atm":285,"thrust_atm":1379.032258064516,"thrust_vac":1500,"gimbal":2},
-			{"name":"RE-I5 \"Skipper\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":2,"cost":5300,"mass":3,"thrust_min":0,"thrust_max":650,"throttleable":true,"isp_vac":320,"isp_atm":280,"thrust_atm":568.75,"thrust_vac":650,"gimbal":2},
-			{"name":"RE-L10 \"Poodle\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":2,"cost":1300,"mass":1.75,"thrust_min":0,"thrust_max":250,"throttleable":true,"isp_vac":350,"isp_atm":90,"thrust_atm":64.28571428571429,"thrust_vac":250,"gimbal":4.5},
-			{"name":"S3 KS-25 \"Vector\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":18000,"mass":4,"thrust_min":0,"thrust_max":1000,"throttleable":true,"isp_vac":315,"isp_atm":295,"thrust_atm":936.5079365079365,"thrust_vac":1000,"gimbal":10.5},
-			{"name":"CR-7 R.A.P.I.E.R. Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":6000,"mass":2,"thrust_min":0,"thrust_max":180,"throttleable":true,"isp_vac":305,"isp_atm":275,"thrust_atm":162.29508196721312,"thrust_vac":180,"gimbal":3},
-			{"name":"LV-T45 \"Swivel\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":1200,"mass":1.5,"thrust_min":0,"thrust_max":200,"throttleable":true,"isp_vac":320,"isp_atm":270,"thrust_atm":168.75,"thrust_vac":200,"gimbal":3},
-			{"name":"LV-T30 \"Reliant\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":1100,"mass":1.25,"thrust_min":0,"thrust_max":215,"throttleable":true,"isp_vac":300,"isp_atm":280,"thrust_atm":200.66666666666666,"thrust_vac":215},
-			{"name":"T-1 Toroidal Aerospike \"Dart\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":3850,"mass":1,"thrust_min":0,"thrust_max":180,"throttleable":true,"thrust_atm":null,"thrust_vac":180},
-			{"name":"LV-909 \"Terrier\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":390,"mass":0.5,"thrust_min":0,"thrust_max":60,"throttleable":true,"isp_vac":345,"isp_atm":85,"thrust_atm":14.782608695652174,"thrust_vac":60,"gimbal":4},
-			{"name":"48-7S \"Spark\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":0,"cost":200,"mass":0.1,"thrust_min":0,"thrust_max":18,"throttleable":true,"isp_vac":300,"isp_atm":270,"thrust_atm":16.2,"thrust_vac":18,"gimbal":3},
-			{"name":"LV-1 \"Ant\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":0,"cost":110,"mass":0.02,"thrust_min":0,"thrust_max":2,"throttleable":true,"isp_vac":315,"isp_atm":80,"thrust_atm":0.507936507936508,"thrust_vac":2},
-			{"name":"Mk-55 \"Thud\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":-1,"cost":820,"mass":0.9,"thrust_min":0,"thrust_max":120,"throttleable":true,"isp_vac":305,"isp_atm":275,"thrust_atm":108.19672131147541,"thrust_vac":120,"gimbal":8,"last":true,"radial":true},
-			{"name":"24-77 \"Twitch\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":-1,"cost":400,"mass":0.09,"thrust_min":0,"thrust_max":16,"throttleable":true,"isp_vac":290,"isp_atm":250,"thrust_atm":13.793103448275861,"thrust_vac":16,"gimbal":8,"last":true,"radial":true},
-			{"name":"LV-1R \"Spider\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":-1,"cost":120,"mass":0.02,"thrust_min":0,"thrust_max":2,"throttleable":true,"isp_vac":290,"isp_atm":260,"thrust_atm":1.793103448275862,"thrust_vac":2,"gimbal":8,"last":true,"radial":true},
+			{"name":"S3 KS-25x4 \"Mammoth\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":3,"cost":39000,"mass":15,"thrust_min":0,"thrust_max":4000,"throttleable":true,"isp_vac":315,"ispcuveAtm":[0,1,12],"ispcuveIsp":[315,295,0.001],"ispcuveInTan":[null,null,null],"ispcuveOutTan":[null,null,null],"gimbal":2,"last":true},
+			{"name":"Kerbodyne KR-2L+ \"Rhino\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":3,"cost":25000,"mass":9,"thrust_min":0,"thrust_max":2000,"throttleable":true,"isp_vac":340,"ispcuveAtm":[0,1,5],"ispcuveIsp":[340,255,0.001],"ispcuveInTan":[null,null,null],"ispcuveOutTan":[null,null,null],"gimbal":4},
+			{"name":"RE-M3 \"Mainsail\" Liquid Engine","type":TYPES.LFO_ENGINE,"size":2,"cost":13000,"mass":6,"thrust_min":0,"thrust_max":1500,"throttleable":true,"isp_vac":310,"ispcuveAtm":[0,1,9],"ispcuveIsp":[310,285,0.001],"ispcuveInTan":[null,null,null],"ispcuveOutTan":[null,null,null],"gimbal":2},
+			{"name":"RE-I5 \"Skipper\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":2,"cost":5300,"mass":3,"thrust_min":0,"thrust_max":650,"throttleable":true,"isp_vac":320,"ispcuveAtm":[0,1,6],"ispcuveIsp":[320,280,0.001],"ispcuveInTan":[null,null,null],"ispcuveOutTan":[null,null,null],"gimbal":2},
+			{"name":"RE-L10 \"Poodle\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":2,"cost":1300,"mass":1.75,"thrust_min":0,"thrust_max":250,"throttleable":true,"isp_vac":350,"ispcuveAtm":[0,1,3],"ispcuveIsp":[350,90,0.001],"ispcuveInTan":[null,null,null],"ispcuveOutTan":[null,null,null],"gimbal":4.5},
+			{"name":"S3 KS-25 \"Vector\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":18000,"mass":4,"thrust_min":0,"thrust_max":1000,"throttleable":true,"isp_vac":315,"ispcuveAtm":[0,1,12],"ispcuveIsp":[315,295,0.001],"ispcuveInTan":[null,null,null],"ispcuveOutTan":[null,null,null],"gimbal":10.5},
+			{"name":"CR-7 R.A.P.I.E.R. Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":6000,"mass":2,"thrust_min":0,"thrust_max":180,"throttleable":true,"isp_vac":305,"ispcuveAtm":[0,1,9],"ispcuveIsp":[305,275,0.001],"ispcuveInTan":[null,null,null],"ispcuveOutTan":[null,null,null],"gimbal":3},
+			{"name":"LV-T45 \"Swivel\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":1200,"mass":1.5,"thrust_min":0,"thrust_max":200,"throttleable":true,"isp_vac":320,"ispcuveAtm":[0,1,6],"ispcuveIsp":[320,270,0.001],"ispcuveInTan":[null,null,null],"ispcuveOutTan":[null,null,null],"gimbal":3},
+			{"name":"LV-T30 \"Reliant\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":1100,"mass":1.25,"thrust_min":0,"thrust_max":215,"throttleable":true,"isp_vac":300,"ispcuveAtm":[0,1,7],"ispcuveIsp":[300,280,0.001],"ispcuveInTan":[null,null,null],"ispcuveOutTan":[null,null,null]},
+			{"name":"T-1 Toroidal Aerospike \"Dart\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":3850,"mass":1,"thrust_min":0,"thrust_max":180,"throttleable":true,"isp_vac":340,"ispcuveAtm":[0,1,5,10,20],"ispcuveIsp":[340,290,230,170,0.001],"ispcuveInTan":[-50,-21.23404,-10.54119,-13.59091,null],"ispcuveOutTan":[-73.71224,-21.23404,-10.54119,-13.59091,null]},
+			{"name":"LV-909 \"Terrier\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":390,"mass":0.5,"thrust_min":0,"thrust_max":60,"throttleable":true,"isp_vac":345,"ispcuveAtm":[0,1,3],"ispcuveIsp":[345,85,0.001],"ispcuveInTan":[null,null,null],"ispcuveOutTan":[null,null,null],"gimbal":4},
+			{"name":"48-7S \"Spark\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":0,"cost":200,"mass":0.1,"thrust_min":0,"thrust_max":18,"throttleable":true,"isp_vac":300,"ispcuveAtm":[0,1,7],"ispcuveIsp":[300,270,0.001],"ispcuveInTan":[null,null,null],"ispcuveOutTan":[null,null,null],"gimbal":3},
+			{"name":"LV-1 \"Ant\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":0,"cost":110,"mass":0.02,"thrust_min":0,"thrust_max":2,"throttleable":true,"isp_vac":315,"ispcuveAtm":[0,1,3],"ispcuveIsp":[315,80,0.001],"ispcuveInTan":[null,null,null],"ispcuveOutTan":[null,null,null]},
+			{"name":"Mk-55 \"Thud\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":-1,"cost":820,"mass":0.9,"thrust_min":0,"thrust_max":120,"throttleable":true,"isp_vac":305,"ispcuveAtm":[0,1,9],"ispcuveIsp":[305,275,0.001],"ispcuveInTan":[null,null,null],"ispcuveOutTan":[null,null,null],"gimbal":8,"last":true,"radial":true},
+			{"name":"24-77 \"Twitch\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":-1,"cost":400,"mass":0.09,"thrust_min":0,"thrust_max":16,"throttleable":true,"isp_vac":290,"ispcuveAtm":[0,1,7],"ispcuveIsp":[290,250,0.001],"ispcuveInTan":[null,null,null],"ispcuveOutTan":[null,null,null],"gimbal":8,"last":true,"radial":true},
+			{"name":"LV-1R \"Spider\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":-1,"cost":120,"mass":0.02,"thrust_min":0,"thrust_max":2,"throttleable":true,"isp_vac":290,"ispcuveAtm":[0,1,8],"ispcuveIsp":[290,260,0.001],"ispcuveInTan":[null,null,null],"ispcuveOutTan":[null,null,null],"gimbal":8,"last":true,"radial":true},
 			
 			//LF/O Tanks
 			{"name":"Kerbodyne S3-14400 Tank","type":TYPES.LFO_TANK,"size":3,"cost":13000,"mass":9,"mass_fuel":72},
@@ -103,12 +103,12 @@ var PACKS = [
 			{"name":"Oscar-B Fuel Tank","type":TYPES.LFO_TANK,"size":0,"cost":70,"mass":0.025,"mass_fuel":0.2},
 
 			//Boosters
-			{"name":"LFB KR-1x2 \"Twin-Boar\" Liquid Fuel Engine","type":TYPES.BOOSTER,"size":2,"cost":17000,"mass":10.5,"thrust_min":0,"thrust_max":2000,"throttleable":true,"isp_vac":300,"isp_atm":280,"thrust_atm":1866.6666666666667,"thrust_vac":2000,"gimbal":1.5,"mass_fuel":32,"last":true},
-			{"name":"S1 SRB-KD25k \"Kickback\" Solid Fuel Booster","type":TYPES.BOOSTER,"size":1,"cost":2700,"mass":4.5,"thrust_min":0,"thrust_max":670,"throttleable":false,"isp_vac":220,"isp_atm":195,"thrust_atm":593.8636363636364,"thrust_vac":670,"mass_fuel":19.5},
-			{"name":"BACC \"Thumper\" Solid Fuel Booster","type":TYPES.BOOSTER,"size":1,"cost":850,"mass":1.5,"thrust_min":0,"thrust_max":300,"throttleable":false,"isp_vac":210,"isp_atm":175,"thrust_atm":250,"thrust_vac":300,"mass_fuel":6.1499999999999995},
-			{"name":"RT-10 \"Hammer\" Solid Fuel Booster","type":TYPES.BOOSTER,"size":1,"cost":400,"mass":0.75,"thrust_min":0,"thrust_max":227,"throttleable":false,"isp_vac":195,"isp_atm":170,"thrust_atm":197.8974358974359,"thrust_vac":227,"mass_fuel":2.8125},
-			{"name":"RT-5 \"Flea\" Solid Fuel Booster","type":TYPES.BOOSTER,"size":1,"cost":200,"mass":0.45,"thrust_min":0,"thrust_max":192,"throttleable":false,"isp_vac":165,"isp_atm":140,"thrust_atm":162.9090909090909,"thrust_vac":192,"mass_fuel":1.05},
-			{"name":"Sepratron I","type":TYPES.BOOSTER,"size":-1,"cost":75,"mass":0.0125,"thrust_min":0,"thrust_max":18,"throttleable":false,"isp_vac":154,"isp_atm":118,"thrust_atm":13.792207792207792,"thrust_vac":18,"mass_fuel":0.06,"last":true,"radial":true},
+			{"name":"LFB KR-1x2 \"Twin-Boar\" Liquid Fuel Engine","type":TYPES.BOOSTER,"size":2,"cost":17000,"mass":10.5,"thrust_min":0,"thrust_max":2000,"throttleable":true,"isp_vac":300,"ispcuveAtm":[0,1,9],"ispcuveIsp":[300,280,0.001],"ispcuveInTan":[null,null,null],"ispcuveOutTan":[null,null,null],"gimbal":1.5,"mass_fuel":32,"last":true},
+			{"name":"S1 SRB-KD25k \"Kickback\" Solid Fuel Booster","type":TYPES.BOOSTER,"size":1,"cost":2700,"mass":4.5,"thrust_min":0,"thrust_max":670,"throttleable":false,"isp_vac":220,"ispcuveAtm":[0,1,7],"ispcuveIsp":[220,195,0.001],"ispcuveInTan":[null,null,null],"ispcuveOutTan":[null,null,null],"mass_fuel":19.5},
+			{"name":"BACC \"Thumper\" Solid Fuel Booster","type":TYPES.BOOSTER,"size":1,"cost":850,"mass":1.5,"thrust_min":0,"thrust_max":300,"throttleable":false,"isp_vac":210,"ispcuveAtm":[0,1,6],"ispcuveIsp":[210,175,0.001],"ispcuveInTan":[null,null,null],"ispcuveOutTan":[null,null,null],"mass_fuel":6.1499999999999995},
+			{"name":"RT-10 \"Hammer\" Solid Fuel Booster","type":TYPES.BOOSTER,"size":1,"cost":400,"mass":0.75,"thrust_min":0,"thrust_max":227,"throttleable":false,"isp_vac":195,"ispcuveAtm":[0,1,7],"ispcuveIsp":[195,170,0.001],"ispcuveInTan":[null,null,null],"ispcuveOutTan":[null,null,null],"mass_fuel":2.8125},
+			{"name":"RT-5 \"Flea\" Solid Fuel Booster","type":TYPES.BOOSTER,"size":1,"cost":200,"mass":0.45,"thrust_min":0,"thrust_max":192,"throttleable":false,"isp_vac":165,"ispcuveAtm":[0,1,6],"ispcuveIsp":[165,140,0.001],"ispcuveInTan":[null,null,null],"ispcuveOutTan":[null,null,null],"mass_fuel":1.05},
+			{"name":"Sepratron I","type":TYPES.BOOSTER,"size":-1,"cost":75,"mass":0.0125,"thrust_min":0,"thrust_max":18,"throttleable":false,"isp_vac":154,"ispcuveAtm":[0,1,6],"ispcuveIsp":[154,118,0.001],"ispcuveInTan":[null,null,null],"ispcuveOutTan":[null,null,null],"mass_fuel":0.06,"last":true,"radial":true},
 			
 			//Decouplers
 			{"name":"TR-38-D","type":TYPES.DECOUPLER,"size":3,"cost":600,"mass":0.8,"ejection_force":100},
@@ -133,7 +133,7 @@ var PACKS = [
 	}
 ];
 
-var NO_ENGINE = {name:"", type:TYPES.LFO_ENGINE, size:0, cost:0, mass:0, thrust_min:0, thrust_max:0, isp_vac:0, isp_atm:0, thrust_atm:0, thrust_vac:0};
+var NO_ENGINE = {name:"", type:TYPES.LFO_ENGINE, size:0, cost:0, mass:0, thrust_min:0, thrust_max:0, isp_vac:0, ispcuveAtm:[0,1],ispcuveIsp:[0,0],ispcuveInTan:[null,null],ispcuveOutTan:[null,null]};
 var FUEL_DUCT = {name:"FTX-2 External Fuel Duct", type:TYPES.DUCT, size:"radial", cost:650, mass:0, radial:true};  //mass:0.05, but have no mass in flight
 
 var CONVERSION_FACTOR = 9.80664;  //m/s^2
@@ -158,6 +158,23 @@ function pluckNumber(key, obj) {
 
 function sum(a, b) {
 	return a + b;
+}
+
+// calculates the tangent or slope between two points in an atmosphere curve
+// the same way that Unity does it (average of the slope to the previous and followin point)
+function getIntervalSlope(i,amtkeys,ispkeys){
+	var slope = 0;
+	var count = 0;
+	if (i > 0){
+		slope = (ispkeys[i]-ispkeys[i-1]) / (amtkeys[i] - amtkeys[i-1]);
+		count++;
+	}
+	if (i < amtkeys.length-1){
+		slope += (ispkeys[i+1]-ispkeys[i]) / (amtkeys[i+1] - amtkeys[i]);
+		count++;
+	}
+	slope /= count;
+	return slope;
 }
 
 var KSP = {
@@ -197,6 +214,49 @@ var KSP = {
 		consumption : function (engine) {
 			return (engine.thrust_max  / (engine.isp_vac * CONVERSION_FACTOR)) || 0;
 		},
+		
+		//Engine ISP at the given atmospheric pressure
+		isp : function (atm, engine) {
+			// first find the interval where atm is
+			var amtkeys = engine.ispcuveAtm;
+			var ispkeys = engine.ispcuveIsp;
+			var InTanKeys = engine.ispcuveInTan;
+			var OutTanKeys = engine.ispcuveOutTan;
+			for (var i = 0; i < amtkeys.length-1; i++) {
+				if (atm >= amtkeys[i] && atm < amtkeys[i+1]){
+					// then convert atm to t
+					var intervalWidth = (amtkeys[i+1] - amtkeys[i]);
+					var t = (atm - amtkeys[i]) / intervalWidth;
+					// Calculate the tangents if they are not provided (average of the neigbors)
+					var OutTan;
+					var InTan;
+			
+					if (OutTanKeys[i] == null)
+						OutTan = getIntervalSlope(i,amtkeys,ispkeys);
+					else
+						OutTan = OutTanKeys[i];
+			
+					if (InTanKeys[i+1] == null)
+						InTan = getIntervalSlope(i+1,amtkeys,ispkeys);
+					else
+						InTan = InTanKeys[i+1];
+					// and scale the tangents for the interval
+					OutTan *= intervalWidth;
+					InTan *= intervalWidth;
+					// evaluate t using the Cubic Hermite spline formula
+					var t2 = t * t;
+					var t3 = t2 * t;
+					var val = (2*t3-3*t2+1)*ispkeys[i] + (t3-2*t2+t)*OutTan + (-2*t3+3*t2)*ispkeys[i+1] + (t3-t2)*InTan;
+					return val;
+				}
+			}
+			// if atm is not in any interval it is assumed it is beyond the last value so that one is returned (usually 0)
+			return ispkeys[ispkeys.length-1];
+		},
+		//Engine thrust at the given atmospheric pressure
+		thrust : function (atm, engine) {
+			return KSP.Engine.isp(atm, engine) * KSP.Engine.consumption(engine) * CONVERSION_FACTOR;
+		},
 
 	},
 	
@@ -228,8 +288,8 @@ var KSP = {
 		//Thrust of active engines during this stage only (kN)
 		thrust : function (stage, atm) {
 			return (
-				(stage.lfoEngines ? stage.lfoEngines.map(pluckNumber.bind(this, (atm ? "thrust_atm" : "thrust_vac"))).reduce(sum, 0) : 0) + 
-				(stage.boosters ? stage.boosters.map(pluckNumber.bind(this, (atm ? "thrust_atm" : "thrust_vac"))).reduce(sum, 0) : 0)
+				(stage.lfoEngines ? stage.lfoEngines.map(KSP.Engine.thrust.bind(this, atm)).reduce(sum, 0) : 0) + 
+				(stage.boosters ? stage.boosters.map(KSP.Engine.thrust.bind(this, atm)).reduce(sum, 0) : 0)
 			) * (stage.multiplier || 1);
 		},
 		
