@@ -660,7 +660,7 @@ function findOptimalStage(args) {
 							}
 							
 							var twr = KSP.Stages.twr(stage, args.atm, args.planet);
-							var time = KSP.Stages.timeStage(stage, args.atm);
+							var time = KSP.Stages.timeStage(stage);
 							
 							if (twr < args.minTWR || time > args.maxTime) {
 								if (KSP.Stages.deltaVStage(stage, args.atm) >= args.deltaV) {
