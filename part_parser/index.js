@@ -66,7 +66,7 @@ findFiles(partDir).map(parseFile).forEach(function (fileParts) {
 	if (parts) {
 		parts.forEach(function (part) {
 			var result = {
-			    	name : part.title ? part.title[part.title.length-1] : part.name[part.name.length-1], 
+				name : part.title ? part.title[part.title.length-1] : part.name[part.name.length-1], 
 				type : "TYPES.UNKNOWN", 
 				size : -1,
 				cost : part.cost ? parseInt(part.cost[part.cost.length-1]) : 0, 
