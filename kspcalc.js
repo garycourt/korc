@@ -67,7 +67,7 @@ var TYPE_NAMES_PLURAL = {
 
 var PACKS = [
 	{
-		name:"Stock 1.0.5",
+		name:"Stock 1.2",
 		parts:[
 			//LF/O Engines
 			{"name":"S3 KS-25x4 \"Mammoth\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":3,"cost":39000,"mass":15,"thrust_min":0,"thrust_max":4000,"throttleable":true,"isp_vac":315,"isp_atm":295,"thrust_atm":3746.031746031746,"thrust_vac":4000,"gimbal":2,"last":true},
