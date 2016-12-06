@@ -205,7 +205,7 @@ function peg$parse(input, options) {
       peg$c37 = function(garbage) {
         $garbage.push({
           start : location().start,
-          end	  : location().end,
+          end   : location().end,
           value : garbage.join("")
         });
         return; 
@@ -213,7 +213,7 @@ function peg$parse(input, options) {
       peg$c38 = function(garbage) {
         if (garbage.length) $garbage.push({
           start : location().start,
-          end	  : location().end,
+          end   : location().end,
           value : garbage.join("")
         });
         return; 

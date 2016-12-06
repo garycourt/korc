@@ -59,7 +59,7 @@ GARBAGE = garbage:[^\n{}]+ ("\n" / EOF)
 {
   $garbage.push({
     start : location().start,
-    end	  : location().end,
+    end   : location().end,
     value : garbage.join("")
   });
   return; 
@@ -69,7 +69,7 @@ EOF_GARBAGE = garbage:.* EOF
 {
   if (garbage.length) $garbage.push({
     start : location().start,
-    end	  : location().end,
+    end   : location().end,
     value : garbage.join("")
   });
   return; 
