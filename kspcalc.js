@@ -77,9 +77,9 @@ var PACKS = [
 			{"name":"RE-L10 \"Poodle\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":2,"cost":1300,"mass":1.75,"thrust_min":0,"thrust_max":250,"throttleable":true,"isp_vac":350,"isp_atm":90,"thrust_atm":64.28571428571429,"thrust_vac":250,"gimbal":4.5},
 			{"name":"S3 KS-25 \"Vector\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":18000,"mass":4,"thrust_min":0,"thrust_max":1000,"throttleable":true,"isp_vac":315,"isp_atm":295,"thrust_atm":936.5079365079365,"thrust_vac":1000,"gimbal":10.5},
 			{"name":"CR-7 R.A.P.I.E.R. Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":6000,"mass":2,"thrust_min":0,"thrust_max":180,"throttleable":true,"isp_vac":305,"isp_atm":275,"thrust_atm":162.29508196721312,"thrust_vac":180,"gimbal":3},
-			{"name":"LV-T45 \"Swivel\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":1200,"mass":1.5,"thrust_min":0,"thrust_max":215,"throttleable":true,"isp_vac":320,"isp_atm":250,"thrust_atm":167.96875,"thrust_vac":215,"gimbal":3},
-			{"name":"LV-T30 \"Reliant\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":1100,"mass":1.25,"thrust_min":0,"thrust_max":240,"throttleable":true,"isp_vac":310,"isp_atm":265,"thrust_atm":205.16129032258064,"thrust_vac":240},
-			{"name":"T-1 Toroidal Aerospike \"Dart\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":3850,"mass":1,"thrust_min":0,"thrust_max":180,"throttleable":true,"thrust_atm":null,"thrust_vac":180},
+			{"name":"LV-T45 \"Swivel\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":1200,"mass":1.5,"thrust_min":0,"thrust_max":200,"throttleable":true,"isp_vac":320,"isp_atm":270,"thrust_atm":168.75,"thrust_vac":200,"gimbal":3},
+			{"name":"LV-T30 \"Reliant\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":1100,"mass":1.25,"thrust_min":0,"thrust_max":215,"throttleable":true,"isp_vac":300,"isp_atm":280,"thrust_atm":200.66666666666666,"thrust_vac":215},
+			{"name":"T-1 Toroidal Aerospike \"Dart\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":3850,"mass":1,"thrust_min":0,"thrust_max":180,"throttleable":true,"isp_vac":340,"isp_atm":290,"thrust_atm":153.529,"thrust_vac":180},
 			{"name":"LV-909 \"Terrier\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":1,"cost":390,"mass":0.5,"thrust_min":0,"thrust_max":60,"throttleable":true,"isp_vac":345,"isp_atm":85,"thrust_atm":14.782608695652174,"thrust_vac":60,"gimbal":4},
 			{"name":"48-7S \"Spark\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":0,"cost":240,"mass":0.1,"thrust_min":0,"thrust_max":20,"throttleable":true,"isp_vac":320,"isp_atm":270,"thrust_atm":16.875,"thrust_vac":20,"gimbal":3},
 			{"name":"LV-1 \"Ant\" Liquid Fuel Engine","type":TYPES.LFO_ENGINE,"size":0,"cost":110,"mass":0.02,"thrust_min":0,"thrust_max":2,"throttleable":true,"isp_vac":315,"isp_atm":80,"thrust_atm":0.507936507936508,"thrust_vac":2},
@@ -141,7 +141,7 @@ var PACKS = [
 var NO_ENGINE = {name:"", type:TYPES.LFO_ENGINE, size:0, cost:0, mass:0, thrust_min:0, thrust_max:0, isp_vac:0, isp_atm:0, thrust_atm:0, thrust_vac:0};
 var FUEL_DUCT = {name:"FTX-2 External Fuel Duct", type:TYPES.DUCT, size:"radial", cost:650, mass:0, radial:true};  //mass:0.05, but have no mass in flight
 
-var CONVERSION_FACTOR = 9.82;  //m/s^2
+var CONVERSION_FACTOR = 9.81;  //m/s^2
 
 var OPTIMIZATION_NAMES = {
 	"mass" : "Mass",
