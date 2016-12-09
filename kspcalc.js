@@ -120,7 +120,7 @@ var PACKS = [
 			{"name":"Heat Shield (1.25m)","type":TYPES.DECOUPLER,"size":1,"cost":300,"mass":0.1,"ejection_force":100},
 			{"name":"TR-18D Stack Separator","type":TYPES.DECOUPLER,"size":1,"cost":600,"mass":0.075,"ejection_force":250},
 			{"name":"TR-18A Stack Decoupler","type":TYPES.DECOUPLER,"size":1,"cost":400,"mass":0.05,"ejection_force":250},
-			{"name":"Heat Shield (0.625m)","type":TYPES.DECOUPLER,"size":1,"cost":150,"mass":0.025,"ejection_force":50},
+			{"name":"Heat Shield (0.625m)","type":TYPES.DECOUPLER,"size":0,"cost":150,"mass":0.025,"ejection_force":50},
 			{"name":"TR-2C Stack Separator","type":TYPES.DECOUPLER,"size":0,"cost":450,"mass":0.02,"ejection_force":15},
 			{"name":"TR-2V Stack Decoupler","type":TYPES.DECOUPLER,"size":0,"cost":300,"mass":0.015,"ejection_force":15},
 			{"name":"Hydraulic Detachment Manifold","type":TYPES.DECOUPLER,"size":-1,"cost":770,"mass":0.4,"ejection_force":450,"last":true,"radial":true},
