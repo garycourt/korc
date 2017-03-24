@@ -23,7 +23,7 @@ VAR = text:[0-9A-Za-z_,]+ { return text.join(""); }
 SLASH = text:("/" !"/") { return "/"; }
 VALUE = text:([^\n/] / SLASH)+ { return trim(text.join("")); }
 
-VARIABLE = name:VAR WS+ "=" WS+ value:VALUE NIL
+VARIABLE = NIL name:VAR WS* "=" WS* value:VALUE? NIL
 {
   return [name, value];
 }
@@ -58,8 +58,8 @@ PROPERTIES = properties:(BLOCK / VARIABLE / GARBAGE)*
 GARBAGE = garbage:[^\n{}]+ ("\n" / EOF) 
 {
   $garbage.push({
-    line : line(),
-    column : column(),
+    start : location().start,
+    end   : location().end,
     value : garbage.join("")
   });
   return; 
@@ -68,8 +68,8 @@ GARBAGE = garbage:[^\n{}]+ ("\n" / EOF)
 EOF_GARBAGE = garbage:.* EOF
 {
   if (garbage.length) $garbage.push({
-    line : line(),
-    column : column(),
+    start : location().start,
+    end   : location().end,
     value : garbage.join("")
   });
   return; 
