@@ -1,8 +1,11 @@
 {
   var trim = function (str) {
-    return str.replace(/\s+$/, "");
+    var result = str.replace(/\s+$/, "");
+    //Also get rid of AUTOLOC junk
+    var newresult = result.replace(/#autoLOC_[0-9]+.*#autoLOC_[0-9]+.*= /,"");
+    return newresult;
   };
-  
+
   var $garbage = [];
 }
 
@@ -15,13 +18,16 @@ START = NIL blocks:PROPERTIES NIL EOF_GARBAGE
 EOF = !.
 WS = " " / "\t" / "\uFEFF" { return; }
 LF = "\r" / "\n" { return; }
-COMMENT = "//" [^\n]+ { return; }
+COMMENT = "//"!"#" [^\n]+ { return; }
 NIL = (WS / LF / COMMENT)* { return; }
 
 ANY = text:[^\n]+ { return trim(text.join("")); }
 VAR = text:[0-9A-Za-z_,]+ { return text.join(""); }
 SLASH = text:("/" !"/") { return "/"; }
-VALUE = text:([^\n/] / SLASH)+ { return trim(text.join("")); }
+VALUE = text:([^\n] / SLASH )+ {
+    return trim(text.join("")); 
+}
+
 
 VARIABLE = NIL name:VAR WS* "=" WS* value:VALUE? NIL
 {
@@ -55,14 +61,14 @@ PROPERTIES = properties:(BLOCK / VARIABLE / GARBAGE)*
 
 /* Ignores illegal entries */
 
-GARBAGE = garbage:[^\n{}]+ ("\n" / EOF) 
+GARBAGE = garbage:[^\n{}]+ ("\n" / EOF)
 {
   $garbage.push({
     start : location().start,
     end   : location().end,
     value : garbage.join("")
   });
-  return; 
+  return;
 }
 
 EOF_GARBAGE = garbage:.* EOF
@@ -72,5 +78,5 @@ EOF_GARBAGE = garbage:.* EOF
     end   : location().end,
     value : garbage.join("")
   });
-  return; 
+  return;
 }
